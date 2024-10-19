@@ -1,6 +1,7 @@
 package ptithcm.tttn.entity;
 
 import lombok.Data;
+import net.minidev.json.annotate.JsonIgnore;
 
 import javax.persistence.*;
 @Data
@@ -23,6 +24,7 @@ public class Cart_detail {
     private String product_id;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "customer_id",insertable = false,updatable = false)
     private Customer customer_cart;
 

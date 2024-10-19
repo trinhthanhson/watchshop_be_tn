@@ -12,4 +12,7 @@ public interface CartDetailRepo extends JpaRepository<Cart_detail,Long> {
 
     @Query(value = "SELECT * FROM cart_detail WHERE customer_id = ?1",nativeQuery = true)
     List<Cart_detail> findAllByCustomerId(Long customer_id);
+
+    @Query(value = "SELECT * FROM cart_detail WHERE customer_id = ?1 and product_id = ?2",nativeQuery = true)
+    Cart_detail findPosCart(Long customer_id,String product_id);
 }

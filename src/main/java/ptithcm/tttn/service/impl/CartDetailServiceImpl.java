@@ -27,20 +27,49 @@ public class CartDetailServiceImpl implements CartDetailService {
 
     @Override
     @Transactional
-    public Cart_detail createCart(Cart_detail cartDetail, String jwt) throws Exception {
+    public void createCart(Cart_detail cartDetail, String jwt) throws Exception {
         User find = userService.findUserByJwt(jwt);
         Customer customer = customerService.findByUserId(find.getUser_id());
-        Cart_detail create = new Cart_detail();
-        create.setCustomer_id(customer.getCustomer_id());
-        create.setQuantity(cartDetail.getQuantity());
-        create.setProduct_id(cartDetail.getProduct_id());
-        return  cartDetailRepo.save(create);
+        List<Cart_detail> findCart = findCartByJwt(jwt);
+
+        Cart_detail existingCart = findCart.stream()
+                .filter(cart -> cart.getProduct_id().equals(cartDetail.getProduct_id()))
+                .findFirst()
+                .orElse(null);
+
+        if (existingCart != null) {
+            existingCart.setQuantity(existingCart.getQuantity() + cartDetail.getQuantity());
+            cartDetailRepo.save(existingCart);
+        } else {
+            Cart_detail create = new Cart_detail();
+            create.setCustomer_id(customer.getCustomer_id());
+            create.setQuantity(cartDetail.getQuantity());
+            create.setProduct_id(cartDetail.getProduct_id());
+            cartDetailRepo.save(create);
+        }
     }
+
 
     @Override
     public List<Cart_detail> findCartByJwt(String jwt) throws Exception {
         User user = userService.findUserByJwt(jwt);
         Customer customer = customerService.findByUserId(user.getUser_id());
         return cartDetailRepo.findAllByCustomerId(customer.getCustomer_id());
+    }
+
+    @Override
+    public void updateQuantityCart(Cart_detail cartDetail, String jwt) throws Exception {
+        User user = userService.findUserByJwt(jwt);
+        Customer customer = customerService.findByUserId(user.getUser_id());
+        Cart_detail cart = cartDetailRepo.findPosCart(customer.getCustomer_id(), cartDetail.getProduct_id());
+        cart.setQuantity(cart.getQuantity() + cartDetail.getQuantity());
+        cartDetailRepo.save(cart);
+    }
+
+    @Override
+    public Cart_detail findPosCart(Cart_detail cartDetail, String jwt) throws Exception {
+        User user = userService.findUserByJwt(jwt);
+        Customer customer = customerService.findByUserId(user.getUser_id());
+        return cartDetailRepo.findPosCart(customer.getCustomer_id(), cartDetail.getProduct_id());
     }
 }

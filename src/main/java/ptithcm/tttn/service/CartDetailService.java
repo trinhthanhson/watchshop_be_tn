@@ -6,7 +6,11 @@ import java.util.List;
 
 public interface CartDetailService {
 
-    Cart_detail createCart(Cart_detail cartDetail, String jwt) throws Exception;
+    void createCart(Cart_detail cartDetail, String jwt) throws Exception;
 
     List<Cart_detail> findCartByJwt(String jwt) throws Exception;
+
+    void updateQuantityCart(Cart_detail cartDetail,String jwt) throws Exception;
+
+    Cart_detail findPosCart(Cart_detail cartDetail,String jwt) throws Exception;
 }

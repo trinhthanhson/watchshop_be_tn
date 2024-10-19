@@ -23,14 +23,14 @@ public class CustomerCartController {
     public ResponseEntity<ApiResponse> addCartDetail(@RequestHeader("Authorization") String jwt, @RequestBody Cart_detail detail){
         ApiResponse res = new ApiResponse();
         try{
-            Cart_detail create = cartDetailService.createCart(detail,jwt);
+            cartDetailService.createCart(detail,jwt);
             res.setCode(HttpStatus.CREATED.value());
             res.setStatus(HttpStatus.CREATED);
             res.setMessage("Add cart success");
         }catch (Exception e){
             res.setCode(HttpStatus.CONFLICT.value());
             res.setStatus(HttpStatus.CONFLICT);
-            res.setMessage("Add cart fail");
+            res.setMessage("Add cart fail: " + e.getMessage() );
         }
         return new ResponseEntity<>(res,res.getStatus());
     }
@@ -51,5 +51,21 @@ public class CustomerCartController {
             res.setMessage("Error: " + e.getMessage());
         }
         return  new ResponseEntity<>(res, res.getStatus());
+    }
+
+    @PutMapping("update/quantity")
+    public ResponseEntity<ApiResponse> updateQuantityCart(@RequestHeader("Authorization") String jwt, @RequestBody Cart_detail cartDetail){
+        ApiResponse res = new ApiResponse();
+        try{
+            cartDetailService.updateQuantityCart(cartDetail,jwt);
+            res.setCode(HttpStatus.CREATED.value());
+            res.setStatus(HttpStatus.CREATED);
+            res.setMessage("Add cart success");
+        }catch (Exception e){
+            res.setCode(HttpStatus.CONFLICT.value());
+            res.setStatus(HttpStatus.CONFLICT);
+            res.setMessage("Add cart fail: " + e.getMessage());
+        }
+        return new ResponseEntity<>(res,res.getStatus());
     }
 }
