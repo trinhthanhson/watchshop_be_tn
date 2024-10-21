@@ -72,4 +72,19 @@ public class CartDetailServiceImpl implements CartDetailService {
         Customer customer = customerService.findByUserId(user.getUser_id());
         return cartDetailRepo.findPosCart(customer.getCustomer_id(), cartDetail.getProduct_id());
     }
+
+    @Override
+    public void deleteCartItem(Cart_detail cartDetail, String jwt) throws Exception {
+        User user = userService.findUserByJwt(jwt);
+        Customer customer = customerService.findByUserId(user.getUser_id());
+        Cart_detail find = cartDetailRepo.findPosCart(customer.getCustomer_id(),cartDetail.getProduct_id());
+        cartDetailRepo.delete(find);
+    }
+
+    @Override
+    public void deleteCart(String jwt) throws Exception {
+        User user = userService.findUserByJwt(jwt);
+        Customer customer = customerService.findByUserId(user.getUser_id());
+        cartDetailRepo.deleteCartByCustomerId(customer.getCustomer_id());
+    }
 }

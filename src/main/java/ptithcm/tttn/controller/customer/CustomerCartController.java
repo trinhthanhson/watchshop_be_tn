@@ -20,52 +20,68 @@ public class CustomerCartController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<ApiResponse> addCartDetail(@RequestHeader("Authorization") String jwt, @RequestBody Cart_detail detail){
+    public ResponseEntity<ApiResponse> addCartDetail(@RequestHeader("Authorization") String jwt, @RequestBody Cart_detail detail) {
         ApiResponse res = new ApiResponse();
-        try{
-            cartDetailService.createCart(detail,jwt);
+        try {
+            cartDetailService.createCart(detail, jwt);
             res.setCode(HttpStatus.CREATED.value());
             res.setStatus(HttpStatus.CREATED);
             res.setMessage("Add cart success");
-        }catch (Exception e){
+        } catch (Exception e) {
             res.setCode(HttpStatus.CONFLICT.value());
             res.setStatus(HttpStatus.CONFLICT);
-            res.setMessage("Add cart fail: " + e.getMessage() );
+            res.setMessage("Add cart fail: " + e.getMessage());
         }
-        return new ResponseEntity<>(res,res.getStatus());
+        return new ResponseEntity<>(res, res.getStatus());
     }
 
     @GetMapping("")
-    public ResponseEntity<ListEntityResponse<Cart_detail>> findCartDetailByCustomerJwt(@RequestHeader("Authorization") String jwt){
+    public ResponseEntity<ListEntityResponse<Cart_detail>> findCartDetailByCustomerJwt(@RequestHeader("Authorization") String jwt) {
         ListEntityResponse<Cart_detail> res = new ListEntityResponse<>();
-        try{
+        try {
             List<Cart_detail> all = cartDetailService.findCartByJwt(jwt);
             res.setCode(HttpStatus.OK.value());
             res.setStatus(HttpStatus.OK);
             res.setData(all);
             res.setMessage("Success");
-        }catch (Exception e){
+        } catch (Exception e) {
             res.setCode(HttpStatus.CONFLICT.value());
             res.setStatus(HttpStatus.CONFLICT);
             res.setData(null);
             res.setMessage("Error: " + e.getMessage());
         }
-        return  new ResponseEntity<>(res, res.getStatus());
+        return new ResponseEntity<>(res, res.getStatus());
     }
 
-    @PutMapping("update/quantity")
-    public ResponseEntity<ApiResponse> updateQuantityCart(@RequestHeader("Authorization") String jwt, @RequestBody Cart_detail cartDetail){
+    @PutMapping("/update/quantity")
+    public ResponseEntity<ApiResponse> updateQuantityCart(@RequestHeader("Authorization") String jwt, @RequestBody Cart_detail cartDetail) {
         ApiResponse res = new ApiResponse();
-        try{
-            cartDetailService.updateQuantityCart(cartDetail,jwt);
+        try {
+            cartDetailService.updateQuantityCart(cartDetail, jwt);
             res.setCode(HttpStatus.CREATED.value());
             res.setStatus(HttpStatus.CREATED);
             res.setMessage("Add cart success");
-        }catch (Exception e){
+        } catch (Exception e) {
             res.setCode(HttpStatus.CONFLICT.value());
             res.setStatus(HttpStatus.CONFLICT);
             res.setMessage("Add cart fail: " + e.getMessage());
         }
-        return new ResponseEntity<>(res,res.getStatus());
+        return new ResponseEntity<>(res, res.getStatus());
+    }
+
+    @PostMapping("/delete/item")
+    public ResponseEntity<ApiResponse> deleteCartItem(@RequestHeader("Authorization") String jwt, @RequestBody Cart_detail cartDetail) {
+        ApiResponse res = new ApiResponse();
+        try {
+            cartDetailService.deleteCartItem(cartDetail, jwt);
+            res.setCode(HttpStatus.OK.value());
+            res.setMessage("Success");
+            res.setStatus(HttpStatus.OK);
+        } catch (Exception e) {
+            res.setCode(HttpStatus.CONFLICT.value());
+            res.setStatus(HttpStatus.CONFLICT);
+            res.setMessage("Delete cart item fail: " + e.getMessage());
+        }
+        return new ResponseEntity<>(res, res.getStatus());
     }
 }

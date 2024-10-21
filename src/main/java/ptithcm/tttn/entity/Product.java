@@ -14,58 +14,58 @@ public class Product {
     @Column
     private String product_id;
 
-    @Column
+    @Column(length = 150)
     private String product_name;
 
     @Column
     private int quantity;
 
-    @Column
+    @Column(length = 30)
     private String color;
 
-    @Column
+    @Column(length = 120)
     private String band_material;
 
-    @Column
+    @Column(length = 120)
     private String dial_type;
 
-    @Column
+    @Column(length = 150)
     private String func;
 
-    @Column
+    @Column(length = 20)
     private String gender;
 
-    @Column
+    @Column(length = 20)
     private String model;
 
-    @Column
+    @Column(length = 20)
     private String series;
 
-    @Column
+    @Column(length = 120)
     private String water_resistance;
 
-    @Column
+    @Column(length = 120)
     private String case_diameter;
 
-    @Column
+    @Column(length = 120)
     private String case_material;
 
     @Column
     private String detail;
 
-    @Column
+    @Column(length = 500)
     private String image;
 
-    @Column
+    @Column(length = 120)
     private String machine_movement;
 
-    @Column
+    @Column(length = 120)
     private String band_width;
 
-    @Column
+    @Column(length = 120)
     private String case_thickness;
 
-    @Column
+    @Column(length = 10)
     private String status;
 
     @Column

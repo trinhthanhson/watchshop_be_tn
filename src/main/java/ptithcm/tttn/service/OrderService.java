@@ -18,7 +18,7 @@ public interface OrderService {
     Orders updateStatus(String status, Long id) throws Exception;
     Orders updateStatusPayment(String status, Long id) throws Exception;
 
-//    Orders orderBuyCart(OrderRequest rq,String jwt) throws Exception;
+    Orders orderBuyCart(OrderRequest rq,String jwt) throws Exception;
 
     List<StatisticRequest> getTotalAmountByMonth(int year);
 

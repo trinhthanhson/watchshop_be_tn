@@ -121,8 +121,61 @@ public class OrderServiceImpl implements OrderService {
         throw new Exception("Not found order by id " + id);
     }
 
+    @Override
+    public Orders orderBuyCart(OrderRequest rq, String jwt) throws Exception {
+        User user = userService.findUserByJwt(jwt);
+        Customer customer = customerService.findByUserId(user.getUser_id());
+        List<Cart_detail> cart = cartDetailService.findCartByJwt(jwt);
+        List<Order_detail> list = new ArrayList<>();
+        int totalQuantity = 0;
 
-//    @Override
+        for (Cart_detail detail : cart) {
+            Order_detail orderDetail = new Order_detail();
+            // Lấy giá mới nhất từ product_cart
+            List<Update_price> updatePrices = detail.getProduct_cart().getUpdatePrices();
+            if (updatePrices != null && !updatePrices.isEmpty()) {
+                orderDetail.setPrice(updatePrices.get(0).getPrice_new()); // Lấy giá mới nhất
+            } else {
+                throw new Exception("No price available for product: " + detail.getProduct_id());
+            }
+
+            orderDetail.setProduct_id(detail.getProduct_id());
+            Optional<Product> find = productRepo.findById(detail.getProduct_id());
+            Product get = find.get();
+            get.setQuantity(get.getQuantity() - detail.getQuantity()); // Trừ số lượng sản phẩm
+            productRepo.save(get);
+
+            orderDetail.setQuantity(detail.getQuantity());
+            Order_detail createDetail = orderDetailRepo.save(orderDetail);
+            totalQuantity += createDetail.getQuantity();
+            list.add(createDetail);
+        }
+
+        Orders orders = new Orders();
+        orders.setCreated_at(LocalDateTime.now());
+        orders.setNote(rq.getNote());
+        orders.setAddress(rq.getAddress());
+        orders.setRecipient_name(rq.getRecipient_name());
+        orders.setRecipient_phone(rq.getRecipient_phone());
+        orders.setUpdated_at(LocalDateTime.now());
+        orders.setCustomer_id(customer.getCustomer_id());
+        orders.setStatus("0"); // Trạng thái đơn hàng
+        orders.setTotal_price(rq.getTotal_price());
+        orders.setTotal_quantity(totalQuantity);
+
+        Orders createdOrders = ordersRepo.save(orders);
+
+        for (Order_detail item : list) {
+            item.setOrder_id(createdOrders.getOrder_id());
+            orderDetailRepo.save(item);
+        }
+
+        cartDetailService.deleteCart(jwt); // Xóa chi tiết giỏ hàng
+        return createdOrders;
+    }
+
+
+    //    @Override
 //    public Orders orderBuyCart(OrderRequest rq, String jwt) throws Exception {
 //        User user = userService.findUserByJwt(jwt);
 //        Customer customer = customerService.findByUserId(user.getUser_id());
