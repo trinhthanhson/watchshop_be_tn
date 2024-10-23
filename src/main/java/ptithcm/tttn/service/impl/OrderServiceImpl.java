@@ -245,7 +245,7 @@ public class OrderServiceImpl implements OrderService {
         Orders findOrder = findById(id);
         if(findOrder != null){
             findOrder.setStatus(status);
-            findOrder.setUpdated_by(staff.getStaff_id());
+            findOrder.setStaff_id(staff.getStaff_id());
             Orders saveOrder = ordersRepo.save(findOrder);
             if(saveOrder.getStatus().equals("5")){
                 Bill bill = new Bill();
@@ -345,7 +345,7 @@ public class OrderServiceImpl implements OrderService {
         List<Orders> all = findAll();
         List<Orders> allReceive = new ArrayList<>();
         for(Orders od : all){
-            if(Objects.equals(od.getUpdated_by(), staff.getStaff_id())){
+            if(Objects.equals(od.getStaff_id(), staff.getStaff_id())){
                 allReceive.add(od);
             }
         }

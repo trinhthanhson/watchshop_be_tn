@@ -10,7 +10,7 @@ import java.util.List;
 
 @Repository
 public interface OrderRepo extends JpaRepository<Orders,Long> {
-    @Query(value = "SELECT * FROM orders WHERE created_by = ?1  ", nativeQuery = true)
+    @Query(value = "SELECT * FROM orders WHERE customer_id = ?1  ", nativeQuery = true)
     List<Orders> findByCustomerId(Long customer_id);
 
     @Query("SELECT MONTH(o.created_at) AS month, SUM(o.total_price) AS totalAmount " +

@@ -1,5 +1,6 @@
 package ptithcm.tttn.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -27,6 +28,7 @@ public class Order_detail {
     private Long order_id;
 
     @OneToMany(mappedBy = "warranty_order_detail")
+    @JsonIgnore
     private List<Warranty_detail> warrantyDetails;
 
     @ManyToOne
@@ -34,10 +36,12 @@ public class Order_detail {
     private Product product_order;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "order_id",insertable = false,updatable = false)
     private Orders orders;
 
     @OneToOne(mappedBy = "order_detail")
+    @JsonIgnore
     private Review review;
 
 

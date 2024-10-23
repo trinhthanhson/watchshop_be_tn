@@ -58,7 +58,6 @@ public class UserController {
             res.setStatus(HttpStatus.CONFLICT);
             res.setCode(HttpStatus.CONFLICT.value());
         }
-
         return new ResponseEntity<>(res,res.getStatus());
     }
 }
