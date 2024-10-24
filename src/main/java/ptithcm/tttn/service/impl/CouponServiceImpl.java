@@ -2,6 +2,7 @@ package ptithcm.tttn.service.impl;
 
 import org.springframework.stereotype.Service;
 import ptithcm.tttn.entity.*;
+import ptithcm.tttn.function.Status;
 import ptithcm.tttn.repository.CouponDetailRepo;
 import ptithcm.tttn.repository.CouponRepo;
 import ptithcm.tttn.request.CouponRequest;
@@ -60,10 +61,10 @@ public class CouponServiceImpl  implements CouponService {
         if(saved != null) {
             List<Product> allProduct = productService.findAll();
             for (Product p : allProduct) {
-                if (p.getStatus().equals("Active")) {
+                if (p.getStatus().equals(Status.ACTIVE.getUserStatus())) {
                     Coupon_detail couponDetail = new Coupon_detail();
                     couponDetail.setCoupon_id(saved.getCoupon_id());
-                    couponDetail.setStatus("Active");
+                    couponDetail.setStatus(Status.ACTIVE.getUserStatus());
                     couponDetail.setPercent(coupon.getPercent()/100);
                     couponDetail.setProduct_id(p.getProduct_id());
                     couponDetailRepo.save(couponDetail);

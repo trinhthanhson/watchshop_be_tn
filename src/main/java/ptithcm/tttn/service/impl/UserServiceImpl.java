@@ -7,6 +7,8 @@ import ptithcm.tttn.entity.Customer;
 import ptithcm.tttn.entity.Role;
 import ptithcm.tttn.entity.Staff;
 import ptithcm.tttn.entity.User;
+import ptithcm.tttn.function.RoleName;
+import ptithcm.tttn.function.Status;
 import ptithcm.tttn.repository.CustomerRepo;
 import ptithcm.tttn.repository.RoleRepo;
 import ptithcm.tttn.repository.StaffRepo;
@@ -44,7 +46,7 @@ public class UserServiceImpl implements UserService {
         User user = new User();
         Role role = roleRepo.findByName(rq.getRole_name());
         user.setCreated_at(LocalDateTime.now());
-        user.setStatus("Active");
+        user.setStatus(Status.ACTIVE.getUserStatus());
         user.setUpdated_at(LocalDateTime.now());
         user.setPassword(passwordEncoder.encode(rq.getPassword()));
         user.setRole_id(role.getRole_id());
@@ -117,7 +119,7 @@ public class UserServiceImpl implements UserService {
         Staff staff = staffRepo.findByUserId(user.getUser_id());
         User update = findById(id);
         User save = new User();
-        if(update != null && (user.getRole_user().getRole_name().equals("MANAGER") || user.getRole_user().getRole_name().equals("STAFF")) ){
+        if(update != null && (user.getRole_user().getRole_name().equals(RoleName.MANAGER.getRoleName()) || user.getRole_user().getRole_name().equals(RoleName.STAFF.getRoleName())) ){
             update.setStatus(status);
             update.setUpdated_by(staff.getStaff_id());
             save = userRepo.save(update);

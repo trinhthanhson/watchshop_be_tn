@@ -2,6 +2,7 @@ package ptithcm.tttn.service.impl;
 
 import org.springframework.stereotype.Service;
 import ptithcm.tttn.entity.Coupon_detail;
+import ptithcm.tttn.function.Status;
 import ptithcm.tttn.repository.CouponDetailRepo;
 import ptithcm.tttn.service.CouponDetailService;
 
@@ -18,10 +19,10 @@ public class CouponDetailServiceImpl implements CouponDetailService {
     @Override
     public Coupon_detail updateStatusDetail(Coupon_detail detail, Long coupon_detail_id) throws Exception {
         Coupon_detail find = findById(coupon_detail_id);
-        if(detail.getStatus().equals("Active")){
-            find.setStatus("Inactive");
+        if(detail.getStatus().equals(Status.ACTIVE.getUserStatus())){
+            find.setStatus(Status.INACTIVE.getUserStatus());
         }else{
-            find.setStatus("Active");
+            find.setStatus(Status.ACTIVE.getUserStatus());
         }
         return couponDetailRepo.save(find);
     }

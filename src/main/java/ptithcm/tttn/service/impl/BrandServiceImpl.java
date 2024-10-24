@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import ptithcm.tttn.entity.Brand;
 import ptithcm.tttn.entity.Staff;
 import ptithcm.tttn.entity.User;
+import ptithcm.tttn.function.Status;
 import ptithcm.tttn.repository.BrandRepo;
 import ptithcm.tttn.repository.StaffRepo;
 import ptithcm.tttn.service.BrandService;
@@ -68,13 +69,13 @@ public class BrandServiceImpl implements BrandService {
                 create.setBrand_name(brand.getBrand_name());
                 create.setUpdated_at(LocalDateTime.now());
                 create.setUpdated_by(staff.getStaff_id());
-                create.setStatus("Active");
+                create.setStatus(Status.ACTIVE.getUserStatus());
                 saveBrand = brandRepo.save(create);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
-        } else if (checkExist != null && checkExist.getStatus().equals("Inactive")) {
-            checkExist.setStatus("Active");
+        } else if (checkExist != null && checkExist.getStatus().equals(Status.INACTIVE.getUserStatus())) {
+            checkExist.setStatus(Status.ACTIVE.getUserStatus());
             checkExist.setUpdated_by(staff.getStaff_id());
             return brandRepo.save(checkExist);
         } else {
@@ -120,12 +121,12 @@ public class BrandServiceImpl implements BrandService {
         User user = userService.findUserByJwt(jwt);
         Staff staff = staffRepo.findByUserId(user.getUser_id());
         Brand find = findById(id);
-        if(find.getStatus().equals("Active")){
-            find.setStatus("Inactive");
+        if(find.getStatus().equals(Status.ACTIVE.getUserStatus())){
+            find.setStatus(Status.INACTIVE.getUserStatus());
             find.setUpdated_by(staff.getStaff_id());
             return brandRepo.save(find);
-        }else if(find.getStatus().equals("Inactive")){
-            find.setStatus("Active");
+        }else if(find.getStatus().equals(Status.INACTIVE.getUserStatus())){
+            find.setStatus(Status.ACTIVE.getUserStatus());
             find.setUpdated_by(staff.getStaff_id());
             return brandRepo.save(find);
         }

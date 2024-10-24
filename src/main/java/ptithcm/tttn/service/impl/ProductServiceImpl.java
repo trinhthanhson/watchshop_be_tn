@@ -2,6 +2,7 @@ package ptithcm.tttn.service.impl;
 
 import org.springframework.stereotype.Service;
 import ptithcm.tttn.entity.*;
+import ptithcm.tttn.function.Status;
 import ptithcm.tttn.repository.ProductRepo;
 import ptithcm.tttn.repository.UpdatePriceRepo;
 import ptithcm.tttn.request.ProductRequest;
@@ -100,7 +101,7 @@ public class ProductServiceImpl implements ProductService {
             create.setQuantity(product.getQuantity());
             create.setUpdated_at(LocalDateTime.now());
             create.setUpdated_by(staff.getStaff_id());
-            create.setStatus("Active");
+            create.setStatus(Status.ACTIVE.getUserStatus());
             create.setBand_material(product.getBand_material());
             create.setBand_width(product.getBand_width());
             create.setCase_diameter(product.getCase_diameter());
@@ -154,7 +155,7 @@ public class ProductServiceImpl implements ProductService {
                 find.setQuantity(product.getQuantity());
                 find.setUpdated_at(LocalDateTime.now());
                 find.setUpdated_by(staff.getStaff_id());
-                find.setStatus("Active");
+                find.setStatus(Status.ACTIVE.getUserStatus());
                 find.setBand_material(product.getBand_material());
                 find.setBand_width(product.getBand_width());
                 find.setCase_diameter(product.getCase_diameter());
@@ -201,7 +202,7 @@ public class ProductServiceImpl implements ProductService {
         User user = userService.findUserByJwt(jwt);
         Staff staff = staffService.findByUserId(user.getUser_id());
         Product product = findById(product_id);
-        product.setStatus("Inactive");
+        product.setStatus(Status.INACTIVE.getUserStatus());
         product.setUpdated_by(staff.getStaff_id());
         return productRepo.save(product);
     }
