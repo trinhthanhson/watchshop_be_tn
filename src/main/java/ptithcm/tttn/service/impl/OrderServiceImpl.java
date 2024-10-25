@@ -4,6 +4,7 @@ import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ptithcm.tttn.entity.*;
+import ptithcm.tttn.function.OrderStatus;
 import ptithcm.tttn.repository.BillRepo;
 import ptithcm.tttn.repository.OrderDetailRepo;
 import ptithcm.tttn.repository.OrderRepo;
@@ -98,12 +99,28 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public Orders updateStatus(String status,Long id) throws Exception {
+    public Orders updateStatus(String status, Long id) throws Exception {
         Orders findOrder = findById(id);
-        if(findOrder != null && findOrder.getStatus().equals("0")){
+        List<Order_detail> orderDetails = orderDetailRepo.findOrderDetailByOrderId(findOrder.getOrder_id());
+
+        if (findOrder != null && findOrder.getStatus().equals(OrderStatus.Waiting.getOrderStatus())) {
             findOrder.setStatus(status);
-            return  ordersRepo.save(findOrder);
+
+            if (findOrder.getStatus().equals(OrderStatus.Canceled.getOrderStatus())) {
+                for (Order_detail detail : orderDetails) {
+                    Optional<Product> productOpt = productRepo.findById(detail.getProduct_id());
+
+                    if (productOpt.isPresent()) {
+                        Product product = productOpt.get();
+                        product.setQuantity(product.getQuantity() + detail.getQuantity());
+                        productRepo.save(product);
+                    }
+                }
+            }
+
+            return ordersRepo.save(findOrder); // Lưu trạng thái mới của đơn hàng
         }
+
         throw new Exception("Not found order by id " + id);
     }
 

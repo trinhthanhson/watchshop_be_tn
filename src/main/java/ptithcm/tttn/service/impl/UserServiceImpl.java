@@ -13,6 +13,7 @@ import ptithcm.tttn.repository.CustomerRepo;
 import ptithcm.tttn.repository.RoleRepo;
 import ptithcm.tttn.repository.StaffRepo;
 import ptithcm.tttn.repository.UserRepo;
+import ptithcm.tttn.request.ChangePasswordRequest;
 import ptithcm.tttn.request.SignUpRequest;
 import ptithcm.tttn.service.UserService;
 
@@ -128,4 +129,16 @@ public class UserServiceImpl implements UserService {
         }
         return user;
     }
+
+    @Override
+    public User changePassword(String jwt, ChangePasswordRequest rq) throws Exception {
+        User find = findUserByJwt(jwt);
+        if(passwordEncoder.matches(rq.getPassword(), find.getPassword())) {
+            find.setPassword(passwordEncoder.encode(rq.getNewPassword()));
+            find.setUpdated_at(LocalDateTime.now());
+            return userRepo.save(find);
+        }
+        throw new Exception("Password is incorrect");
+    }
+
 }

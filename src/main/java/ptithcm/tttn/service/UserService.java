@@ -1,6 +1,7 @@
 package ptithcm.tttn.service;
 
 import ptithcm.tttn.entity.User;
+import ptithcm.tttn.request.ChangePasswordRequest;
 import ptithcm.tttn.request.SignUpRequest;
 
 import java.util.List;
@@ -13,5 +14,6 @@ public interface UserService {
     User findUserByJwt(String jwt) throws Exception;
     User findById(Long id) throws Exception;
     List<User> findAll() throws Exception;
-    public User updateStatus(Long id, String status, String jwt) throws Exception;
+    User updateStatus(Long id, String status, String jwt) throws Exception;
+    User changePassword(String jwt, ChangePasswordRequest user) throws Exception;
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 @Data
@@ -25,7 +26,7 @@ public class Customer {
     private String last_name;
 
     @Column
-    private LocalDateTime birthday;
+    private LocalDate birthday;
 
     @Column
     private String gender;
@@ -38,6 +39,9 @@ public class Customer {
 
     @Column
     private String phone;
+
+    @Column
+    private String address;
 
     @Column
     private LocalDateTime created_at;
