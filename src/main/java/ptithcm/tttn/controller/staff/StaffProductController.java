@@ -12,6 +12,9 @@ import ptithcm.tttn.response.EntityResponse;
 import ptithcm.tttn.service.ProductService;
 import ptithcm.tttn.service.UpdatePriceService;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/staff/product")
 public class StaffProductController {
@@ -41,6 +44,21 @@ public class StaffProductController {
             res.setData(null);
         }
         return new ResponseEntity<>(res, res.getStatus());
+    }
+
+    @PostMapping("/batch")
+    public ResponseEntity<?> createProductsBatch(@RequestBody List<ProductRequest> products, @RequestHeader("Authorization") String jwt) {
+        try {
+            List<Product> savedProducts = new ArrayList<>();
+            for (ProductRequest product : products) {
+                Product savedProduct = productService.createProduct(product, jwt);
+                savedProducts.add(savedProduct);
+            }
+            return ResponseEntity.ok(savedProducts);
+        } catch (Exception e) {
+            System.out.println("Error: " +e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @PutMapping("/{id}/update")

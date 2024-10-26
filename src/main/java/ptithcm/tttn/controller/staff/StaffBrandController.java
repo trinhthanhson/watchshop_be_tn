@@ -34,7 +34,7 @@ public class StaffBrandController {
         }catch (Exception e){
             res.setStatus(HttpStatus.CONFLICT);
             res.setCode(HttpStatus.CONFLICT.value());
-            res.setMessage("erorr " + e.getMessage());
+            res.setMessage("Error " + e.getMessage());
             res.setData(null);
         }
         return new ResponseEntity<>(res,res.getStatus());

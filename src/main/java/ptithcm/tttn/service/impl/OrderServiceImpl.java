@@ -52,7 +52,7 @@ public class OrderServiceImpl implements OrderService {
         Product get = product.get();
         Orders orders = new Orders();
         orders.setAddress(rq.getAddress());
-        orders.setStatus("0");
+        orders.setStatus(OrderStatus.Waiting.getOrderStatus());
         orders.setCreated_at(LocalDateTime.now());
         orders.setRecipient_name(rq.getRecipient_name());
         orders.setUpdated_at(LocalDateTime.now());
@@ -127,7 +127,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Orders updateStatusPayment(String status, Long id) throws Exception {
         Orders findOrder = findById(id);
-        if(status.equals("4")){
+        if(status.equals(OrderStatus.Payment.getOrderStatus())){
             findOrder.setStatus(status);
             Bill bill = new Bill();
             bill.setOrder_id(findOrder.getOrder_id());
@@ -176,7 +176,7 @@ public class OrderServiceImpl implements OrderService {
         orders.setRecipient_phone(rq.getRecipient_phone());
         orders.setUpdated_at(LocalDateTime.now());
         orders.setCustomer_id(customer.getCustomer_id());
-        orders.setStatus("0"); // Trạng thái đơn hàng
+        orders.setStatus(OrderStatus.Waiting.getOrderStatus()); // Trạng thái đơn hàng
         orders.setTotal_price(rq.getTotal_price());
         orders.setTotal_quantity(totalQuantity);
 
@@ -264,12 +264,23 @@ public class OrderServiceImpl implements OrderService {
             findOrder.setStatus(status);
             findOrder.setStaff_id(staff.getStaff_id());
             Orders saveOrder = ordersRepo.save(findOrder);
-            if(saveOrder.getStatus().equals("5")){
+            List<Order_detail> orderDetails = orderDetailRepo.findOrderDetailByOrderId(findOrder.getOrder_id());
+            if(saveOrder.getStatus().equals(OrderStatus.Delivered.getOrderStatus())){
                 Bill bill = new Bill();
                 bill.setOrder_id(findOrder.getOrder_id());
                 bill.setCreated_at(LocalDateTime.now());
                 bill.setStaff_id(staff.getStaff_id());
                 billRepo.save(bill);
+            } else if (findOrder.getStatus().equals(OrderStatus.Canceled.getOrderStatus())) {
+                for (Order_detail detail : orderDetails) {
+                    Optional<Product> productOpt = productRepo.findById(detail.getProduct_id());
+
+                    if (productOpt.isPresent()) {
+                        Product product = productOpt.get();
+                        product.setQuantity(product.getQuantity() + detail.getQuantity());
+                        productRepo.save(product);
+                    }
+                }
             }
             return saveOrder;
         }
@@ -284,7 +295,7 @@ public class OrderServiceImpl implements OrderService {
         Product getProduct = product.get();
         Orders orders = new Orders();
         orders.setAddress(rq.getAddress());
-        orders.setStatus("3");
+        orders.setStatus(OrderStatus.Payment.getOrderStatus());
         orders.setCreated_at(LocalDateTime.now());
         orders.setRecipient_name(rq.getRecipient_name());
         orders.setUpdated_at(LocalDateTime.now());
