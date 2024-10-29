@@ -53,9 +53,8 @@ public class Staff {
     private Long user_id;
 
     @OneToOne
-    @JsonIgnore
     @JoinColumn(name = "user_id",insertable = false,updatable = false)
-    private User user_staff;
+    private User user;
 
     @OneToMany(mappedBy = "staff_bill")
     @JsonIgnore

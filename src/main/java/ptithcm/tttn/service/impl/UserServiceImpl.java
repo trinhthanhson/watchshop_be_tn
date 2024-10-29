@@ -1,5 +1,7 @@
 package ptithcm.tttn.service.impl;
 
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ptithcm.tttn.config.JwtTokenProvider;
@@ -17,6 +19,8 @@ import ptithcm.tttn.request.ChangePasswordRequest;
 import ptithcm.tttn.request.SignUpRequest;
 import ptithcm.tttn.service.UserService;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,15 +28,18 @@ import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
+    private JavaMailSender mailSender;
+
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepo userRepo;
     private final StaffRepo staffRepo;
     private final RoleRepo roleRepo;
     private final PasswordEncoder passwordEncoder;
     private final CustomerRepo customerRepo;
+    private  String otpAccept;
 
-
-    public UserServiceImpl(JwtTokenProvider jwtTokenProvider, UserRepo userRepo, StaffRepo staffRepo, RoleRepo roleRepo, PasswordEncoder passwordEncoder, CustomerRepo customerRepo) {
+    public UserServiceImpl(JavaMailSender mailSender, JwtTokenProvider jwtTokenProvider, UserRepo userRepo, StaffRepo staffRepo, RoleRepo roleRepo, PasswordEncoder passwordEncoder, CustomerRepo customerRepo) {
+        this.mailSender = mailSender;
         this.jwtTokenProvider = jwtTokenProvider;
         this.userRepo = userRepo;
         this.staffRepo = staffRepo;
@@ -69,14 +76,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findByUsername(String username) throws Exception {
-        User findUsername = userRepo.findByUsername(username);
-        if (findUsername != null) {
-            return findUsername;
-        } else {
-            throw new Exception("Not found user by username " + username);
-        }
-
+    public User findByUsername(String username) {
+        return userRepo.findByUsername(username);
     }
 
     @Override
@@ -140,5 +141,38 @@ public class UserServiceImpl implements UserService {
         }
         throw new Exception("Password is incorrect");
     }
+    @Override
+    public String sendMail(String email,String subject ,String content, String otp) throws MessagingException {
 
+        sendMail(email, subject,content);
+        otpAccept = otp;
+        return otpAccept;
+    }
+
+    @Override
+    @Transactional
+    public User updatePassword(String passWord,String email ) throws Exception {
+        Customer customer = customerRepo.findByEmail(email);
+        User update = findById(customer.getUser_id());
+        update.setPassword(passwordEncoder.encode(passWord));
+        update.setUpdated_at(LocalDateTime.now());
+        User save = userRepo.save(update);
+        if(save != null){
+            return save;
+        }
+        throw new Exception("update fail");
+
+    }
+
+    public void sendMail(String toEmail, String subject, String content) throws MessagingException, MessagingException {
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+
+        helper.setFrom("sontrinh2507@gmail.com");
+        helper.setTo(toEmail);
+        helper.setSubject(subject);
+        helper.setText(content, true);
+
+        mailSender.send(mimeMessage);
+    }
 }

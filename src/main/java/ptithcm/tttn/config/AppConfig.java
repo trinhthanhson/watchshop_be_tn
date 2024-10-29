@@ -44,20 +44,7 @@ public class AppConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/staff/**").hasAnyAuthority("STAFF", "MANAGER", "SHIPPER")
                 .antMatchers("/api/manager/**").hasAnyAuthority("MANAGER", "STAFF")
                 .and()
-                .oauth2Login(oauth2login -> {
-                    oauth2login
-                            .loginPage("/login")
-                            .successHandler((request, response, authentication) -> {
-                                // Log or handle authentication success
-                                OAuth2AuthenticationToken auth = (OAuth2AuthenticationToken) authentication;
-                                if (auth != null) {
-                                    System.out.println("Authenticated user: " + auth.getPrincipal().getAttributes());
-                                    response.sendRedirect("/user");
-                                } else {
-                                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication failed");
-                                }
-                            });
-                })
+
                 .addFilterBefore(new JwtTokenValidator(), UsernamePasswordAuthenticationFilter.class)
                 .csrf().disable()
                 .cors().configurationSource(corsConfigurationSource())
@@ -71,7 +58,20 @@ public class AppConfig extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService);
     }
-
+//.oauth2Login(oauth2login -> {
+//        oauth2login
+//                .loginPage("/login")
+//                .successHandler((request, response, authentication) -> {
+//                    // Log or handle authentication success
+//                    OAuth2AuthenticationToken auth = (OAuth2AuthenticationToken) authentication;
+//                    if (auth != null) {
+//                        System.out.println("Authenticated user: " + auth.getPrincipal().getAttributes());
+//                        response.sendRedirect("/user");
+//                    } else {
+//                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication failed");
+//                    }
+//                });
+//    })
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();

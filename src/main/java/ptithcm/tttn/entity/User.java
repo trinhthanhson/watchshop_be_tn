@@ -53,11 +53,11 @@ public class User {
     @JoinColumn(name = "role_id",insertable = false, updatable = false)
     private Role role_user;
 
-    @OneToOne(mappedBy = "user_customer")
+    @OneToOne(mappedBy = "user")
     @JsonIgnore
     private Customer customer;
 
-    @OneToOne(mappedBy = "user_staff")
+    @OneToOne(mappedBy = "user")
     @JsonIgnore
     private Staff staff;
 

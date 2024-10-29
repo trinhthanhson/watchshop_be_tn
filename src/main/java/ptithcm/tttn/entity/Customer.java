@@ -54,7 +54,7 @@ public class Customer {
 
     @OneToOne
     @JoinColumn(name = "user_id",insertable = false,updatable = false)
-    private User user_customer;
+    private User user;
 
     @OneToMany(mappedBy = "customer_order")
     @JsonIgnore

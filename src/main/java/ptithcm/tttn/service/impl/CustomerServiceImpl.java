@@ -13,6 +13,7 @@ import java.util.List;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
+
     private final CustomerRepo customerRepo;
     private final UserService userService;
 
@@ -63,6 +64,14 @@ public class CustomerServiceImpl implements CustomerService {
         }else {
             throw new Exception("not found info customer!. Please connect to admin");
         }
+    }
 
+    @Override
+    public boolean checkEmailExist(String email) {
+        Customer user = customerRepo.findByEmail(email);
+        if(user != null){
+            return true;
+        }
+        return false;
     }
 }
