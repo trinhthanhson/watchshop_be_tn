@@ -51,28 +51,30 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public User createUser(SignUpRequest rq) throws Exception {
-        User user = new User();
-        Role role = roleRepo.findByName(rq.getRole_name());
-        user.setCreated_at(LocalDateTime.now());
-        user.setStatus(Status.ACTIVE.getUserStatus());
-        user.setUpdated_at(LocalDateTime.now());
-        user.setPassword(passwordEncoder.encode(rq.getPassword()));
-        user.setRole_id(role.getRole_id());
-        user.setUsername(rq.getUsername());
-        User saveUser = userRepo.save(user);
-        if (saveUser != null) {
-            Customer customer = new Customer();
-            customer.setCreated_at(LocalDateTime.now());
-            customer.setEmail(rq.getEmail());
-            customer.setUser_id(saveUser.getUser_id());
-            customer.setFirst_name(rq.getFirstname());
-            customer.setLast_name(rq.getLastname());
-            customer.setUpdated_at(LocalDateTime.now());
-            Customer saveCustomer = customerRepo.save(customer);
-        } else {
-            throw new Exception("Create user fail");
+        if(otpAccept.equals(rq.getOtp())) {
+            User user = new User();
+            Role role = roleRepo.findByName(rq.getRole_name());
+            user.setCreated_at(LocalDateTime.now());
+            user.setStatus("Active");
+            user.setUpdated_at(LocalDateTime.now());
+            user.setPassword(passwordEncoder.encode(rq.getPassword()));
+            user.setRole_id(role.getRole_id());
+            user.setUsername(rq.getUsername());
+            User saveUser = userRepo.save(user);
+            if (saveUser != null) {
+                Customer customer = new Customer();
+                customer.setCreated_at(LocalDateTime.now());
+                customer.setEmail(rq.getEmail());
+                customer.setUser_id(saveUser.getUser_id());
+                customer.setFirst_name(rq.getFirstname());
+                customer.setLast_name(rq.getLastname());
+                customer.setUpdated_at(LocalDateTime.now());
+                Customer saveCustomer = customerRepo.save(customer);
+            }
+            return saveUser;
+        }else {
+            throw new Exception("OTP không chính xác vui lòng kiểm tra lại");
         }
-        return saveUser;
     }
 
     @Override
@@ -162,6 +164,18 @@ public class UserServiceImpl implements UserService {
         }
         throw new Exception("update fail");
 
+    }
+
+    @Override
+    public boolean checkUserNameExist(String username) {
+        User user = userRepo.findByUsername(username.toLowerCase().trim());
+        if(user != null){
+            System.err.println("checkcheck");
+            return true;
+        }
+        System.err.println("checkcheck1111" + user);
+
+        return false;
     }
 
     public void sendMail(String toEmail, String subject, String content) throws MessagingException, MessagingException {

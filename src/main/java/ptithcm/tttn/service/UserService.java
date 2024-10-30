@@ -18,5 +18,6 @@ public interface UserService {
     User changePassword(String jwt, ChangePasswordRequest user) throws Exception;
     String sendMail(String email,String subject , String content, String otp) throws MessagingException;
     User updatePassword(String passWord,String email) throws Exception;
+    boolean checkUserNameExist(String username);
 
 }

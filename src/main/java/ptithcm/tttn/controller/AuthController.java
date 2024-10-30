@@ -180,7 +180,7 @@ public class AuthController {
     @PostMapping("/sent-otp")
     public ResponseEntity<ApiResponse> sentOptByEmail(@RequestBody SignUpRequest rq) throws Exception {
         ApiResponse res = new ApiResponse();
-        User existUsername = userService.findByUsername(rq.getUsername());
+        boolean existUsername = userService.checkUserNameExist(rq.getUsername());
         boolean checkEmail = customerService.checkEmailExist(rq.getEmail());
         String otp = generateOTP();
         String subject = "Xác Minh Địa Chỉ Email để đăng ký tài khoản - Mã OTP";
@@ -224,14 +224,16 @@ public class AuthController {
                 + "</body>"
                 + "</html>";
 
-        if(existUsername != null){
+        if(existUsername){
             res.setMessage("username exist");
             res.setStatus(HttpStatus.OK);
             res.setCode(HttpStatus.OK.value());
+            System.err.println("username exist");
         }else if(checkEmail){
             res.setMessage("email exist");
             res.setStatus(HttpStatus.OK);
             res.setCode(HttpStatus.OK.value());
+            System.err.println("email exist");
         }else {
             try {
                 userService.sendMail(rq.getEmail(),subject,content,otp);

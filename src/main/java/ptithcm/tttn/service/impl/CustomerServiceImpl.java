@@ -72,6 +72,8 @@ public class CustomerServiceImpl implements CustomerService {
         if(user != null){
             return true;
         }
+        System.err.println("checkcheck1111" + user);
+
         return false;
     }
 }
