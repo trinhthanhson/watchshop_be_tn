@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
             User user = new User();
             Role role = roleRepo.findByName(rq.getRole_name());
             user.setCreated_at(LocalDateTime.now());
-            user.setStatus("Active");
+            user.setStatus(Status.ACTIVE.getUserStatus());
             user.setUpdated_at(LocalDateTime.now());
             user.setPassword(passwordEncoder.encode(rq.getPassword()));
             user.setRole_id(role.getRole_id());
@@ -170,10 +170,8 @@ public class UserServiceImpl implements UserService {
     public boolean checkUserNameExist(String username) {
         User user = userRepo.findByUsername(username.toLowerCase().trim());
         if(user != null){
-            System.err.println("checkcheck");
             return true;
         }
-        System.err.println("checkcheck1111" + user);
 
         return false;
     }

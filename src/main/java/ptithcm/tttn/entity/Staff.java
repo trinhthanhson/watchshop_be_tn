@@ -129,5 +129,13 @@ public class Staff {
     @JsonIgnore
     private List<Brand> brand_update;
 
+    @OneToMany(mappedBy = "staff_create")
+    @JsonIgnore
+    private List<Supplier> supplier_create;
+
+    @OneToMany(mappedBy = "staff_update")
+    @JsonIgnore
+    private List<Supplier> supplier_update;
+
 
 }
