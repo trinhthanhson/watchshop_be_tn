@@ -57,6 +57,7 @@ public class SupplierServiceImpl implements SupplierService {
                 create.setSupplier_name(supplier.getSupplier_name());
                 create.setFax(supplier.getFax());
                 create.setEmail(supplier.getEmail());
+                create.setAddress(supplier.getAddress());
                 create.setTax_id(supplier.getTax_id());
                 create.setPhone(supplier.getPhone());
                 create.setUpdated_at(LocalDateTime.now());
@@ -82,7 +83,7 @@ public class SupplierServiceImpl implements SupplierService {
         Supplier find = findById(id);
         boolean checkExist = checkExitsCategory(supplier.getSupplier_name());
         Supplier save = new Supplier();
-        if(!checkExist){
+        if(!checkExist || (find.getSupplier_name().equals(supplier.getSupplier_name()))){
             try{
                 User user = userService.findUserByJwt(jwt);
                 Staff staff = staffRepo.findByUserId(user.getUser_id());
