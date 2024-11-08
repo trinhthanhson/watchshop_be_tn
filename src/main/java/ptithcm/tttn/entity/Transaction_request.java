@@ -18,6 +18,9 @@ public class Transaction_request {
     private String note;
 
     @Column
+    private String content;
+
+    @Column
     private int total_quantity;
 
     @Column
