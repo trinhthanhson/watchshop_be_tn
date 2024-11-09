@@ -1,5 +1,6 @@
 package ptithcm.tttn.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -19,6 +20,9 @@ public class Transaction_request {
 
     @Column
     private String content;
+
+    @Column
+    private String status;
 
     @Column
     private int total_quantity;
@@ -47,10 +51,12 @@ public class Transaction_request {
     private Staff staff_updated_request;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "type_id",insertable = false,updatable = false)
     private Type type_request;
 
     @OneToMany(mappedBy = "request")
+    @JsonIgnore
     private List<Request_detail> requestDetails;
 
 

@@ -13,6 +13,7 @@ import ptithcm.tttn.service.UserService;
 
 import javax.persistence.Column;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class TransactionRequestServiceImpl implements TransactionRequestService {
@@ -43,8 +44,8 @@ public class TransactionRequestServiceImpl implements TransactionRequestService 
         ett.setStaff_id_created(staff.getStaff_id());
         ett.setTotal_quantity(rq.getTotal_quantity());
         ett.setTotal_price(rq.getTotal_price());
-        Transaction_request save =  requestRepo.save(ett);
-        for(ProductTransRequest item : rq.getProducts()){
+        Transaction_request save = requestRepo.save(ett);
+        for (ProductTransRequest item : rq.getProducts()) {
             Request_detail detail = new Request_detail();
             detail.setRequest_id(save.getRequest_id());
             detail.setProduct_id(item.getProductId());
@@ -52,6 +53,11 @@ public class TransactionRequestServiceImpl implements TransactionRequestService 
             detail.setQuantity(item.getQuantity());
             detailRepo.save(detail);
         }
-    return save;
+        return save;
+    }
+
+    @Override
+    public List<Transaction_request> findAll() {
+        return requestRepo.findAll();
     }
 }

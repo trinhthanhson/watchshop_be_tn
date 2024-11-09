@@ -44,7 +44,6 @@ public class AppConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/staff/**").hasAnyAuthority("STAFF", "MANAGER", "SHIPPER")
                 .antMatchers("/api/manager/**").hasAnyAuthority("MANAGER", "STAFF")
                 .and()
-
                 .addFilterBefore(new JwtTokenValidator(), UsernamePasswordAuthenticationFilter.class)
                 .csrf().disable()
                 .cors().configurationSource(corsConfigurationSource())
