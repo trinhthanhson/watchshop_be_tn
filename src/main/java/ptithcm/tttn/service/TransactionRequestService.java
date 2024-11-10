@@ -10,4 +10,8 @@ public interface TransactionRequestService {
     Transaction_request createRequest(TransactionRequest request, String jwt) throws Exception;
 
     List<Transaction_request> findAll();
+
+    Transaction_request findById(Long id) throws Exception;
+
+    Transaction_request updatestatus(Transaction_request rq,Long id, String jwt ) throws Exception;
 }

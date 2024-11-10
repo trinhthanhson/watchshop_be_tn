@@ -56,7 +56,6 @@ public class Transaction_request {
     private Type type_request;
 
     @OneToMany(mappedBy = "request")
-    @JsonIgnore
     private List<Request_detail> requestDetails;
 
 

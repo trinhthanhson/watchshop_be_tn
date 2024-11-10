@@ -126,6 +126,7 @@ public class Product {
     private List<Transaction_detail> transactionDetails;
 
     @OneToMany(mappedBy = "product_review")
+    @JsonIgnore
     private List<Review> reviews;
 
 

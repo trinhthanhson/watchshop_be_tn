@@ -1,5 +1,6 @@
 package ptithcm.tttn.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -26,6 +27,7 @@ public class Request_detail {
     private String product_id;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "request_id",insertable = false,updatable = false)
     private Transaction_request request;
 
