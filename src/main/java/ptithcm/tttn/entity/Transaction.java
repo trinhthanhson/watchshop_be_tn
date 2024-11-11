@@ -1,5 +1,6 @@
 package ptithcm.tttn.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -19,13 +20,22 @@ public class Transaction {
     private String note;
 
     @Column
+    private String content;
+
+    @Column
     private LocalDateTime created_at;
+
+    @Column
+    private LocalDateTime updated_at;
 
     @Column
     private int total_quantity;
 
     @Column
     private int total_price;
+
+    @Column
+    private String status;
 
     @Column
     private Long type_id;
@@ -35,6 +45,9 @@ public class Transaction {
 
     @Column
     private Long staff_id;
+
+    @Column
+    private Long updated_by;
 
     @ManyToOne
     @JoinColumn(name = "type_id",insertable = false,updatable = false)
@@ -47,6 +60,10 @@ public class Transaction {
     @ManyToOne
     @JoinColumn(name = "staff_id",insertable = false,updatable = false)
     private Staff staff_transaction;
+
+    @ManyToOne
+    @JoinColumn(name = "updated_by",insertable = false,updatable = false)
+    private Staff staff_updated;
 
     @OneToMany(mappedBy = "transaction_detail")
     private List<Transaction_detail> transactionDetails;

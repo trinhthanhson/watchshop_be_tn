@@ -18,5 +18,5 @@ public interface SupplierService {
 
     Supplier findByName(String name) throws Exception;
 
-    boolean checkExitsCategory(String name);
+    boolean checkExitsSupplier(String name);
 }

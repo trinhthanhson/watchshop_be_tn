@@ -111,7 +111,11 @@ public class Staff {
 
     @OneToMany(mappedBy = "staff_transaction")
     @JsonIgnore
-    private List<Transaction> Transactions;
+    private List<Transaction> transactions;
+
+    @OneToMany(mappedBy = "staff_updated")
+    @JsonIgnore
+    private List<Transaction> transactions_update;
 
     @OneToMany(mappedBy = "staff_create")
     @JsonIgnore

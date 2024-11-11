@@ -1,14 +1,14 @@
 package ptithcm.tttn.service.impl;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ptithcm.tttn.entity.*;
 import ptithcm.tttn.function.OrderStatus;
-import ptithcm.tttn.repository.BillRepo;
-import ptithcm.tttn.repository.OrderDetailRepo;
-import ptithcm.tttn.repository.OrderRepo;
-import ptithcm.tttn.repository.ProductRepo;
+import ptithcm.tttn.function.RequestStatus;
+import ptithcm.tttn.function.TypeTrans;
+import ptithcm.tttn.repository.*;
 import ptithcm.tttn.request.OrderRequest;
 import ptithcm.tttn.request.ProductSaleRequest;
 import ptithcm.tttn.request.StatisticRequest;
@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@AllArgsConstructor
 @Service
 public class OrderServiceImpl implements OrderService {
     @Autowired
@@ -31,17 +32,9 @@ public class OrderServiceImpl implements OrderService {
     private final StaffService staffService;
     private final BillRepo billRepo;
     private final ProductRepo productRepo;
-
-    public OrderServiceImpl(OrderRepo ordersRepo, UserService userService, CustomerService customerService, OrderDetailRepo orderDetailRepo, CartDetailService cartDetailService, StaffService staffService, BillRepo billRepo, ProductRepo productRepo) {
-        this.ordersRepo = ordersRepo;
-        this.userService = userService;
-        this.customerService = customerService;
-        this.orderDetailRepo = orderDetailRepo;
-        this.cartDetailService = cartDetailService;
-        this.staffService = staffService;
-        this.billRepo = billRepo;
-        this.productRepo = productRepo;
-    }
+    private final TypeRepo typeRepo;
+    private final TransactionRequestRepo requestRepo;
+    private final TransactionRequestDetailRepo detailRepo;
 
     @Override
     @Transactional
@@ -280,6 +273,26 @@ public class OrderServiceImpl implements OrderService {
                         product.setQuantity(product.getQuantity() + detail.getQuantity());
                         productRepo.save(product);
                     }
+                }
+            }else if(findOrder.getStatus().equals(OrderStatus.Confirm.getOrderStatus())){
+                Transaction_request trans_rq = new Transaction_request();
+                trans_rq.setTotal_quantity(saveOrder.getTotal_quantity());
+                trans_rq.setTotal_price(saveOrder.getTotal_price());
+                trans_rq.setNote("Xuất hàng cho đơn hàng " + saveOrder.getOrder_id());
+                trans_rq.setContent("Xuất hàng cho đơn hàng " + saveOrder.getOrder_id());
+                trans_rq.setCreated_at(LocalDateTime.now());
+                trans_rq.setStatus(RequestStatus.WAITING.getStatus());
+                trans_rq.setOrder_id(saveOrder.getOrder_id());
+                trans_rq.setStaff_id_created(staff.getStaff_id());
+                trans_rq.setType_id(typeRepo.findTypeByName(TypeTrans.EXPORT.getTypeName()).getType_id());
+                Transaction_request save = requestRepo.save(trans_rq);
+                for(Order_detail item : saveOrder.getOrderDetails()){
+                    Request_detail detail = new Request_detail();
+                    detail.setRequest_id(save.getRequest_id());
+                    detail.setQuantity(item.getQuantity());
+                    detail.setPrice(item.getPrice());
+                    detail.setProduct_id(item.getProduct_id());
+                    detailRepo.save(detail);
                 }
             }
             return saveOrder;

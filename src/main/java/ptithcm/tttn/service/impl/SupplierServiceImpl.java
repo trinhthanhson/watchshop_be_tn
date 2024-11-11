@@ -81,7 +81,7 @@ public class SupplierServiceImpl implements SupplierService {
     @Override
     public Supplier updateSupplier(Long id, Supplier supplier, String jwt) throws Exception {
         Supplier find = findById(id);
-        boolean checkExist = checkExitsCategory(supplier.getSupplier_name());
+        boolean checkExist = checkExitsSupplier(supplier.getSupplier_name());
         Supplier save = new Supplier();
         if(!checkExist || (find.getSupplier_name().equals(supplier.getSupplier_name()))){
             try{
@@ -126,15 +126,11 @@ public class SupplierServiceImpl implements SupplierService {
 
     @Override
     public Supplier findByName(String name) throws Exception {
-        Supplier supplier = supplierRepo.findSupplierByName(name);
-        if (supplier != null) {
-            return supplier;
-        }
-        throw new Exception("Not found category by name " + name);
+        return supplierRepo.findSupplierByName(name);
     }
 
     @Override
-    public boolean checkExitsCategory(String name) {
+    public boolean checkExitsSupplier(String name) {
         Supplier supplier = supplierRepo.findSupplierByName(name);
         if(supplier != null){
             return true;

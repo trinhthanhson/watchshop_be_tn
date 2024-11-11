@@ -22,8 +22,8 @@ public class StaffOrderController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<ListEntityResponse> getAllOrderByStaff(@RequestHeader("Authorization") String jwt){
-        ListEntityResponse res = new ListEntityResponse<>();
+    public ResponseEntity<ListEntityResponse<Orders>> getAllOrderByStaff(@RequestHeader("Authorization") String jwt){
+        ListEntityResponse<Orders> res = new ListEntityResponse<>();
         try{
             List<Orders> getAllOrder = orderService.findAll();
             res.setData(getAllOrder);
@@ -39,8 +39,8 @@ public class StaffOrderController {
         return new ResponseEntity<>(res,res.getStatus());
     }
     @PutMapping("/{id}/status")
-    public ResponseEntity<EntityResponse> cancelOrderByCustomer(@RequestHeader("Authorization") String jwt, @PathVariable Long id, @RequestBody Orders od){
-        EntityResponse res = new EntityResponse<>();
+    public ResponseEntity<EntityResponse<Orders>> cancelOrderByCustomer(@RequestHeader("Authorization") String jwt, @PathVariable Long id, @RequestBody Orders od){
+        EntityResponse<Orders> res = new EntityResponse<>();
         try{
             Orders orders = orderService.updateStatusOrderByStaff(od.getStatus(),id,jwt);
             res.setData(orders);
@@ -61,7 +61,7 @@ public class StaffOrderController {
         ValueResponse res = new ValueResponse();
         try{
             List<Orders> getAllOrder = orderService.findAll();
-            Integer total = 0;
+            int total = 0;
             for(Orders od : getAllOrder){
                 total+=od.getTotal_price();
             }
@@ -80,8 +80,8 @@ public class StaffOrderController {
 
 
     @GetMapping("/all/shipper")
-    public ResponseEntity<ListEntityResponse> getAllOrderByStaffShipper(@RequestHeader("Authorization") String jwt){
-        ListEntityResponse res = new ListEntityResponse<>();
+    public ResponseEntity<ListEntityResponse<Orders>> getAllOrderByStaffShipper(@RequestHeader("Authorization") String jwt){
+        ListEntityResponse<Orders> res = new ListEntityResponse<>();
         try{
             List<Orders> getAllOrder = orderService.allOrderReceiveByStaff(jwt);
 

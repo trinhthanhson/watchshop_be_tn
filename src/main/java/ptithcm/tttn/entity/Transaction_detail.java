@@ -1,5 +1,6 @@
 package ptithcm.tttn.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -27,6 +28,7 @@ public class Transaction_detail {
 
     @ManyToOne
     @JoinColumn(name = "transaction_id",insertable = false,updatable = false)
+    @JsonIgnore
     private Transaction transaction_detail;
 
     @ManyToOne

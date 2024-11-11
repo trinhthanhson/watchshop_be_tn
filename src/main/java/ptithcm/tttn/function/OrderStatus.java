@@ -9,11 +9,12 @@ import lombok.Setter;
 public enum OrderStatus {
     Waiting("0"),
     Confirm("1"),
-    Shipping("2"),
-    WaitingPayment("3"),
-    Payment("4"),
-    Delivered("5"),
-    Canceled("6");
+    Warehouse_Confirm("2"),
+    Shipping("3"),
+    WaitingPayment("4"),
+    Payment("5"),
+    Delivered("6"),
+    Canceled("7");
 
     private final String orderStatus;
 }

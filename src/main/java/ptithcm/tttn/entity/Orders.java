@@ -72,5 +72,8 @@ public class Orders {
     @OneToMany(mappedBy = "orders")
     private List<Order_detail> orderDetails;
 
+    @OneToMany(mappedBy = "request_order")
+    @JsonIgnore
+    private List<Transaction_request> requestOrders;
 
 }

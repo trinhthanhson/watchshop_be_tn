@@ -89,9 +89,10 @@ public class StaffRequestController {
             res.setStatus(HttpStatus.OK);
         }catch (Exception e){
             res.setData(null);
-            res.setMessage(MessageError.E01.getMessage());
+            res.setMessage(MessageError.E01.getMessage() + e.getMessage());
             res.setCode(HttpStatus.CONFLICT.value());
             res.setStatus(HttpStatus.CONFLICT);
+            System.err.println(e.getMessage());
         }
         return new ResponseEntity<>(res,res.getStatus());
     }

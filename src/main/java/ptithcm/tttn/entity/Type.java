@@ -1,5 +1,6 @@
 package ptithcm.tttn.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -22,9 +23,11 @@ public class Type {
     private LocalDateTime created_at;
 
     @OneToMany(mappedBy = "type_request")
+    @JsonIgnore
     private List<Transaction_request> transactionRequests;
 
     @OneToMany(mappedBy = "type_transaction")
+    @JsonIgnore
     private List<Transaction> Transactions;
     
 }

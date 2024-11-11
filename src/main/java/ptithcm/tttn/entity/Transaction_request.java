@@ -25,6 +25,18 @@ public class Transaction_request {
     private String status;
 
     @Column
+    private String expected_supplier;
+
+    @Column
+    private String supplier_email;
+
+    @Column
+    private String supplier_phone;
+
+    @Column
+    private String supplier_address;
+
+    @Column
     private int total_quantity;
 
     @Column
@@ -42,16 +54,22 @@ public class Transaction_request {
     @Column
     private Long staff_id_updated;
 
+    @Column
+    private Long order_id;
+
     @ManyToOne
     @JoinColumn(name = "staff_id_created",insertable = false,updatable = false)
     private Staff staff_created_request;
+
+    @ManyToOne
+    @JoinColumn(name = "order_id",insertable = false,updatable = false)
+    private Orders request_order;
 
     @ManyToOne
     @JoinColumn(name = "staff_id_updated",insertable = false,updatable = false)
     private Staff staff_updated_request;
 
     @ManyToOne
-    @JsonIgnore
     @JoinColumn(name = "type_id",insertable = false,updatable = false)
     private Type type_request;
 
