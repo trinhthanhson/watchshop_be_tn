@@ -55,6 +55,8 @@ public class CouponServiceImpl  implements CouponService {
         create.setStart_date(coupon.getStart_date());
         create.setEnd_date(coupon.getEnd_date());
         create.setUpdated_at(LocalDateTime.now());
+        create.setStatus(Status.ACTIVE.getUserStatus());
+
         create.setUpdated_by(staff.getStaff_id());
         create.setTitle(coupon.getTitle());
         Coupon saved = couponRepo.save(create);

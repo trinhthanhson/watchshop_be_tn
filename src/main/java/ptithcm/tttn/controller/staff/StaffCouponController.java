@@ -50,7 +50,7 @@ public class StaffCouponController {
         EntityResponse res = new EntityResponse();
         System.out.println(coupon.getContent() + " " + coupon.getPercent() + " " + coupon.getEnd_date() + " " + coupon.getStart_date());
         try{
-            if(!coupon.getContent().equals("") && coupon.getEnd_date() != null&& coupon.getStart_date() != null){
+            if(!coupon.getContent().equals("") && coupon.getEnd_date() != null && coupon.getStart_date() != null){
                 Coupon create = couponService.createCoupon(coupon,jwt);
                 res.setStatus(HttpStatus.CREATED);
                 res.setCode(HttpStatus.CREATED.value());
