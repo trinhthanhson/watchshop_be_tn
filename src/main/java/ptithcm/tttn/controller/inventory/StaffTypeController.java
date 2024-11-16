@@ -16,7 +16,7 @@ import ptithcm.tttn.service.TypeService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/staff/inventory/type")
+@RequestMapping("/api/inventory/type")
 @AllArgsConstructor
 public class StaffTypeController {
 

@@ -17,7 +17,7 @@ import java.util.Date;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/staff/inventory/statistic")
+@RequestMapping("/api/inventory/statistic")
 @AllArgsConstructor
 public class StaffStatisticController {
 

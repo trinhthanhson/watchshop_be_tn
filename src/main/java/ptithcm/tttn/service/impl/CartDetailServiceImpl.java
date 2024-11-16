@@ -39,7 +39,7 @@ public class CartDetailServiceImpl implements CartDetailService {
         } else {
             Cart_detail create = new Cart_detail();
             create.setCustomer_id(customer.getCustomer_id());
-            create.setQuantity(cartDetail.getQuantity());
+            create.setQuantity  (cartDetail.getQuantity());
             create.setProduct_id(cartDetail.getProduct_id());
             cartDetailRepo.save(create);
         }

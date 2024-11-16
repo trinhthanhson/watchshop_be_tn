@@ -13,7 +13,7 @@ import ptithcm.tttn.service.SupplierService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/staff/inventory/supplier")
+@RequestMapping("/api/inventory/supplier")
 @AllArgsConstructor
 public class StaffSupplierController {
 

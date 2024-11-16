@@ -15,7 +15,7 @@ import ptithcm.tttn.service.impl.TransactionRequestServiceImpl;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/staff/inventory/request")
+@RequestMapping("/api/inventory/request")
 public class StaffRequestController {
 
     private final TransactionRequestServiceImpl requestService;
