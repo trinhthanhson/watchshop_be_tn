@@ -1,5 +1,6 @@
 package ptithcm.tttn.controller.staff;
 
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,13 +14,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/staff/order")
+@AllArgsConstructor
 public class StaffOrderController {
 
     private final OrderService orderService;
-
-    public StaffOrderController(OrderService orderService) {
-        this.orderService = orderService;
-    }
 
     @GetMapping("/all")
     public ResponseEntity<ListEntityResponse<Orders>> getAllOrderByStaff(@RequestHeader("Authorization") String jwt){

@@ -22,6 +22,7 @@ public class CustomerCartController {
     @PostMapping("/add")
     public ResponseEntity<ApiResponse> addCartDetail(@RequestHeader("Authorization") String jwt, @RequestBody Cart_detail detail) {
         ApiResponse res = new ApiResponse();
+
         try {
             cartDetailService.createCart(detail, jwt);
             res.setCode(HttpStatus.CREATED.value());
@@ -84,4 +85,5 @@ public class CustomerCartController {
         }
         return new ResponseEntity<>(res, res.getStatus());
     }
+
 }

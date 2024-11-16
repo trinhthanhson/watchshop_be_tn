@@ -1,6 +1,7 @@
 package ptithcm.tttn.controller;
 
 
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -28,20 +29,13 @@ import static ptithcm.tttn.function.GenerateOtp.generateOTP;
 
 @RestController
 @RequestMapping("/api/auth")
+@AllArgsConstructor
 public class AuthController {
     private final UserService userService;
     private final UserDetailsServiceImpl userDetailsService;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final CustomerService customerService;
-
-    public AuthController(UserService userService, UserDetailsServiceImpl userDetailsService, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, CustomerService customerService) {
-        this.userService = userService;
-        this.userDetailsService = userDetailsService;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.customerService = customerService;
-    }
 
     @PostMapping("/sign-up")
     public ResponseEntity<ApiResponse> signUp(@RequestBody SignUpRequest rq) {

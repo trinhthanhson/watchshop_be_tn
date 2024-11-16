@@ -1,5 +1,6 @@
 package ptithcm.tttn.controller.user;
 
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -7,7 +8,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ptithcm.tttn.entity.Brand;
-import ptithcm.tttn.entity.Category;
 import ptithcm.tttn.response.EntityResponse;
 import ptithcm.tttn.response.ListEntityResponse;
 import ptithcm.tttn.service.BrandService;
@@ -16,12 +16,9 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/user/brand")
+@AllArgsConstructor
 public class BrandController {
     private final BrandService brandService;
-
-    public BrandController(BrandService brandService) {
-        this.brandService = brandService;
-    }
 
     @GetMapping("/all")
     public ResponseEntity<ListEntityResponse<Brand>> getAllBrand() {

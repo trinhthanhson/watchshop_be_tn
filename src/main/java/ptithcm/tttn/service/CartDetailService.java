@@ -12,8 +12,6 @@ public interface CartDetailService {
 
     void updateQuantityCart(Cart_detail cartDetail,String jwt) throws Exception;
 
-    Cart_detail findPosCart(Cart_detail cartDetail,String jwt) throws Exception;
-
     void deleteCartItem(Cart_detail cartDetail, String jwt) throws Exception;
 
     void deleteCart(String jwt) throws Exception;

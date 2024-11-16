@@ -1,6 +1,6 @@
 package ptithcm.tttn.controller.staff;
 
-
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,13 +11,10 @@ import ptithcm.tttn.service.BrandService;
 
 @RestController
 @RequestMapping("/api/staff/brand")
+@AllArgsConstructor
 public class StaffBrandController {
 
     private final BrandService brandService;
-
-    public StaffBrandController(BrandService brandService) {
-        this.brandService = brandService;
-    }
 
     @PostMapping("/add")
     public ResponseEntity<EntityResponse<Brand>> addBrandByManager(@RequestBody Brand brand, @RequestHeader("Authorization") String jwt) throws Exception {
@@ -39,8 +36,6 @@ public class StaffBrandController {
         }
         return new ResponseEntity<>(res,res.getStatus());
     }
-
-
 
     @PutMapping("/{id}/update")
     public ResponseEntity<EntityResponse<Brand>> updatedBrandByStaff(@RequestBody Brand brand, @RequestHeader("Authorization") String jwt,@PathVariable Long id) throws Exception{

@@ -1,6 +1,6 @@
 package ptithcm.tttn.controller.staff;
 
-
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,18 +17,15 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/staff/user")
+@AllArgsConstructor
 public class StaffUserController {
     private final UserService userService;
     private final StaffService staffService;
 
-    public StaffUserController(UserService userService, StaffService staffService) {
-        this.userService = userService;
-        this.staffService = staffService;
-    }
-
+    // <editor-fold desc="User">
     @GetMapping("/all")
-    public ResponseEntity<ListEntityResponse> getAllUserCustomerByStaff(@RequestHeader("Authorization") String jwt){
-        ListEntityResponse res = new ListEntityResponse<>();
+    public ResponseEntity<ListEntityResponse<User>> getAllUserCustomerByStaff(@RequestHeader("Authorization") String jwt){
+        ListEntityResponse<User> res = new ListEntityResponse<>();
         try{
             List<User> findAll = userService.findAll();
             List<User> allUserCustomer = new ArrayList<>();
@@ -51,8 +48,8 @@ public class StaffUserController {
     }
 
     @GetMapping("/{id}/find")
-    public ResponseEntity<EntityResponse> getUserCustomerByStaff(@RequestHeader("Authorization") String jwt, @PathVariable Long id){
-        EntityResponse res = new EntityResponse<>();
+    public ResponseEntity<EntityResponse<User>> getUserCustomerByStaff(@RequestHeader("Authorization") String jwt, @PathVariable Long id){
+        EntityResponse<User> res = new EntityResponse<>();
         try{
             User user = userService.findById(id);
             res.setData(user);
@@ -83,10 +80,12 @@ public class StaffUserController {
         }
         return new ResponseEntity<>(res, res.getStatus());
     }
+    // </editor-fold>
 
+    // <editor-fold desc="Staff">
     @PutMapping("/profile/update")
-    public ResponseEntity<EntityResponse> updateProfileStaff(@RequestHeader("Authorization") String jwt, @RequestBody Staff staff){
-        EntityResponse res = new EntityResponse<>();
+    public ResponseEntity<EntityResponse<Staff>> updateProfileStaff(@RequestHeader("Authorization") String jwt, @RequestBody Staff staff){
+        EntityResponse<Staff> res = new EntityResponse<>();
         try{
             Staff update = staffService.updateProfileStaff(jwt,staff);
             res.setData(update);
@@ -101,4 +100,5 @@ public class StaffUserController {
         }
         return new ResponseEntity<>(res,res.getStatus());
     }
+    // </editor-fold>
 }

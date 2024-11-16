@@ -1,5 +1,6 @@
 package ptithcm.tttn.controller.user;
 
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,13 +14,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/user/product")
+@AllArgsConstructor
 public class ProductController {
 
     private final ProductService productService;
-
-    public ProductController(ProductService productService) {
-        this.productService = productService;
-    }
 
     @GetMapping("/all")
     public ResponseEntity<ListEntityResponse<Product>> findAllProduct() {
@@ -41,8 +39,8 @@ public class ProductController {
     }
 
     @GetMapping("/{id}/info")
-    public ResponseEntity<EntityResponse> findProductById(@PathVariable String id) {
-        EntityResponse res = new EntityResponse();
+    public ResponseEntity<EntityResponse<Product>> findProductById(@PathVariable String id) {
+        EntityResponse<Product> res = new EntityResponse<>();
         try {
             Product findById = productService.findById(id);
             res.setMessage("Success");
@@ -59,8 +57,8 @@ public class ProductController {
     }
 
     @GetMapping("/find")
-    public ResponseEntity<ListEntityResponse> getAllProductByDetail(@RequestParam String keyword) {
-        ListEntityResponse res = new ListEntityResponse();
+    public ResponseEntity<ListEntityResponse<Product>> getAllProductByDetail(@RequestParam String keyword) {
+        ListEntityResponse<Product> res = new ListEntityResponse<>();
         try {
             List<Product> find = productService.findByDetail(keyword);
             res.setCode(HttpStatus.OK.value());

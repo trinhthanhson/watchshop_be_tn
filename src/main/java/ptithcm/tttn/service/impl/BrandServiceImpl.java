@@ -1,5 +1,6 @@
 package ptithcm.tttn.service.impl;
 
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ptithcm.tttn.entity.Brand;
 import ptithcm.tttn.entity.Staff;
@@ -16,16 +17,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@AllArgsConstructor
 public class BrandServiceImpl implements BrandService {
     private final BrandRepo brandRepo;
     private final UserService userService;
     private final StaffRepo staffRepo;
-
-    public BrandServiceImpl(BrandRepo brandRepo, UserService userService, StaffRepo staffRepo) {
-        this.brandRepo = brandRepo;
-        this.userService = userService;
-        this.staffRepo = staffRepo;
-    }
 
     @Override
     public List<Brand> findAll() throws Exception {

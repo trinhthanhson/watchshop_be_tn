@@ -1,5 +1,6 @@
 package ptithcm.tttn.controller.user;
 
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,13 +14,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/user/coupon")
+@AllArgsConstructor
 public class CouponController {
 
     private final CouponService couponService;
-
-    public CouponController(CouponService couponService) {
-        this.couponService = couponService;
-    }
 
     @GetMapping("/all")
     public ResponseEntity<ListEntityResponse<Coupon>> allCoupon() {

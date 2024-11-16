@@ -16,6 +16,7 @@ public interface OrderService {
     Orders findById(Long id) throws Exception;
 
     Orders updateStatus(String status, Long id) throws Exception;
+    
     Orders updateStatusPayment(String status, Long id) throws Exception;
 
     Orders orderBuyCart(OrderRequest rq,String jwt) throws Exception;

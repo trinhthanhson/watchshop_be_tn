@@ -1,6 +1,6 @@
 package ptithcm.tttn.controller.user;
 
-import com.google.api.Http;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,12 +16,9 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/user/category")
+@AllArgsConstructor
 public class CategoryController {
     private final CategoryService categoryService;
-
-    public CategoryController(CategoryService categoryService) {
-        this.categoryService = categoryService;
-    }
 
     @GetMapping("/all")
     public ResponseEntity<ListEntityResponse<Category>> getAllCategory(){

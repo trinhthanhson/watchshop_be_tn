@@ -1,9 +1,9 @@
-package ptithcm.tttn.controller.staff;
+package ptithcm.tttn.controller.inventory;
 
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ptithcm.tttn.entity.Supplier;
 import ptithcm.tttn.entity.Supplier;
 import ptithcm.tttn.response.ApiResponse;
 import ptithcm.tttn.response.EntityResponse;
@@ -14,16 +14,11 @@ import ptithcm.tttn.service.SupplierService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/staff/supplier")
+@RequestMapping("/api/staff/inventory/supplier")
+@AllArgsConstructor
 public class StaffSupplierController {
 
     private final SupplierService supplierService;
-    private final StaffService staffService;
-
-    public StaffSupplierController(SupplierService supplierService, StaffService staffService) {
-        this.supplierService = supplierService;
-        this.staffService = staffService;
-    }
 
     @GetMapping("/all")
     public ResponseEntity<ListEntityResponse<Supplier>> findAllSupplierHandle(@RequestHeader("Authorization") String jwt) {
@@ -64,8 +59,6 @@ public class StaffSupplierController {
         }
         return new ResponseEntity<>(res,res.getStatus());
     }
-
-
 
     @PutMapping("/{id}/update")
     public ResponseEntity<EntityResponse<Supplier>> updatedSupplierByStaff(@RequestBody Supplier Supplier, @RequestHeader("Authorization") String jwt,@PathVariable Long id) throws Exception{

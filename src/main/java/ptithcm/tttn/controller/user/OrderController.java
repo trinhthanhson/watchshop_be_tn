@@ -1,5 +1,6 @@
 package ptithcm.tttn.controller.user;
 
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,15 +16,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/user/order")
+@AllArgsConstructor
 public class OrderController {
 
     private final OrderService ordersService;
-    private final OrderDetailService orderDetailService;
-
-    public OrderController(OrderService ordersService, OrderDetailService orderDetailService) {
-        this.ordersService = ordersService;
-        this.orderDetailService = orderDetailService;
-    }
 
     @RequestMapping("{id}/get")
     public ResponseEntity<EntityResponse<Orders>> findOrderById(@PathVariable Long id){

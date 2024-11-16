@@ -1,10 +1,8 @@
-package ptithcm.tttn.controller.staff;
+package ptithcm.tttn.controller.inventory;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ptithcm.tttn.entity.Orders;
-import ptithcm.tttn.entity.Product;
 import ptithcm.tttn.entity.Transaction_request;
 import ptithcm.tttn.function.MessageError;
 import ptithcm.tttn.function.MessageSuccess;
@@ -17,7 +15,7 @@ import ptithcm.tttn.service.impl.TransactionRequestServiceImpl;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/staff/request")
+@RequestMapping("/api/staff/inventory/request")
 public class StaffRequestController {
 
     private final TransactionRequestServiceImpl requestService;
@@ -82,7 +80,7 @@ public class StaffRequestController {
     public ResponseEntity<EntityResponse<Transaction_request>> cancelOrderByCustomer(@RequestHeader("Authorization") String jwt, @PathVariable Long id, @RequestBody Transaction_request rq){
         EntityResponse<Transaction_request> res = new EntityResponse<>();
         try{
-            Transaction_request ett = requestService.updatestatus(rq,id,jwt);
+            Transaction_request ett = requestService.updateStatus(rq,id,jwt);
             res.setData(ett);
             res.setMessage(MessageSuccess.E01.getMessage());
             res.setCode(HttpStatus.OK.value());

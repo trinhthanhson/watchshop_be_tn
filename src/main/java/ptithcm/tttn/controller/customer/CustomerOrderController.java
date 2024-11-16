@@ -1,5 +1,6 @@
 package ptithcm.tttn.controller.customer;
 
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -8,21 +9,16 @@ import ptithcm.tttn.function.OrderStatus;
 import ptithcm.tttn.request.OrderRequest;
 import ptithcm.tttn.response.ApiResponse;
 import ptithcm.tttn.response.ListEntityResponse;
-import ptithcm.tttn.service.OrderDetailService;
 import ptithcm.tttn.service.OrderService;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/customer/order")
+@AllArgsConstructor
 public class CustomerOrderController {
     private final OrderService ordersService;
-    private final OrderDetailService orderDetailService;
 
-    public CustomerOrderController(OrderService ordersService, OrderDetailService orderDetailService) {
-        this.ordersService = ordersService;
-        this.orderDetailService = orderDetailService;
-    }
 
     @PostMapping("/buy-cart")
     public ResponseEntity<ApiResponse> buyCartByCustomer(@RequestHeader("Authorization") String jwt, @RequestBody OrderRequest rq){

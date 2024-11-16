@@ -1,5 +1,6 @@
 package ptithcm.tttn.controller.staff;
 
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,13 +11,10 @@ import ptithcm.tttn.service.CategoryService;
 
 @RestController
 @RequestMapping("/api/staff/category")
+@AllArgsConstructor
 public class StaffCategoryController {
 
     private final CategoryService categoryService;
-
-    public StaffCategoryController(CategoryService categoryService) {
-        this.categoryService = categoryService;
-    }
 
     @PostMapping("/add")
     public ResponseEntity<EntityResponse<Category>> addCategoriesByStaff(@RequestBody Category category, @RequestHeader("Authorization") String jwt) {
@@ -24,18 +22,10 @@ public class StaffCategoryController {
         HttpStatus httpStatus = HttpStatus.CONFLICT;
 
         try {
-//            for (Map<String, Object> categoryMap : categoriesMap) {
-//                if (categoryMap.containsKey("category_name")) {
-//                    String category_name = (String) categoryMap.get("category_name");
-//                    saveCategory = categoryService.createCategory(category_name, jwt);
-//                } else {
-//                    throw new Exception("Please enter complete information for all categories");
-//                }
-//            }
             if (category.getCategory_name().isEmpty()) {
                 throw new Exception("Please enter complete information");
             }
-            Category saveCategory = categoryService.createCategory(category.getCategory_name(),jwt);
+            Category saveCategory = categoryService.createCategory(category.getCategory_name(), jwt);
             res.setData(saveCategory);
             res.setMessage("Success");
             res.setStatus(HttpStatus.CREATED);
@@ -50,41 +40,40 @@ public class StaffCategoryController {
         return new ResponseEntity<>(res, httpStatus);
     }
 
-
-
     @PutMapping("/{id}/update")
-    public ResponseEntity<ApiResponse> updatedCategoryByStaff(@RequestBody Category category, @RequestHeader("Authorization") String jwt, @PathVariable Long id) throws Exception{
+    public ResponseEntity<ApiResponse> updatedCategoryByStaff(@RequestBody Category category, @RequestHeader("Authorization") String jwt, @PathVariable Long id) throws Exception {
         ApiResponse res = new ApiResponse();
-        try{
+        try {
             if (category.getCategory_name().isEmpty()) {
                 throw new Exception("Please enter complete information");
             }
-            Category saveCategory = categoryService.updateCategory(id,category.getCategory_name(),jwt);
+            Category saveCategory = categoryService.updateCategory(id, category.getCategory_name(), jwt);
             res.setMessage("Success");
             res.setStatus(HttpStatus.OK);
             res.setCode(HttpStatus.OK.value());
-        }catch (Exception e){
+        } catch (Exception e) {
             res.setStatus(HttpStatus.CONFLICT);
             res.setCode(HttpStatus.CONFLICT.value());
             res.setMessage("error " + e.getMessage());
         }
-        return new ResponseEntity<>(res,res.getStatus());
+        return new ResponseEntity<>(res, res.getStatus());
     }
 
     @DeleteMapping("/{id}/delete")
-    public ResponseEntity<ApiResponse> deleteCategoryByStaff(@RequestHeader("Authorization") String jwt, @PathVariable Long id) throws Exception{
+    public ResponseEntity<ApiResponse> deleteCategoryByStaff(@RequestHeader("Authorization") String jwt, @PathVariable Long id) throws Exception {
         ApiResponse res = new ApiResponse();
-        try{
 
-            Category saveCategory = categoryService.deleteCategory(id,jwt);
+        try {
+            Category saveCategory = categoryService.deleteCategory(id, jwt);
             res.setMessage("Success");
             res.setStatus(HttpStatus.OK);
             res.setCode(HttpStatus.OK.value());
-        }catch (Exception e){
+        } catch (Exception e) {
             res.setStatus(HttpStatus.CONFLICT);
             res.setCode(HttpStatus.CONFLICT.value());
             res.setMessage("error " + e.getMessage());
         }
-        return new ResponseEntity<>(res,res.getStatus());
+
+        return new ResponseEntity<>(res, res.getStatus());
     }
 }

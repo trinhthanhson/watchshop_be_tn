@@ -17,6 +17,7 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import ptithcm.tttn.function.RoleName;
 import ptithcm.tttn.service.impl.UserDetailsServiceImpl;
 
 import javax.servlet.http.HttpServletResponse;
@@ -41,8 +42,10 @@ public class AppConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/api/auth/**").permitAll()
                 .antMatchers("/api/user/**").permitAll()  // Require authentication
-                .antMatchers("/api/staff/**").hasAnyAuthority("STAFF", "MANAGER", "SHIPPER")
-                .antMatchers("/api/manager/**").hasAnyAuthority("MANAGER", "STAFF")
+                .antMatchers("/api/staff/**").hasAnyAuthority(RoleName.STAFF.getRoleName(), RoleName.MANAGER.getRoleName(), RoleName.SHIPPER.getRoleName())
+                .antMatchers("/api/manager/**").hasAnyAuthority(RoleName.MANAGER.getRoleName(), RoleName.STAFF.getRoleName())
+                .antMatchers("/api/manager/inventory/**").hasAnyAuthority(RoleName.WAREHOUSE_STAFF.getRoleName(),RoleName.WAREHOUSE_MANAGER.getRoleName())
+
                 .and()
                 .addFilterBefore(new JwtTokenValidator(), UsernamePasswordAuthenticationFilter.class)
                 .csrf().disable()

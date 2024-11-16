@@ -1,6 +1,6 @@
-package ptithcm.tttn.controller.staff;
+package ptithcm.tttn.controller.inventory;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,16 +17,13 @@ import java.util.Date;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/staff/statistic")
+@RequestMapping("/api/staff/inventory/statistic")
+@AllArgsConstructor
 public class StaffStatisticController {
 
     private final ProductService productService;
     private final OrderService orderService;
 
-    public StaffStatisticController(ProductService productService, OrderService orderService) {
-        this.productService = productService;
-        this.orderService = orderService;
-    }
     @GetMapping("/sales")
     public ResponseEntity<EntityResponse<List<StatisticRequest>>> getStatisticSaleOrder(@RequestHeader("Authorization") String jwt){
         EntityResponse<List<StatisticRequest>> res = new EntityResponse<>();

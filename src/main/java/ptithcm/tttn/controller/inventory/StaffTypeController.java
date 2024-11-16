@@ -1,12 +1,12 @@
-package ptithcm.tttn.controller.staff;
+package ptithcm.tttn.controller.inventory;
 
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ptithcm.tttn.entity.Transaction;
 import ptithcm.tttn.entity.Type;
 import ptithcm.tttn.function.MessageError;
 import ptithcm.tttn.function.MessageSuccess;
@@ -16,14 +16,11 @@ import ptithcm.tttn.service.TypeService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/staff/type")
+@RequestMapping("/api/staff/inventory/type")
+@AllArgsConstructor
 public class StaffTypeController {
 
     private final TypeService typeService;
-
-    public StaffTypeController(TypeService typeService) {
-        this.typeService = typeService;
-    }
 
     @GetMapping("/all")
     public ResponseEntity<ListEntityResponse<Type>> findAllTransactionHandle(@RequestHeader("Authorization") String jwt){

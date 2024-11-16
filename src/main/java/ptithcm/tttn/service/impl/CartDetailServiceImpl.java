@@ -1,5 +1,6 @@
 package ptithcm.tttn.service.impl;
 
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ptithcm.tttn.entity.Cart_detail;
 import ptithcm.tttn.entity.Customer;
@@ -13,17 +14,12 @@ import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class CartDetailServiceImpl implements CartDetailService {
 
     private final CartDetailRepo cartDetailRepo;
     private final UserService userService;
     private final CustomerService customerService;
-
-    public CartDetailServiceImpl(CartDetailRepo cartDetailRepo, UserService userService, CustomerService customerService) {
-        this.cartDetailRepo = cartDetailRepo;
-        this.userService = userService;
-        this.customerService = customerService;
-    }
 
     @Override
     @Transactional
@@ -66,7 +62,6 @@ public class CartDetailServiceImpl implements CartDetailService {
         cartDetailRepo.save(cart);
     }
 
-    @Override
     public Cart_detail findPosCart(Cart_detail cartDetail, String jwt) throws Exception {
         User user = userService.findUserByJwt(jwt);
         Customer customer = customerService.findByUserId(user.getUser_id());

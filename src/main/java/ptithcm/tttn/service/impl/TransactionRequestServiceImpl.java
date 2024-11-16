@@ -76,7 +76,7 @@ public class TransactionRequestServiceImpl implements TransactionRequestService 
 
     @Override
     @Transactional
-    public Transaction_request updatestatus(Transaction_request rq, Long id, String jwt) throws Exception {
+    public Transaction_request updateStatus(Transaction_request rq, Long id, String jwt) throws Exception {
         User user = userService.findUserByJwt(jwt);
         Staff staff = staffService.findByUserId(user.getUser_id());
         Transaction_request ett = findById(id);

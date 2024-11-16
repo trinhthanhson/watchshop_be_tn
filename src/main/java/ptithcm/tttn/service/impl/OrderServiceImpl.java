@@ -96,7 +96,7 @@ public class OrderServiceImpl implements OrderService {
         Orders findOrder = findById(id);
         List<Order_detail> orderDetails = orderDetailRepo.findOrderDetailByOrderId(findOrder.getOrder_id());
 
-        if (findOrder != null && findOrder.getStatus().equals(OrderStatus.Waiting.getOrderStatus())) {
+        if ( findOrder.getStatus().equals(OrderStatus.Waiting.getOrderStatus())) {
             findOrder.setStatus(status);
 
             if (findOrder.getStatus().equals(OrderStatus.Canceled.getOrderStatus())) {

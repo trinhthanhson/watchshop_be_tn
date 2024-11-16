@@ -1,6 +1,6 @@
 package ptithcm.tttn.controller.staff;
 
-
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,19 +17,15 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/staff/coupon")
+@AllArgsConstructor
 public class StaffCouponController {
 
     private final CouponService couponService;
     private final CouponDetailService couponDetailService;
 
-    public StaffCouponController(CouponService couponService, CouponDetailService couponDetailService) {
-        this.couponService = couponService;
-        this.couponDetailService = couponDetailService;
-    }
-
     @GetMapping("/all")
-    public ResponseEntity<ListEntityResponse> getAllCouponByStaff(@RequestHeader("Authorization") String jwt){
-        ListEntityResponse res = new ListEntityResponse();
+    public ResponseEntity<ListEntityResponse<Coupon>> getAllCouponByStaff(@RequestHeader("Authorization") String jwt){
+        ListEntityResponse<Coupon> res = new ListEntityResponse<>();
         try{
             List<Coupon> allCoupon = couponService.findAll();
             res.setData(allCoupon);
@@ -46,11 +42,11 @@ public class StaffCouponController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<EntityResponse> addCoupontByStaff(@RequestHeader("Authorization") String jwt, @RequestBody CouponRequest coupon){
-        EntityResponse res = new EntityResponse();
+    public ResponseEntity<EntityResponse<Coupon>> addCoupontByStaff(@RequestHeader("Authorization") String jwt, @RequestBody CouponRequest coupon){
+        EntityResponse<Coupon> res = new EntityResponse<>();
         System.out.println(coupon.getContent() + " " + coupon.getPercent() + " " + coupon.getEnd_date() + " " + coupon.getStart_date());
         try{
-            if(!coupon.getContent().equals("") && coupon.getEnd_date() != null && coupon.getStart_date() != null){
+            if(!coupon.getContent().isEmpty() && coupon.getEnd_date() != null && coupon.getStart_date() != null){
                 Coupon create = couponService.createCoupon(coupon,jwt);
                 res.setStatus(HttpStatus.CREATED);
                 res.setCode(HttpStatus.CREATED.value());
@@ -88,8 +84,8 @@ public class StaffCouponController {
     }
 
     @GetMapping("/{id}/detail")
-    public ResponseEntity<ListEntityResponse> getAllCouponDetailByStaff(@RequestHeader("Authorization") String jwt,@PathVariable Long id){
-        ListEntityResponse res = new ListEntityResponse();
+    public ResponseEntity<ListEntityResponse<Coupon_detail>> getAllCouponDetailByStaff(@RequestHeader("Authorization") String jwt,@PathVariable Long id){
+        ListEntityResponse<Coupon_detail> res = new ListEntityResponse<>();
         try{
             List<Coupon_detail> allCoupon = couponService.findAllDetailByCouponId(id);
             res.setData(allCoupon);

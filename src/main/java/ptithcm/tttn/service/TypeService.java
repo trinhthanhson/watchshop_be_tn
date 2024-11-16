@@ -7,6 +7,4 @@ import java.util.List;
 public interface TypeService {
 
     List<Type> findAll();
-
-
 }
