@@ -187,4 +187,28 @@ public class UserServiceImpl implements UserService {
 
         mailSender.send(mimeMessage);
     }
+
+    @Override
+    @Transactional
+    public User createUserStaff(SignUpRequest rq) throws Exception {
+        User user = new User();
+        Role role = roleRepo.findByName(rq.getRole_name());
+        user.setCreated_at(LocalDateTime.now());
+        user.setStatus("Active");
+        user.setUpdated_at(LocalDateTime.now());
+        user.setPassword(passwordEncoder.encode(rq.getPassword()));
+        user.setRole_id(role.getRole_id());
+        user.setUsername(rq.getUsername());
+        User saveUser = userRepo.save(user);
+        if(saveUser != null){
+            Staff staff = new Staff();
+            staff.setUser_id(saveUser.getUser_id());
+            staff.setCreated_at(LocalDateTime.now());
+            staff.setEmail(rq.getEmail());
+            staff.setFirst_name(rq.getFirstname());
+            staff.setLast_name(rq.getLastname());
+            Staff saveStaff = staffRepo.save(staff);
+        }
+        return saveUser;
+    }
 }

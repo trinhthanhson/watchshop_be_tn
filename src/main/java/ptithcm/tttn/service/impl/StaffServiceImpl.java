@@ -10,6 +10,7 @@ import ptithcm.tttn.service.UserService;
 import javax.transaction.Transactional;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class StaffServiceImpl implements StaffService {
@@ -30,7 +31,6 @@ public class StaffServiceImpl implements StaffService {
             throw new SQLException("Error finding staff by user ID: " + user_id, e);
         }
     }
-
 
     @Override
     public boolean checkEmailExist(String email) {
@@ -56,5 +56,10 @@ public class StaffServiceImpl implements StaffService {
         find.setFirst_name(staff.getFirst_name());
         find.setLast_name(staff.getLast_name());
         return staffRepo.save(find);
+    }
+
+    @Override
+    public List<Staff> findAll() {
+        return staffRepo.findAll();
     }
 }

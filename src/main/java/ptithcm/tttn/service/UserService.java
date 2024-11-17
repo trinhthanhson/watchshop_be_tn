@@ -30,4 +30,6 @@ public interface UserService {
 
     boolean checkUserNameExist(String username);
 
+    User createUserStaff(SignUpRequest rq) throws Exception;
+
 }
