@@ -3,14 +3,12 @@ package ptithcm.tttn.service.impl;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ptithcm.tttn.entity.*;
-import ptithcm.tttn.function.OrderStatus;
 import ptithcm.tttn.function.RequestStatus;
 import ptithcm.tttn.repository.*;
 import ptithcm.tttn.request.ProductTransRequest;
 import ptithcm.tttn.request.TransactionRequest;
 import ptithcm.tttn.service.*;
 
-import javax.persistence.Column;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -118,7 +116,7 @@ public class TransactionRequestServiceImpl implements TransactionRequestService 
                 // Lưu thông tin giao dịch
                 Transaction savedTransaction = transactionRepo.save(ettTrans);
                 Orders orders = orderService.findById(ett.getOrder_id());
-                orders.setStatus(OrderStatus.Shipping.getOrderStatus());
+                //orders.setStatus(OrderStatus.Shipping.getOrderStatus());
                 // Duyệt qua từng Request_detail để tạo Transaction_detail
                 for (Request_detail item : ett.getRequestDetails()) {
                     Transaction_detail detail = new Transaction_detail();

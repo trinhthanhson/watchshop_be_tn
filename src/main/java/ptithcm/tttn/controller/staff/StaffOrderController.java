@@ -39,18 +39,18 @@ public class StaffOrderController {
     @PutMapping("/{id}/status")
     public ResponseEntity<EntityResponse<Orders>> cancelOrderByCustomer(@RequestHeader("Authorization") String jwt, @PathVariable Long id, @RequestBody Orders od){
         EntityResponse<Orders> res = new EntityResponse<>();
-        try{
-            Orders orders = orderService.updateStatusOrderByStaff(od.getStatus(),id,jwt);
-            res.setData(orders);
-            res.setMessage("success");
-            res.setCode(HttpStatus.OK.value());
-            res.setStatus(HttpStatus.OK);
-        }catch (Exception e){
-            res.setData(null);
-            res.setMessage("error " + e.getMessage());
-            res.setCode(HttpStatus.CONFLICT.value());
-            res.setStatus(HttpStatus.CONFLICT);
-        }
+//        try{
+//            Orders orders = orderService.updateStatusOrderByStaff(od.getStatus(),id,jwt);
+//            res.setData(orders);
+//            res.setMessage("success");
+//            res.setCode(HttpStatus.OK.value());
+//            res.setStatus(HttpStatus.OK);
+//        }catch (Exception e){
+//            res.setData(null);
+//            res.setMessage("error " + e.getMessage());
+//            res.setCode(HttpStatus.CONFLICT.value());
+//            res.setStatus(HttpStatus.CONFLICT);
+//        }
         return new ResponseEntity<>(res,res.getStatus());
     }
 

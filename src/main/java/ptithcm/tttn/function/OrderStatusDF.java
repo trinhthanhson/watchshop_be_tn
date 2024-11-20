@@ -2,11 +2,10 @@ package ptithcm.tttn.function;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
 @AllArgsConstructor
-public enum OrderStatus {
+public enum OrderStatusDF {
     Waiting("0"),
     Confirm("1"),
     Warehouse_Confirm("2"),

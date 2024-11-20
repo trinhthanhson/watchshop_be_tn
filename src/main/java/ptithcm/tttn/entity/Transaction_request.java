@@ -76,6 +76,4 @@ public class Transaction_request {
     @OneToMany(mappedBy = "request")
     private List<Request_detail> requestDetails;
 
-
-
 }

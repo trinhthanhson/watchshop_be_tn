@@ -83,7 +83,8 @@ public class AppConfig extends WebSecurityConfigurerAdapter {
 
                 "http://localhost:3000", // React
                 "http://localhost:5173",
-                "http://localhost:4200",             // Angular
+                "http://localhost:4200",
+                "http://localhost:5174",// Angular
                 "https://wachshop-react.onrender.com"
                 // Add the deployed GitHub Pages URL
 

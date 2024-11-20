@@ -1,13 +1,10 @@
 package ptithcm.tttn.service.impl;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ptithcm.tttn.entity.*;
-import ptithcm.tttn.function.OrderStatus;
-import ptithcm.tttn.function.RequestStatus;
-import ptithcm.tttn.function.TypeTrans;
+import ptithcm.tttn.function.OrderStatusDF;
 import ptithcm.tttn.repository.*;
 import ptithcm.tttn.request.OrderRequest;
 import ptithcm.tttn.request.ProductSaleRequest;
@@ -15,7 +12,6 @@ import ptithcm.tttn.request.StatisticRequest;
 import ptithcm.tttn.service.*;
 
 import javax.transaction.Transactional;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -45,7 +41,7 @@ public class OrderServiceImpl implements OrderService {
         Product get = product.get();
         Orders orders = new Orders();
         orders.setAddress(rq.getAddress());
-        orders.setStatus(OrderStatus.Waiting.getOrderStatus());
+       // orders.setStatus(OrderStatus.Waiting.getOrderStatus());
         orders.setCreated_at(LocalDateTime.now());
         orders.setRecipient_name(rq.getRecipient_name());
         orders.setUpdated_at(LocalDateTime.now());
@@ -96,23 +92,23 @@ public class OrderServiceImpl implements OrderService {
         Orders findOrder = findById(id);
         List<Order_detail> orderDetails = orderDetailRepo.findOrderDetailByOrderId(findOrder.getOrder_id());
 
-        if ( findOrder.getStatus().equals(OrderStatus.Waiting.getOrderStatus())) {
-            findOrder.setStatus(status);
-
-            if (findOrder.getStatus().equals(OrderStatus.Canceled.getOrderStatus())) {
-                for (Order_detail detail : orderDetails) {
-                    Optional<Product> productOpt = productRepo.findById(detail.getProduct_id());
-
-                    if (productOpt.isPresent()) {
-                        Product product = productOpt.get();
-                        product.setQuantity(product.getQuantity() + detail.getQuantity());
-                        productRepo.save(product);
-                    }
-                }
-            }
-
-            return ordersRepo.save(findOrder); // Lưu trạng thái mới của đơn hàng
-        }
+//        if ( findOrder.getStatus().equals(OrderStatus.Waiting.getOrderStatus())) {
+//            findOrder.setStatus(status);
+//
+//            if (findOrder.getStatus().equals(OrderStatus.Canceled.getOrderStatus())) {
+//                for (Order_detail detail : orderDetails) {
+//                    Optional<Product> productOpt = productRepo.findById(detail.getProduct_id());
+//
+//                    if (productOpt.isPresent()) {
+//                        Product product = productOpt.get();
+//                        product.setQuantity(product.getQuantity() + detail.getQuantity());
+//                        productRepo.save(product);
+//                    }
+//                }
+//            }
+//
+//            return ordersRepo.save(findOrder); // Lưu trạng thái mới của đơn hàng
+//        }
 
         throw new Exception("Not found order by id " + id);
     }
@@ -120,8 +116,8 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Orders updateStatusPayment(String status, Long id) throws Exception {
         Orders findOrder = findById(id);
-        if(status.equals(OrderStatus.Payment.getOrderStatus())){
-            findOrder.setStatus(status);
+        if(status.equals(OrderStatusDF.Payment.getOrderStatus())){
+            //findOrder.setStatus(status);
             Bill bill = new Bill();
             bill.setOrder_id(findOrder.getOrder_id());
             bill.setCreated_at(LocalDateTime.now());
@@ -169,7 +165,7 @@ public class OrderServiceImpl implements OrderService {
         orders.setRecipient_phone(rq.getRecipient_phone());
         orders.setUpdated_at(LocalDateTime.now());
         orders.setCustomer_id(customer.getCustomer_id());
-        orders.setStatus(OrderStatus.Waiting.getOrderStatus()); // Trạng thái đơn hàng
+        //orders.setStatus(OrderStatus.Waiting.getOrderStatus()); // Trạng thái đơn hàng
         orders.setTotal_price(rq.getTotal_price());
         orders.setTotal_quantity(totalQuantity);
 
@@ -253,50 +249,50 @@ public class OrderServiceImpl implements OrderService {
         User user = userService.findUserByJwt(jwt);
         Staff staff = staffService.findByUserId(user.getUser_id());
         Orders findOrder = findById(id);
-        if(findOrder != null){
-            findOrder.setStatus(status);
-            findOrder.setStaff_id(staff.getStaff_id());
-            Orders saveOrder = ordersRepo.save(findOrder);
-            List<Order_detail> orderDetails = orderDetailRepo.findOrderDetailByOrderId(findOrder.getOrder_id());
-            if(saveOrder.getStatus().equals(OrderStatus.Delivered.getOrderStatus())){
-                Bill bill = new Bill();
-                bill.setOrder_id(findOrder.getOrder_id());
-                bill.setCreated_at(LocalDateTime.now());
-                bill.setStaff_id(staff.getStaff_id());
-                billRepo.save(bill);
-            } else if (findOrder.getStatus().equals(OrderStatus.Canceled.getOrderStatus())) {
-                for (Order_detail detail : orderDetails) {
-                    Optional<Product> productOpt = productRepo.findById(detail.getProduct_id());
-
-                    if (productOpt.isPresent()) {
-                        Product product = productOpt.get();
-                        product.setQuantity(product.getQuantity() + detail.getQuantity());
-                        productRepo.save(product);
-                    }
-                }
-            }else if(findOrder.getStatus().equals(OrderStatus.Confirm.getOrderStatus())){
-                Transaction_request trans_rq = new Transaction_request();
-                trans_rq.setTotal_quantity(saveOrder.getTotal_quantity());
-                trans_rq.setTotal_price(saveOrder.getTotal_price());
-                trans_rq.setNote("Xuất hàng cho đơn hàng " + saveOrder.getOrder_id());
-                trans_rq.setContent("Xuất hàng cho đơn hàng " + saveOrder.getOrder_id());
-                trans_rq.setCreated_at(LocalDateTime.now());
-                trans_rq.setStatus(RequestStatus.WAITING.getStatus());
-                trans_rq.setOrder_id(saveOrder.getOrder_id());
-                trans_rq.setStaff_id_created(staff.getStaff_id());
-                trans_rq.setType_id(typeRepo.findTypeByName(TypeTrans.EXPORT.getTypeName()).getType_id());
-                Transaction_request save = requestRepo.save(trans_rq);
-                for(Order_detail item : saveOrder.getOrderDetails()){
-                    Request_detail detail = new Request_detail();
-                    detail.setRequest_id(save.getRequest_id());
-                    detail.setQuantity(item.getQuantity());
-                    detail.setPrice(item.getPrice());
-                    detail.setProduct_id(item.getProduct_id());
-                    detailRepo.save(detail);
-                }
-            }
-            return saveOrder;
-        }
+//        if(findOrder != null){
+//            findOrder.setStatus(status);
+//            findOrder.setStaff_id(staff.getStaff_id());
+//            Orders saveOrder = ordersRepo.save(findOrder);
+//            List<Order_detail> orderDetails = orderDetailRepo.findOrderDetailByOrderId(findOrder.getOrder_id());
+//            if(saveOrder.getStatus().equals(OrderStatus.Delivered.getOrderStatus())){
+//                Bill bill = new Bill();
+//                bill.setOrder_id(findOrder.getOrder_id());
+//                bill.setCreated_at(LocalDateTime.now());
+//                bill.setStaff_id(staff.getStaff_id());
+//                billRepo.save(bill);
+//            } else if (findOrder.getStatus().equals(OrderStatus.Canceled.getOrderStatus())) {
+//                for (Order_detail detail : orderDetails) {
+//                    Optional<Product> productOpt = productRepo.findById(detail.getProduct_id());
+//
+//                    if (productOpt.isPresent()) {
+//                        Product product = productOpt.get();
+//                        product.setQuantity(product.getQuantity() + detail.getQuantity());
+//                        productRepo.save(product);
+//                    }
+//                }
+//            }else if(findOrder.getStatus().equals(OrderStatus.Confirm.getOrderStatus())){
+//                Transaction_request trans_rq = new Transaction_request();
+//                trans_rq.setTotal_quantity(saveOrder.getTotal_quantity());
+//                trans_rq.setTotal_price(saveOrder.getTotal_price());
+//                trans_rq.setNote("Xuất hàng cho đơn hàng " + saveOrder.getOrder_id());
+//                trans_rq.setContent("Xuất hàng cho đơn hàng " + saveOrder.getOrder_id());
+//                trans_rq.setCreated_at(LocalDateTime.now());
+//                trans_rq.setStatus(RequestStatus.WAITING.getStatus());
+//                trans_rq.setOrder_id(saveOrder.getOrder_id());
+//                trans_rq.setStaff_id_created(staff.getStaff_id());
+//                trans_rq.setType_id(typeRepo.findTypeByName(TypeTrans.EXPORT.getTypeName()).getType_id());
+//                Transaction_request save = requestRepo.save(trans_rq);
+//                for(Order_detail item : saveOrder.getOrderDetails()){
+//                    Request_detail detail = new Request_detail();
+//                    detail.setRequest_id(save.getRequest_id());
+//                    detail.setQuantity(item.getQuantity());
+//                    detail.setPrice(item.getPrice());
+//                    detail.setProduct_id(item.getProduct_id());
+//                    detailRepo.save(detail);
+//                }
+//            }
+//            return saveOrder;
+//        }
         throw new Exception("Not found order by id " + id);
     }
 
@@ -308,7 +304,7 @@ public class OrderServiceImpl implements OrderService {
         Product getProduct = product.get();
         Orders orders = new Orders();
         orders.setAddress(rq.getAddress());
-        orders.setStatus(OrderStatus.Payment.getOrderStatus());
+        //orders.setStatus(OrderStatus.Payment.getOrderStatus());
         orders.setCreated_at(LocalDateTime.now());
         orders.setRecipient_name(rq.getRecipient_name());
         orders.setUpdated_at(LocalDateTime.now());

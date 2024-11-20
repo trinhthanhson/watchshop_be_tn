@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ptithcm.tttn.entity.Orders;
-import ptithcm.tttn.function.OrderStatus;
+import ptithcm.tttn.function.OrderStatusDF;
 import ptithcm.tttn.request.OrderRequest;
 import ptithcm.tttn.response.ApiResponse;
 import ptithcm.tttn.response.ListEntityResponse;
@@ -85,7 +85,7 @@ public class CustomerOrderController {
     public ResponseEntity<ApiResponse> cancelOrderByCustomer(@RequestHeader("Authorization") String jwt, @PathVariable Long id){
         ApiResponse res = new ApiResponse();
         try{
-            Orders orders = ordersService.updateStatus(OrderStatus.Canceled.getOrderStatus(),id);
+            Orders orders = ordersService.updateStatus(OrderStatusDF.Canceled.getOrderStatus(),id);
             res.setStatus(HttpStatus.OK);
             res.setMessage("Success");
             res.setCode(HttpStatus.OK.value());

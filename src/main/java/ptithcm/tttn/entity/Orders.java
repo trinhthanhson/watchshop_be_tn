@@ -35,9 +35,6 @@ public class Orders {
     private String note;
 
     @Column
-    private String status;
-
-    @Column
     private LocalDateTime created_at;
 
     @Column
@@ -49,6 +46,8 @@ public class Orders {
     @Column
     private Long customer_id;
 
+    @Column
+    private Long status_id;
 
     @OneToOne(mappedBy = "order_bill")
     @JsonIgnore
@@ -75,5 +74,10 @@ public class Orders {
     @OneToMany(mappedBy = "request_order")
     @JsonIgnore
     private List<Transaction_request> requestOrders;
+
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name = "status_id",insertable = false,updatable = false)
+    private OrderStatus order_status;
 
 }

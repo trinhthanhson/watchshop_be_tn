@@ -141,5 +141,12 @@ public class Staff {
     @JsonIgnore
     private List<Supplier> supplier_update;
 
+    @OneToMany(mappedBy = "staff")
+    @JsonIgnore
+    private List<OrderStatus> staff;
+
+    @OneToMany(mappedBy = "staff_update")
+    @JsonIgnore
+    private List<OrderStatus> staffUpdate;
 
 }
