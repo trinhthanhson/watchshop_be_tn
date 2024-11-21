@@ -1,6 +1,7 @@
 package ptithcm.tttn.controller.manager;
 
 import lombok.AllArgsConstructor;
+import org.hibernate.criterion.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -40,13 +41,25 @@ public class ManagerOrderStatusController {
         return new ResponseEntity<>(res,res.getStatus());
     }
 
-    @PutMapping("/{id}/update")
-    public ResponseEntity<ApiResponse> updateOrderStatusHandle(@RequestHeader("Authorization") String jwt, @PathVariable Long id,@RequestBody OrderStatus rq) throws Exception {
+    @PutMapping("/update")
+    public ResponseEntity<ApiResponse> updateOrderStatusHandle(@RequestHeader("Authorization") String jwt, @RequestBody List<OrderStatus> requestList) throws Exception {
         ApiResponse res = new ApiResponse();
-        OrderStatus update = statusService.updateStatus(id,rq,jwt);
+        List<OrderStatus> update = statusService.updateStatus(requestList,jwt);
         res.setStatus(HttpStatus.OK);
         res.setCode(HttpStatus.OK.value());
         res.setMessage(MessageSuccess.E01.getMessage());
         return new ResponseEntity<>(res,res.getStatus());
     }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<ApiResponse> deleteOrderStatusHandle(@RequestHeader("Authorization") String jwt,@RequestBody OrderStatus rq) throws Exception {
+        ApiResponse res = new ApiResponse();
+        statusService.deleteStatus(rq.getStatus_id());
+        res.setStatus(HttpStatus.OK);
+        res.setCode(HttpStatus.OK.value());
+        res.setMessage(MessageSuccess.E01.getMessage());
+        return new ResponseEntity<>(res,res.getStatus());
+    }
+
+
 }

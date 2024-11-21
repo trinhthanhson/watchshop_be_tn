@@ -11,5 +11,7 @@ public interface OrderStatusService {
 
     OrderStatus createStatus(OrderStatus status, String jwt) throws Exception;
 
-    OrderStatus updateStatus(Long id, OrderStatus status, String jwt) throws Exception;
+    List<OrderStatus> updateStatus( List<OrderStatus> statusList, String jwt) throws Exception;
+
+    void deleteStatus(Long id) throws Exception;
 }

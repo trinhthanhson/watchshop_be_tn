@@ -10,7 +10,9 @@ import ptithcm.tttn.service.OrderStatusService;
 import ptithcm.tttn.service.StaffService;
 import ptithcm.tttn.service.UserService;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,15 +42,27 @@ public class OrderStatusServiceImpl implements OrderStatusService {
     }
 
     @Override
-    public OrderStatus updateStatus(Long id, OrderStatus status, String jwt) throws Exception {
-        OrderStatus find = findById(id);
+    public List<OrderStatus> updateStatus( List<OrderStatus> statusList, String jwt) throws Exception {
         User user = userService.findUserByJwt(jwt);
         Staff staff = staffService.findByUserId(user.getUser_id());
-        find.setUpdated_at(LocalDateTime.now());
-        find.setStatus_name(status.getStatus_name());
-        find.setStatus_index(status.getStatus_index());
-        find.setUpdated_by(staff.getStaff_id());
-        return statusRepo.save(find);
+
+        List<OrderStatus> updatedList = new ArrayList<>();
+        for (OrderStatus status : statusList) {
+            OrderStatus existingStatus = findById(status.getStatus_id());
+            existingStatus.setUpdated_at(LocalDateTime.now());
+            existingStatus.setStatus_name(status.getStatus_name());
+            existingStatus.setStatus_index(status.getStatus_index());
+            existingStatus.setUpdated_by(staff.getStaff_id());
+            updatedList.add(statusRepo.save(existingStatus));
+        }
+        return updatedList;
+    }
+
+    @Transactional
+    @Override
+    public void deleteStatus(Long id) throws Exception {
+        OrderStatus find = findById(id);
+        statusRepo.delete(find);
     }
 
     private OrderStatus findById(Long id) throws Exception {

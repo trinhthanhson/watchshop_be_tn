@@ -31,6 +31,7 @@ public class OrderServiceImpl implements OrderService {
     private final TypeRepo typeRepo;
     private final TransactionRequestRepo requestRepo;
     private final TransactionRequestDetailRepo detailRepo;
+    private final OrderStatusRepo statusRepo;
 
     @Override
     @Transactional
@@ -38,10 +39,11 @@ public class OrderServiceImpl implements OrderService {
         User user = userService.findUserByJwt(jwt);
         Customer customer = customerService.findByUserId(user.getUser_id());
         Optional<Product> product = productRepo.findById(rq.getProduct_id());
+        OrderStatus status = statusRepo.findStatusIndex(1);
         Product get = product.get();
         Orders orders = new Orders();
         orders.setAddress(rq.getAddress());
-       // orders.setStatus(OrderStatus.Waiting.getOrderStatus());
+        orders.setStatus_id(status.getStatus_id());
         orders.setCreated_at(LocalDateTime.now());
         orders.setRecipient_name(rq.getRecipient_name());
         orders.setUpdated_at(LocalDateTime.now());
@@ -49,17 +51,17 @@ public class OrderServiceImpl implements OrderService {
         orders.setNote(rq.getNote());
         orders.setRecipient_phone(rq.getRecipient_phone());
         Orders createOrders = ordersRepo.save(orders);
-        if(createOrders != null){
+        if (createOrders != null) {
             Order_detail orderDetail = new Order_detail();
             orderDetail.setOrder_id(createOrders.getOrder_id());
             orderDetail.setProduct_id(rq.getProduct_id());
             orderDetail.setPrice(rq.getPrice());
             orderDetail.setQuantity(rq.getQuantity());
             orderDetail.setQuantity(rq.getQuantity());
-            get.setQuantity(get.getQuantity()-rq.getQuantity());
+            get.setQuantity(get.getQuantity() - rq.getQuantity());
             productRepo.save(get);
             Order_detail createDetail = orderDetailRepo.save(orderDetail);
-            if(createDetail != null){
+            if (createDetail != null) {
                 int totalPrice = orderDetailRepo.totalPriceByOrderId(createOrders.getOrder_id());
                 int totalQuantity = orderDetailRepo.totalQuantityByOrderId(createOrders.getOrder_id());
                 createOrders.setTotal_quantity(totalQuantity);
@@ -80,7 +82,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Orders findById(Long id) throws Exception {
         Optional<Orders> orders = ordersRepo.findById(id);
-        if(orders.isPresent()){
+        if (orders.isPresent()) {
             return orders.get();
         }
         throw new Exception("not found order by id " + id);
@@ -115,15 +117,15 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Orders updateStatusPayment(String status, Long id) throws Exception {
-        Orders findOrder = findById(id);
-        if(status.equals(OrderStatusDF.Payment.getOrderStatus())){
-            //findOrder.setStatus(status);
-            Bill bill = new Bill();
-            bill.setOrder_id(findOrder.getOrder_id());
-            bill.setCreated_at(LocalDateTime.now());
-            billRepo.save(bill);
-            return  ordersRepo.save(findOrder);
-        }
+//        Orders findOrder = findById(id);
+//        if (status.equals(OrderStatusDF.Payment.getOrderStatus())) {
+//            //findOrder.setStatus(status);
+//            Bill bill = new Bill();
+//            bill.setOrder_id(findOrder.getOrder_id());
+//            bill.setCreated_at(LocalDateTime.now());
+//            billRepo.save(bill);
+//            return ordersRepo.save(findOrder);
+//        }
         throw new Exception("Not found order by id " + id);
     }
 
@@ -131,6 +133,7 @@ public class OrderServiceImpl implements OrderService {
     public Orders orderBuyCart(OrderRequest rq, String jwt) throws Exception {
         User user = userService.findUserByJwt(jwt);
         Customer customer = customerService.findByUserId(user.getUser_id());
+        OrderStatus status = statusRepo.findStatusIndex(1);
         List<Cart_detail> cart = cartDetailService.findCartByJwt(jwt);
         List<Order_detail> list = new ArrayList<>();
         int totalQuantity = 0;
@@ -165,7 +168,7 @@ public class OrderServiceImpl implements OrderService {
         orders.setRecipient_phone(rq.getRecipient_phone());
         orders.setUpdated_at(LocalDateTime.now());
         orders.setCustomer_id(customer.getCustomer_id());
-        //orders.setStatus(OrderStatus.Waiting.getOrderStatus()); // Trạng thái đơn hàng
+        orders.setStatus_id(status.getStatus_id()); // Trạng thái đơn hàng
         orders.setTotal_price(rq.getTotal_price());
         orders.setTotal_quantity(totalQuantity);
 
@@ -223,7 +226,7 @@ public class OrderServiceImpl implements OrderService {
 //        return createdOrders;
 //    }
     @Override
-    public List<StatisticRequest> getTotalAmountByMonth(int year){
+    public List<StatisticRequest> getTotalAmountByMonth(int year) {
         List<Object[]> results = ordersRepo.getTotalAmountByMonth(year);
         return results.stream()
                 .map(this::mapToStatisticRequest)
@@ -236,7 +239,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<ProductSaleRequest> getTotalAmountByDate(Date start, Date end){
+    public List<ProductSaleRequest> getTotalAmountByDate(Date start, Date end) {
         List<Object[]> results = ordersRepo.getTotalAmountByDate(start, end);
         return results.stream()
                 .map(this::mapToProductSaleRequest)
@@ -312,16 +315,16 @@ public class OrderServiceImpl implements OrderService {
         orders.setNote(rq.getNote());
         orders.setRecipient_phone(rq.getRecipient_phone());
         Orders createOrders = ordersRepo.save(orders);
-        if(createOrders != null){
+        if (createOrders != null) {
             Order_detail orderDetail = new Order_detail();
             orderDetail.setOrder_id(createOrders.getOrder_id());
             orderDetail.setProduct_id(rq.getProduct_id());
             orderDetail.setPrice(rq.getPrice());
             orderDetail.setQuantity(rq.getQuantity());
-            getProduct.setQuantity(getProduct.getQuantity()-rq.getQuantity());
+            getProduct.setQuantity(getProduct.getQuantity() - rq.getQuantity());
             productRepo.save(getProduct);
             Order_detail createDetail = orderDetailRepo.save(orderDetail);
-            if(createDetail != null){
+            if (createDetail != null) {
                 int totalPrice = orderDetailRepo.totalPriceByOrderId(createOrders.getOrder_id());
                 int totalQuantity = orderDetailRepo.totalQuantityByOrderId(createOrders.getOrder_id());
                 createOrders.setTotal_quantity(totalQuantity);
@@ -381,8 +384,8 @@ public class OrderServiceImpl implements OrderService {
         Staff staff = staffService.findByUserId(user.getUser_id());
         List<Orders> all = findAll();
         List<Orders> allReceive = new ArrayList<>();
-        for(Orders od : all){
-            if(Objects.equals(od.getStaff_id(), staff.getStaff_id())){
+        for (Orders od : all) {
+            if (Objects.equals(od.getStaff_id(), staff.getStaff_id())) {
                 allReceive.add(od);
             }
         }
@@ -418,10 +421,11 @@ public class OrderServiceImpl implements OrderService {
 
         return new ProductSaleRequest(productId, productName, totalSoldQuantity, totalQuantity, datePay);
     }
+
     private StatisticRequest mapToStatisticRequest(Object[] result) {
         int month = (int) result[0];
         long price = (long) result[1];
-        return new StatisticRequest(month,price);
+        return new StatisticRequest(month, price);
     }
 
     private StatisticRequest mapToStatisticRequestSale(Object[] result) {
