@@ -1,5 +1,6 @@
 package ptithcm.tttn.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -42,5 +43,6 @@ public class OrderStatus {
     private Staff staff_update;
 
     @OneToMany(mappedBy = "order_status")
+    @JsonIgnore
     private List<Orders> orders;
 }

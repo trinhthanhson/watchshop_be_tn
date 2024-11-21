@@ -76,7 +76,6 @@ public class Orders {
     private List<Transaction_request> requestOrders;
 
     @ManyToOne
-    @JsonIgnore
     @JoinColumn(name = "status_id",insertable = false,updatable = false)
     private OrderStatus order_status;
 
