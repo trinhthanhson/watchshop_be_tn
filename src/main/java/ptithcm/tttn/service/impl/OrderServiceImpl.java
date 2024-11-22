@@ -91,29 +91,22 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public Orders updateStatus(String status, Long id) throws Exception {
+    public Orders updateStatus(UpdateStatusRequest rq, Long id) throws Exception {
         Orders findOrder = findById(id);
-        List<Order_detail> orderDetails = orderDetailRepo.findOrderDetailByOrderId(findOrder.getOrder_id());
+        if (rq.getIs_cancel()) {
+            findOrder.setIs_cancel(true);
+            for (Order_detail detail : findOrder.getOrderDetails()) {
+                Optional<Product> productOpt = productRepo.findById(detail.getProduct_id());
 
-//        if ( findOrder.getStatus().equals(OrderStatus.Waiting.getOrderStatus())) {
-//            findOrder.setStatus(status);
-//
-//            if (findOrder.getStatus().equals(OrderStatus.Canceled.getOrderStatus())) {
-//                for (Order_detail detail : orderDetails) {
-//                    Optional<Product> productOpt = productRepo.findById(detail.getProduct_id());
-//
-//                    if (productOpt.isPresent()) {
-//                        Product product = productOpt.get();
-//                        product.setQuantity(product.getQuantity() + detail.getQuantity());
-//                        productRepo.save(product);
-//                    }
-//                }
-//            }
-//
-//            return ordersRepo.save(findOrder); // Lưu trạng thái mới của đơn hàng
-//        }
+                if (productOpt.isPresent()) {
+                    Product product = productOpt.get();
+                    product.setQuantity(product.getQuantity() + detail.getQuantity());
+                    productRepo.save(product);
+                }
+            }
+        }
+        return ordersRepo.save(findOrder);
 
-        throw new Exception("Not found order by id " + id);
     }
 
     @Override
