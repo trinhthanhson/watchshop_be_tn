@@ -25,18 +25,6 @@ public class Transaction_request {
     private String status;
 
     @Column
-    private String expected_supplier;
-
-    @Column
-    private String supplier_email;
-
-    @Column
-    private String supplier_phone;
-
-    @Column
-    private String supplier_address;
-
-    @Column
     private int total_quantity;
 
     @Column

@@ -14,4 +14,6 @@ public interface TransactionRequestService {
     Transaction_request findById(Long id) throws Exception;
 
     Transaction_request updateStatus(Transaction_request rq,Long id, String jwt ) throws Exception;
+
+    Transaction_request createRequestExportByOrder(Long id, String jwt) throws Exception;
 }

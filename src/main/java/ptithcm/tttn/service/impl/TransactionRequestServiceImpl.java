@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ptithcm.tttn.entity.*;
 import ptithcm.tttn.function.RequestStatus;
+import ptithcm.tttn.function.TypeTrans;
 import ptithcm.tttn.repository.*;
 import ptithcm.tttn.request.ProductTransRequest;
 import ptithcm.tttn.request.TransactionRequest;
@@ -42,10 +43,6 @@ public class TransactionRequestServiceImpl implements TransactionRequestService 
         ett.setTotal_quantity(rq.getTotal_quantity());
         ett.setTotal_price(rq.getTotal_price());
         ett.setStatus(RequestStatus.WAITING.getStatus());
-        ett.setExpected_supplier(rq.getExpected_supplier());
-        ett.setSupplier_phone(rq.getPhone());
-        ett.setSupplier_email(rq.getEmail());
-        ett.setSupplier_address(rq.getAddress());
         Transaction_request save = requestRepo.save(ett);
         for (ProductTransRequest item : rq.getProducts()) {
             Request_detail detail = new Request_detail();
@@ -85,22 +82,6 @@ public class TransactionRequestServiceImpl implements TransactionRequestService 
         ett.setStaff_id_updated(staff.getStaff_id());
         requestRepo.save(ett);
 
-        if (rq.getExpected_supplier() != null && !rq.getExpected_supplier().isEmpty()) {
-            // Tìm supplier theo tên
-            Supplier supplier = supplierService.findByName(ett.getExpected_supplier());
-
-            // Nếu không tìm thấy supplier, tạo mới và gán lại `supplier`
-            if (supplier == null) {
-                Supplier newSupplier = new Supplier();
-                newSupplier.setAddress(rq.getSupplier_address());
-                newSupplier.setEmail(rq.getSupplier_email());
-                newSupplier.setPhone(rq.getSupplier_phone());
-                newSupplier.setSupplier_name(rq.getExpected_supplier());
-                supplier = supplierService.createSupplier(newSupplier, jwt); // Cập nhật `supplier` sau khi tạo mới
-                ettTrans.setSupplier_id(supplier.getSupplier_id()); // `supplier` không còn null ở đây
-            }
-        }
-
         // Nếu trạng thái là CONFIRM, thiết lập thêm thông tin giao dịch
         if (rq.getStatus().equals(RequestStatus.CONFIRM.getStatus())) {
             ettTrans.setNote(ett.getNote());
@@ -134,5 +115,33 @@ public class TransactionRequestServiceImpl implements TransactionRequestService 
 
         return ett;
     }
+
+    @Override
+    public Transaction_request createRequestExportByOrder(Long id, String jwt) throws Exception {
+        Orders orders = orderService.findById(id);
+        User user = userService.findUserByJwt(jwt);
+        Staff staff = staffService.findByUserId(user.getUser_id());
+        Type type = typeRepo.findTypeByName(TypeTrans.EXPORT.getTypeName());
+        Transaction_request request = new Transaction_request();
+        request.setTotal_price(orders.getTotal_price());
+        request.setNote("Xuất kho");
+        request.setCreated_at(LocalDateTime.now());
+        request.setStaff_id_created(staff.getStaff_id());
+        request.setType_id(type.getType_id());
+        request.setContent("Xuất kho");
+        request.setOrder_id(orders.getOrder_id());
+        request.setTotal_quantity(orders.getTotal_quantity());
+        Transaction_request save = requestRepo.save(request);
+        for (Order_detail item : orders.getOrderDetails()) {
+            Request_detail detail = new Request_detail();
+            detail.setPrice(item.getPrice());
+            detail.setRequest_id(save.getRequest_id());
+            detail.setQuantity(item.getQuantity());
+            detail.setProduct_id(item.getProduct_id());
+            detailRepo.save(detail);
+        }
+    return save;
+    }
+
 
 }

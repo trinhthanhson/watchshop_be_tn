@@ -4,6 +4,7 @@ import ptithcm.tttn.entity.Orders;
 import ptithcm.tttn.request.OrderRequest;
 import ptithcm.tttn.request.ProductSaleRequest;
 import ptithcm.tttn.request.StatisticRequest;
+import ptithcm.tttn.request.UpdateStatusRequest;
 
 import java.util.Date;
 import java.util.List;
@@ -27,7 +28,7 @@ public interface OrderService {
 
     List<ProductSaleRequest> getTotalAmountByDate(Date start, Date end);
 
-    Orders updateStatusOrderByStaff(String status, Long id, String jwt) throws Exception;
+    Orders updateStatusOrderByStaff(UpdateStatusRequest rq, Long id, String jwt) throws Exception;
 
     Orders orderPaymentBuyNow(OrderRequest rq, String jwt) throws Exception;
 

@@ -9,6 +9,7 @@ import ptithcm.tttn.repository.*;
 import ptithcm.tttn.request.OrderRequest;
 import ptithcm.tttn.request.ProductSaleRequest;
 import ptithcm.tttn.request.StatisticRequest;
+import ptithcm.tttn.request.UpdateStatusRequest;
 import ptithcm.tttn.service.*;
 
 import javax.transaction.Transactional;
@@ -248,10 +249,28 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Orders updateStatusOrderByStaff(String status, Long id, String jwt) throws Exception {
+    public Orders updateStatusOrderByStaff(UpdateStatusRequest rq, Long id, String jwt) throws Exception {
         User user = userService.findUserByJwt(jwt);
         Staff staff = staffService.findByUserId(user.getUser_id());
         Orders findOrder = findById(id);
+        List<Order_detail> orderDetails = orderDetailRepo.findOrderDetailByOrderId(findOrder.getOrder_id());
+
+        if (rq.getIs_cancel()) {
+            findOrder.setIs_cancel(true);
+            for (Order_detail detail : orderDetails) {
+                Optional<Product> productOpt = productRepo.findById(detail.getProduct_id());
+
+                if (productOpt.isPresent()) {
+                    Product product = productOpt.get();
+                    product.setQuantity(product.getQuantity() + detail.getQuantity());
+                    productRepo.save(product);
+                }
+            }
+        } else {
+            OrderStatus status = statusRepo.findStatusIndex(rq.getStatus_index());
+            findOrder.setStatus_id(status.getStatus_id());
+        }
+        return ordersRepo.save(findOrder);
 //        if(findOrder != null){
 //            findOrder.setStatus(status);
 //            findOrder.setStaff_id(staff.getStaff_id());
@@ -273,41 +292,22 @@ public class OrderServiceImpl implements OrderService {
 //                        productRepo.save(product);
 //                    }
 //                }
-//            }else if(findOrder.getStatus().equals(OrderStatus.Confirm.getOrderStatus())){
-//                Transaction_request trans_rq = new Transaction_request();
-//                trans_rq.setTotal_quantity(saveOrder.getTotal_quantity());
-//                trans_rq.setTotal_price(saveOrder.getTotal_price());
-//                trans_rq.setNote("Xuất hàng cho đơn hàng " + saveOrder.getOrder_id());
-//                trans_rq.setContent("Xuất hàng cho đơn hàng " + saveOrder.getOrder_id());
-//                trans_rq.setCreated_at(LocalDateTime.now());
-//                trans_rq.setStatus(RequestStatus.WAITING.getStatus());
-//                trans_rq.setOrder_id(saveOrder.getOrder_id());
-//                trans_rq.setStaff_id_created(staff.getStaff_id());
-//                trans_rq.setType_id(typeRepo.findTypeByName(TypeTrans.EXPORT.getTypeName()).getType_id());
-//                Transaction_request save = requestRepo.save(trans_rq);
-//                for(Order_detail item : saveOrder.getOrderDetails()){
-//                    Request_detail detail = new Request_detail();
-//                    detail.setRequest_id(save.getRequest_id());
-//                    detail.setQuantity(item.getQuantity());
-//                    detail.setPrice(item.getPrice());
-//                    detail.setProduct_id(item.getProduct_id());
-//                    detailRepo.save(detail);
-//                }
 //            }
 //            return saveOrder;
 //        }
-        throw new Exception("Not found order by id " + id);
+        //throw new Exception("Not found order by id " + id);
     }
 
     @Override
     public Orders orderPaymentBuyNow(OrderRequest rq, String jwt) throws Exception {
         User user = userService.findUserByJwt(jwt);
         Customer customer = customerService.findByUserId(user.getUser_id());
+        OrderStatus status = statusRepo.findStatusIndex(1);
         Optional<Product> product = productRepo.findById(rq.getProduct_id());
         Product getProduct = product.get();
         Orders orders = new Orders();
         orders.setAddress(rq.getAddress());
-        //orders.setStatus(OrderStatus.Payment.getOrderStatus());
+        orders.setStatus_id(status.getStatus_id());
         orders.setCreated_at(LocalDateTime.now());
         orders.setRecipient_name(rq.getRecipient_name());
         orders.setUpdated_at(LocalDateTime.now());
