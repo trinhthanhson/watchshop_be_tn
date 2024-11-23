@@ -16,10 +16,6 @@ public class TransactionRequest {
     private int total_quantity;
     private int total_price;
     private String type_name;
-    private String expected_supplier;
-    private String email;
-    private String phone;
-    private String address;
     private List<ProductTransRequest> products;
 
 }

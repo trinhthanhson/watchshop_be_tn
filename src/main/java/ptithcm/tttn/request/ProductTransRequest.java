@@ -9,6 +9,8 @@ import lombok.Setter;
 @Data
 public class ProductTransRequest {
     private String productId;
+    private int quantity_request;
     private int quantity;
     private int unitPrice;
+    private String note;
 }

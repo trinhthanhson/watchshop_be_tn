@@ -6,4 +6,6 @@ import ptithcm.tttn.service.TransactionRequestDetailService;
 
 public class TransactionRequestDetailServiceImpl implements TransactionRequestDetailService
 {
+
+
 }

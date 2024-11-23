@@ -43,7 +43,7 @@ public class AppConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/auth/**").permitAll()
                 .antMatchers("/api/user/**").permitAll()  // Require authentication
                 .antMatchers("/api/staff/**").hasAnyAuthority(RoleName.STAFF.getRoleName(), RoleName.MANAGER.getRoleName(), RoleName.SHIPPER.getRoleName())
-                .antMatchers("/api/inventory/request/all").hasAnyAuthority(RoleName.STAFF.getRoleName(), RoleName.MANAGER.getRoleName())
+                .antMatchers("/api/inventory/request/all").hasAnyAuthority(RoleName.STAFF.getRoleName(), RoleName.MANAGER.getRoleName(),RoleName.WAREHOUSE_STAFF.getRoleName(),RoleName.WAREHOUSE_MANAGER.getRoleName())
                 .antMatchers("/api/manager/**").hasAnyAuthority(RoleName.MANAGER.getRoleName(), RoleName.STAFF.getRoleName())
                 .antMatchers("/api/inventory/**").hasAnyAuthority(RoleName.WAREHOUSE_STAFF.getRoleName(),RoleName.WAREHOUSE_MANAGER.getRoleName())
                 .antMatchers("/api/manager/inventory/**").hasAnyAuthority(RoleName.WAREHOUSE_STAFF.getRoleName(),RoleName.WAREHOUSE_MANAGER.getRoleName())

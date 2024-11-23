@@ -16,9 +16,6 @@ public class Transaction_request {
     private Long request_id;
 
     @Column
-    private String note;
-
-    @Column
     private String content;
 
     @Column

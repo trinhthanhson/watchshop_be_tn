@@ -14,6 +14,7 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
 @AllArgsConstructor
 @Service
 public class TransactionRequestServiceImpl implements TransactionRequestService {
@@ -27,6 +28,7 @@ public class TransactionRequestServiceImpl implements TransactionRequestService 
     private final TransactionDetailRepo transactionDetailRepo;
     private final SupplierService supplierService;
     private final OrderService orderService;
+    private final ProductRepo productRepo;
 
     @Override
     @Transactional
@@ -35,7 +37,6 @@ public class TransactionRequestServiceImpl implements TransactionRequestService 
         Staff staff = staffService.findByUserId(user.getUser_id());
         Type type = typeRepo.findTypeByName(rq.getType_name());
         Transaction_request ett = new Transaction_request();
-        ett.setNote(rq.getNote());
         ett.setContent(rq.getContent());
         ett.setCreated_at(LocalDateTime.now());
         ett.setType_id(type.getType_id());
@@ -49,7 +50,9 @@ public class TransactionRequestServiceImpl implements TransactionRequestService 
             detail.setRequest_id(save.getRequest_id());
             detail.setProduct_id(item.getProductId());
             detail.setPrice(item.getUnitPrice());
+            detail.setQuantity_request(item.getQuantity_request());
             detail.setQuantity(item.getQuantity());
+            detail.setNote(item.getNote());
             detailRepo.save(detail);
         }
         return save;
@@ -84,7 +87,6 @@ public class TransactionRequestServiceImpl implements TransactionRequestService 
 
         // Nếu trạng thái là CONFIRM, thiết lập thêm thông tin giao dịch
         if (rq.getStatus().equals(RequestStatus.CONFIRM.getStatus())) {
-            ettTrans.setNote(ett.getNote());
             ettTrans.setContent(ett.getContent());
             ettTrans.setCreated_at(LocalDateTime.now());
             ettTrans.setTotal_quantity(ett.getTotal_quantity());
@@ -124,7 +126,6 @@ public class TransactionRequestServiceImpl implements TransactionRequestService 
         Type type = typeRepo.findTypeByName(TypeTrans.EXPORT.getTypeName());
         Transaction_request request = new Transaction_request();
         request.setTotal_price(orders.getTotal_price());
-        request.setNote("Xuất kho");
         request.setCreated_at(LocalDateTime.now());
         request.setStaff_id_created(staff.getStaff_id());
         request.setType_id(type.getType_id());
@@ -140,8 +141,47 @@ public class TransactionRequestServiceImpl implements TransactionRequestService 
             detail.setProduct_id(item.getProduct_id());
             detailRepo.save(detail);
         }
-    return save;
+        return save;
     }
 
+    @Override
+    public void updateRequestDetail(Long id, List<Request_detail> rq) throws Exception {
+        Transaction_request request = findById(id);
+        List<Request_detail> currentDetails = detailRepo.findByRequestId(request.getRequest_id());
 
+        for (Request_detail detail : rq) {
+            Optional<Request_detail> existingDetail = currentDetails.stream()
+                    .filter(d -> d.getProduct_id().equals(detail.getProduct_request().getProduct_id()))
+                    .findFirst();
+
+            if (existingDetail.isPresent()) {
+                // Nếu đã tồn tại, cập nhật thông tin của Request_detail
+                Request_detail currentDetail = existingDetail.get();
+                currentDetail.setQuantity(detail.getQuantity());
+                currentDetail.setQuantity_request(detail.getQuantity_request());
+                currentDetail.setNote(detail.getNote());
+                currentDetail.setPrice(detail.getPrice());
+                detailRepo.save(currentDetail);
+            }
+            else
+            {
+                detail.setRequest_id(request.getRequest_id());
+                detail.setProduct_id(detail.getProduct_request().getProduct_id());
+                detail.setQuantity_request(detail.getQuantity_request());
+                detail.setQuantity(detail.getQuantity());
+                detail.setNote(detail.getNote());
+                detailRepo.save(detail);
+            }
+        }
+
+        for (Request_detail existingDetail : currentDetails) {
+            boolean existsInNewList = rq.stream()
+                    .anyMatch(d -> d.getProduct_request().getProduct_id().equals(existingDetail.getProduct_id()));
+
+            if (!existsInNewList)
+            {
+                detailRepo.delete(existingDetail);
+            }
+        }
+    }
 }

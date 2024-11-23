@@ -3,6 +3,7 @@ package ptithcm.tttn.controller.inventory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ptithcm.tttn.entity.Request_detail;
 import ptithcm.tttn.entity.Transaction_request;
 import ptithcm.tttn.function.MessageError;
 import ptithcm.tttn.function.MessageSuccess;
@@ -93,5 +94,21 @@ public class StaffRequestController {
             System.err.println(e.getMessage());
         }
         return new ResponseEntity<>(res,res.getStatus());
+    }
+
+    @PostMapping("/{id}/update")
+    public ResponseEntity<ApiResponse> updateRequestDetailByManager(@RequestHeader("Authorization") String jwt, @PathVariable Long id, @RequestBody List<Request_detail> rq){
+        ApiResponse res = new ApiResponse();
+        try {
+            requestService.updateRequestDetail(id,rq);
+            res.setMessage("Success");
+            res.setStatus(HttpStatus.OK);
+            res.setCode(HttpStatus.OK.value());
+        } catch (Exception e) {
+            res.setStatus(HttpStatus.BAD_REQUEST);
+            res.setCode(HttpStatus.BAD_REQUEST.value());
+            res.setMessage("error " + e.getMessage());
+        }
+        return new ResponseEntity<>(res, res.getStatus());
     }
 }

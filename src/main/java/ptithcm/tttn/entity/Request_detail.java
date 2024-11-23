@@ -15,10 +15,16 @@ public class Request_detail {
     private Long request_detail_id;
 
     @Column
+    private Integer quantity_request;
+
+    @Column
     private int quantity;
 
     @Column
     private int price;
+
+    @Column
+    private String note;
 
     @Column
     private Long request_id;
