@@ -6,15 +6,19 @@ import ptithcm.tttn.entity.*;
 import ptithcm.tttn.repository.*;
 import ptithcm.tttn.request.ProductTransRequest;
 import ptithcm.tttn.request.TransactionRequest;
+import ptithcm.tttn.response.TransactionStatisticRsp;
 import ptithcm.tttn.service.ProductService;
 import ptithcm.tttn.service.StaffService;
 import ptithcm.tttn.service.TransactionService;
 import ptithcm.tttn.service.UserService;
 
 import javax.persistence.Column;
+import java.math.BigInteger;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -101,6 +105,14 @@ public class TransactionServiceImpl implements TransactionService {
         throw new Exception("Not found transaction by id " + id);
     }
 
+    @Override
+    public List<TransactionStatisticRsp> getStatisticTransaction(String inputType) {
+        List<Object[]> results = transactionRepo.findTransactionStatistics(inputType);
+        return results.stream()
+                .map(this::mapToTransactionStatistic)
+                .collect(Collectors.toList());
+    }
+
     private String generateTransactionCode() {
         // Lấy năm hiện tại
         String currentYear = String.valueOf(java.time.Year.now().getValue()).substring(2); // Lấy 2 số cuối của năm
@@ -128,6 +140,19 @@ public class TransactionServiceImpl implements TransactionService {
 
         // Nếu đã có mã, tăng số thứ tự lên
         return String.format("PN%s%06d", currentYear, maxId + 1);
+    }
+
+    private TransactionStatisticRsp mapToTransactionStatistic(Object[] result){
+         Date createDate = (Date) result[0];
+         String transactionCode = (String) result[1];
+         String watchId = (String) result[2];
+         String watchName = (String) result[3];
+         Integer price = (Integer) result[4];
+         Integer startQty = (Integer) result[5];
+         Integer actualQuantity = (Integer) result[6];
+        BigInteger type_id = (BigInteger) result[7];
+        return new TransactionStatisticRsp(createDate, transactionCode, watchId,watchName,price,startQty,actualQuantity,type_id);
+
     }
 
 
