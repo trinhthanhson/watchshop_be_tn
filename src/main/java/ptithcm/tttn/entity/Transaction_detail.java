@@ -18,6 +18,15 @@ public class Transaction_detail {
     private int quantity;
 
     @Column
+    private int quantity_request;
+
+    @Column
+    private int start_quantity;
+
+    @Column
+    private String note;
+
+    @Column
     private int price;
 
     @Column

@@ -49,10 +49,6 @@ public class Supplier {
     @Column
     private LocalDateTime updated_at;
 
-    @OneToMany(mappedBy = "supplier_transaction")
-    @JsonIgnore
-    private List<Transaction> Transactions;
-
     @ManyToOne
     @JoinColumn(name = "created_by",insertable = false, updatable = false)
     private Staff staff_create;
@@ -60,4 +56,8 @@ public class Supplier {
     @ManyToOne
     @JoinColumn(name = "updated_by",insertable = false, updatable = false)
     private Staff staff_update;
+
+    @OneToMany(mappedBy = "supplier")
+    @JsonIgnore
+    private List<Bill_supplier> billSuppliers;
 }

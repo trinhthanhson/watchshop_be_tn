@@ -11,11 +11,13 @@ import java.util.List;
 @Setter
 public class TransactionRequest {
 
-    private String note;
     private String content;
     private int total_quantity;
     private int total_price;
+    private Long request_id;
     private String type_name;
+    private String bill_code;
+    private Long supplier_id;
     private List<ProductTransRequest> products;
 
 }

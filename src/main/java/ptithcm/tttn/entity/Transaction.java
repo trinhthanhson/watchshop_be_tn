@@ -17,10 +17,10 @@ public class Transaction {
     private Long transaction_id;
 
     @Column
-    private String note;
+    private String content;
 
     @Column
-    private String content;
+    private String transaction_code;
 
     @Column
     private LocalDateTime created_at;
@@ -41,21 +41,30 @@ public class Transaction {
     private Long type_id;
 
     @Column
-    private Long supplier_id;
-
-    @Column
     private Long staff_id;
 
     @Column
     private Long updated_by;
 
+    @Column
+    private Long request_id;
+
+    @Column
+    private Long bill_id;
+
+    @OneToOne
+    @JoinColumn(name = "bill_id",insertable = false,updatable = false)
+    @JsonIgnore
+    private Bill_supplier billSupplier;
+
+    @ManyToOne
+    @JoinColumn(name =  "request_id",insertable = false,updatable = false)
+    @JsonIgnore
+    private Transaction_request transactionRequest;
+
     @ManyToOne
     @JoinColumn(name = "type_id",insertable = false,updatable = false)
     private Type type_transaction;
-
-    @ManyToOne
-    @JoinColumn(name = "supplier_id",insertable = false,updatable = false)
-    private Supplier supplier_transaction;
 
     @ManyToOne
     @JoinColumn(name = "staff_id",insertable = false,updatable = false)

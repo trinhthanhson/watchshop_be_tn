@@ -39,6 +39,7 @@ public class TransactionRequestServiceImpl implements TransactionRequestService 
         Transaction_request ett = new Transaction_request();
         ett.setContent(rq.getContent());
         ett.setCreated_at(LocalDateTime.now());
+        ett.setTransaction_code(generateTransactionCode());
         ett.setType_id(type.getType_id());
         ett.setStaff_id_created(staff.getStaff_id());
         ett.setTotal_quantity(rq.getTotal_quantity());
@@ -50,7 +51,7 @@ public class TransactionRequestServiceImpl implements TransactionRequestService 
             detail.setRequest_id(save.getRequest_id());
             detail.setProduct_id(item.getProductId());
             detail.setPrice(item.getUnitPrice());
-            detail.setQuantity_request(item.getQuantity_request());
+            detail.setQuantity_request(item.getQuantity());
             detail.setQuantity(item.getQuantity());
             detail.setNote(item.getNote());
             detailRepo.save(detail);
@@ -78,42 +79,11 @@ public class TransactionRequestServiceImpl implements TransactionRequestService 
         User user = userService.findUserByJwt(jwt);
         Staff staff = staffService.findByUserId(user.getUser_id());
         Transaction_request ett = findById(id);
-        Transaction ettTrans = new Transaction();
 
         // Cập nhật trạng thái và nhân viên đã cập nhật
         ett.setStatus(rq.getStatus());
         ett.setStaff_id_updated(staff.getStaff_id());
         requestRepo.save(ett);
-
-        // Nếu trạng thái là CONFIRM, thiết lập thêm thông tin giao dịch
-        if (rq.getStatus().equals(RequestStatus.CONFIRM.getStatus())) {
-            ettTrans.setContent(ett.getContent());
-            ettTrans.setCreated_at(LocalDateTime.now());
-            ettTrans.setTotal_quantity(ett.getTotal_quantity());
-            ettTrans.setTotal_price(ett.getTotal_price());
-            ettTrans.setType_id(ett.getType_id());
-            ettTrans.setStaff_id(staff.getStaff_id());
-            ettTrans.setStatus(RequestStatus.WAITING.getStatus());
-
-            try {
-                // Lưu thông tin giao dịch
-                Transaction savedTransaction = transactionRepo.save(ettTrans);
-                Orders orders = orderService.findById(ett.getOrder_id());
-                //orders.setStatus(OrderStatus.Shipping.getOrderStatus());
-                // Duyệt qua từng Request_detail để tạo Transaction_detail
-                for (Request_detail item : ett.getRequestDetails()) {
-                    Transaction_detail detail = new Transaction_detail();
-                    detail.setPrice(item.getPrice());
-                    detail.setTransaction_id(savedTransaction.getTransaction_id());
-                    detail.setQuantity(item.getQuantity());
-                    detail.setProduct_id(item.getProduct_id());
-                    transactionDetailRepo.save(detail);
-                }
-            } catch (Exception e) {
-                // Xử lý lỗi nếu xảy ra khi lưu transaction hoặc chi tiết giao dịch
-                throw new RuntimeException("Error occurred while saving transaction details: " + e.getMessage());
-            }
-        }
 
         return ett;
     }
@@ -184,4 +154,33 @@ public class TransactionRequestServiceImpl implements TransactionRequestService 
             }
         }
     }
+    private String generateTransactionCode() {
+        // Lấy năm hiện tại
+        String currentYear = String.valueOf(java.time.Year.now().getValue()).substring(2); // Lấy 2 số cuối của năm
+
+        // Lấy tất cả giao dịch
+        List<Transaction> transactions = transactionRepo.findAll();
+        int maxId = 0;
+
+        // Kiểm tra danh sách giao dịch
+        for (Transaction p : transactions) {
+            String transactionCode = p.getTransaction_code();
+            if (transactionCode.startsWith("PDN" + currentYear)) { // Kiểm tra xem có cùng năm không
+                String idStr = transactionCode.substring(4); // Loại bỏ "NK" + "21"
+                int id = Integer.parseInt(idStr);
+                if (id > maxId) {
+                    maxId = id;
+                }
+            }
+        }
+
+        // Nếu danh sách rỗng hoặc chưa có mã nào cùng năm, tạo mã đầu tiên
+        if (maxId == 0) {
+            return String.format("PDN%s%06d", currentYear, 1); // Bắt đầu từ 001
+        }
+
+        // Nếu đã có mã, tăng số thứ tự lên
+        return String.format("PDN%s%06d", currentYear, maxId + 1);
+    }
+
 }

@@ -13,4 +13,5 @@ public class ProductTransRequest {
     private int quantity;
     private int unitPrice;
     private String note;
+    private int stock;
 }

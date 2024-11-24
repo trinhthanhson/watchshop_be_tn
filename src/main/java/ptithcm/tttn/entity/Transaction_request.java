@@ -22,6 +22,9 @@ public class Transaction_request {
     private String status;
 
     @Column
+    private String transaction_code;
+
+    @Column
     private int total_quantity;
 
     @Column
@@ -60,5 +63,8 @@ public class Transaction_request {
 
     @OneToMany(mappedBy = "request")
     private List<Request_detail> requestDetails;
+
+    @OneToMany(mappedBy = "transactionRequest")
+    private List<Transaction> transactions;
 
 }
