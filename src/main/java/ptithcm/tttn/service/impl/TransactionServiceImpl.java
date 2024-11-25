@@ -6,6 +6,7 @@ import ptithcm.tttn.entity.*;
 import ptithcm.tttn.repository.*;
 import ptithcm.tttn.request.ProductTransRequest;
 import ptithcm.tttn.request.TransactionRequest;
+import ptithcm.tttn.response.StatisticRsp;
 import ptithcm.tttn.response.TransactionStatisticRsp;
 import ptithcm.tttn.service.ProductService;
 import ptithcm.tttn.service.StaffService;
@@ -13,7 +14,9 @@ import ptithcm.tttn.service.TransactionService;
 import ptithcm.tttn.service.UserService;
 
 import javax.persistence.Column;
+import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -46,9 +49,9 @@ public class TransactionServiceImpl implements TransactionService {
         ett.setStaff_id(staff.getStaff_id());
         ett.setTransaction_code(generateTransactionCode());
         Transaction save = new Transaction();
-        if(rq.getRequest_id() == null){
+        if (rq.getRequest_id() == null) {
             save = transactionRepo.save(ett);
-            for(ProductTransRequest item : rq.getProducts()){
+            for (ProductTransRequest item : rq.getProducts()) {
                 Optional<Product> product = productRepo.findById(item.getProductId());
                 Product get = product.get();
                 Transaction_detail detail = new Transaction_detail();
@@ -62,10 +65,10 @@ public class TransactionServiceImpl implements TransactionService {
                 get.setQuantity(get.getQuantity() + detail.getQuantity());
                 productRepo.save(get);
             }
-        }else{
+        } else {
             ett.setRequest_id(rq.getRequest_id());
             save = transactionRepo.save(ett);
-            for(ProductTransRequest item : rq.getProducts()){
+            for (ProductTransRequest item : rq.getProducts()) {
                 Optional<Product> product = productRepo.findById(item.getProductId());
                 Product get = product.get();
                 Transaction_detail detail = new Transaction_detail();
@@ -88,7 +91,7 @@ public class TransactionServiceImpl implements TransactionService {
         billSupplierRepo.save(billSupplier);
         save.setBill_id(billSupplier.getBill_id());
 
-       return  transactionRepo.save(save);
+        return transactionRepo.save(save);
     }
 
     @Override
@@ -99,7 +102,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public Transaction findById(Long id) throws Exception {
         Optional<Transaction> find = transactionRepo.findById(id);
-        if(find.isPresent()){
+        if (find.isPresent()) {
             return find.get();
         }
         throw new Exception("Not found transaction by id " + id);
@@ -110,6 +113,22 @@ public class TransactionServiceImpl implements TransactionService {
         List<Object[]> results = transactionRepo.findTransactionStatistics(inputType);
         return results.stream()
                 .map(this::mapToTransactionStatistic)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<StatisticRsp> getAllStatistic(LocalDate startDate, LocalDate endDate) {
+        List<Object[]> results = transactionRepo.getFullInventoryReport(startDate, endDate);
+        return results.stream()
+                .map(this::mapToStatistic)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<StatisticRsp> getAllStatisticByType(LocalDate startDate, LocalDate endDate, String type) {
+        List<Object[]> results = transactionRepo.getFullInventoryReportByType(startDate, endDate,type);
+        return results.stream()
+                .map(this::mapToStatisticByType)
                 .collect(Collectors.toList());
     }
 
@@ -142,18 +161,49 @@ public class TransactionServiceImpl implements TransactionService {
         return String.format("PN%s%06d", currentYear, maxId + 1);
     }
 
-    private TransactionStatisticRsp mapToTransactionStatistic(Object[] result){
-         Date createDate = (Date) result[0];
-         String transactionCode = (String) result[1];
-         String watchId = (String) result[2];
-         String watchName = (String) result[3];
-         Integer price = (Integer) result[4];
-         Integer startQty = (Integer) result[5];
-         Integer actualQuantity = (Integer) result[6];
+    private TransactionStatisticRsp mapToTransactionStatistic(Object[] result) {
+        Date createDate = (Date) result[0];
+        String transactionCode = (String) result[1];
+        String watchId = (String) result[2];
+        String watchName = (String) result[3];
+        Integer price = (Integer) result[4];
+        Integer startQty = (Integer) result[5];
+        Integer actualQuantity = (Integer) result[6];
         BigInteger type_id = (BigInteger) result[7];
-        return new TransactionStatisticRsp(createDate, transactionCode, watchId,watchName,price,startQty,actualQuantity,type_id);
+        return new TransactionStatisticRsp(createDate, transactionCode, watchId, watchName, price, startQty, actualQuantity, type_id);
+    }
+
+    private StatisticRsp mapToStatistic(Object[] result) {
+        String productCode = (String) result[0];      // Mã sản phẩm
+        String productName = (String) result[1];      // Tên sản phẩm
+        BigDecimal openingQty = (BigDecimal) result[2];      // Số lượng tồn đầu kỳ
+        BigDecimal openingValue = (BigDecimal) result[3];     // Giá trị tồn đầu kỳ
+        BigDecimal importQty = (BigDecimal) result[4];       // Số lượng nhập trong kỳ
+        BigDecimal importValue = (BigDecimal) result[5];      // Giá trị nhập trong kỳ
+        BigDecimal exportQty = (BigDecimal) result[6];       // Số lượng xuất trong kỳ
+        BigDecimal exportValue = (BigDecimal) result[7];      // Giá trị xuất trong kỳ
+        BigDecimal closingQty = (BigDecimal) result[8];      // Số lượng tồn cuối kỳ
+        BigDecimal closingValue = (BigDecimal) result[9];     // Giá trị tồn cuối kỳ
+        return new StatisticRsp(productCode, productName, openingQty, openingValue, importQty, importValue, exportQty, exportValue, closingQty, closingValue);
 
     }
+
+    private StatisticRsp mapToStatisticByType(Object[] result) {
+        String productCode = (String) result[0];      // Mã sản phẩm
+        String productName = (String) result[1];      // Tên sản phẩm
+        BigDecimal openingQty = (BigDecimal) result[2];      // Số lượng tồn đầu kỳ
+        BigDecimal openingValue = (BigDecimal) result[3];     // Giá trị tồn đầu kỳ
+        BigDecimal importQty = (BigDecimal) result[4];       // Số lượng nhập trong kỳ
+        BigDecimal importValue = (BigDecimal) result[5];      // Giá trị nhập trong kỳ
+        BigDecimal closingQty = (BigDecimal) result[6];      // Số lượng tồn cuối kỳ
+        BigDecimal closingValue = (BigDecimal) result[7];     // Giá trị tồn cuối kỳ
+        BigDecimal export = BigDecimal.valueOf(0);
+        BigDecimal export1 = BigDecimal.valueOf(0);
+
+        return new StatisticRsp(productCode, productName, openingQty, openingValue, importQty, importValue,export ,export1, closingQty, closingValue);
+
+    }
+
 
 
 }
