@@ -104,5 +104,19 @@ public interface TransactionRepo extends JpaRepository<Transaction,Long> {
             @Param("typeName") String typeName // Tham số lọc type_name
     );
 
-
+    @Query(value = "SELECT " +
+            "ti.product_id AS productId, " +
+            "b.product_name AS productName, " +
+            "WEEK(t.created_at) AS week, " +
+            "SUM(ti.quantity) AS quantity, " +
+            "SUM(ti.quantity) - LAG(SUM(ti.quantity)) OVER (PARTITION BY ti.product_id ORDER BY WEEK(t.created_at)) AS difference_quantity, " +
+            "STDDEV_POP(ti.price) AS price_volatility " +
+            "FROM tn_watchshop.transaction t " +
+            "LEFT JOIN tn_watchshop.transaction_detail ti ON t.transaction_id = ti.transaction_id " +
+            "LEFT JOIN tn_watchshop.type ty ON t.type_id = ty.type_id " +
+            "LEFT JOIN tn_watchshop.product b ON ti.product_id = b.product_id " +
+            "GROUP BY ti.product_id, b.product_name, WEEK(t.created_at) " +
+            "ORDER BY ti.product_id, WEEK(t.created_at)", // Đảm bảo WEEK được đặt trong ORDER BY
+            nativeQuery = true)
+    List<Object[]> getProductData();
 }

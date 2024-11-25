@@ -3,6 +3,7 @@ package ptithcm.tttn.service;
 import ptithcm.tttn.entity.Transaction;
 import ptithcm.tttn.entity.Type;
 import ptithcm.tttn.request.TransactionRequest;
+import ptithcm.tttn.response.DataAIRsp;
 import ptithcm.tttn.response.StatisticRsp;
 import ptithcm.tttn.response.TransactionStatisticRsp;
 
@@ -22,5 +23,7 @@ public interface TransactionService {
     List<StatisticRsp> getAllStatistic(LocalDate startDate, LocalDate endDate);
 
     List<StatisticRsp> getAllStatisticByType(LocalDate startDate, LocalDate endDate, String type);
+
+    List<DataAIRsp> getDataAI();
 
 }

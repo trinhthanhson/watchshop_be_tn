@@ -6,6 +6,7 @@ import ptithcm.tttn.entity.*;
 import ptithcm.tttn.repository.*;
 import ptithcm.tttn.request.ProductTransRequest;
 import ptithcm.tttn.request.TransactionRequest;
+import ptithcm.tttn.response.DataAIRsp;
 import ptithcm.tttn.response.StatisticRsp;
 import ptithcm.tttn.response.TransactionStatisticRsp;
 import ptithcm.tttn.service.ProductService;
@@ -132,6 +133,14 @@ public class TransactionServiceImpl implements TransactionService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<DataAIRsp> getDataAI() {
+        List<Object[]> results = transactionRepo.getProductData();
+        return results.stream()
+                .map(this::mapToDataAI)
+                .collect(Collectors.toList());
+    }
+
     private String generateTransactionCode() {
         // Lấy năm hiện tại
         String currentYear = String.valueOf(java.time.Year.now().getValue()).substring(2); // Lấy 2 số cuối của năm
@@ -201,6 +210,18 @@ public class TransactionServiceImpl implements TransactionService {
         BigDecimal export1 = BigDecimal.valueOf(0);
 
         return new StatisticRsp(productCode, productName, openingQty, openingValue, importQty, importValue,export ,export1, closingQty, closingValue);
+
+    }
+
+    private DataAIRsp mapToDataAI(Object[] result) {
+         String productId = (String) result[0];
+         String productName = (String) result[1];
+         Integer week = (Integer) result[2] ;
+        BigDecimal quantity = (BigDecimal) result[3] ;
+        BigDecimal differenceQuantity = (BigDecimal) result[4] ;
+        Double priceVolatility = (Double) result[5];
+
+        return new DataAIRsp(productId,productName,week,quantity,differenceQuantity,priceVolatility);
 
     }
 

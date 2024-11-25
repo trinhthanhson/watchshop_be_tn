@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ptithcm.tttn.entity.Orders;
 import ptithcm.tttn.entity.Type;
+import ptithcm.tttn.response.DataAIRsp;
 import ptithcm.tttn.response.ListEntityResponse;
 import ptithcm.tttn.response.StatisticRsp;
 import ptithcm.tttn.response.TransactionStatisticRsp;
@@ -88,6 +89,24 @@ public class TransactionStatisticController {
             // Gửi tham số vào service
             List<StatisticRsp> statistic = transactionService.getAllStatisticByType(startDate, endDate, typeName);
 
+            res.setData(statistic);
+            res.setStatus(HttpStatus.OK);
+            res.setCode(HttpStatus.OK.value());
+            res.setMessage("success");
+        } catch (Exception e) {
+            res.setStatus(HttpStatus.CONFLICT);
+            res.setCode(HttpStatus.CONFLICT.value());
+            res.setMessage("error " + e.getMessage());
+        }
+        return new ResponseEntity<>(res, res.getStatus());
+    }
+
+
+    @GetMapping("/get/data")
+    public ResponseEntity<ListEntityResponse<DataAIRsp>> getDataAI(@RequestHeader("Authorization") String jwt) {
+        ListEntityResponse<DataAIRsp> res = new ListEntityResponse<>();
+        try {
+            List<DataAIRsp> statistic = transactionService.getDataAI();
             res.setData(statistic);
             res.setStatus(HttpStatus.OK);
             res.setCode(HttpStatus.OK.value());
