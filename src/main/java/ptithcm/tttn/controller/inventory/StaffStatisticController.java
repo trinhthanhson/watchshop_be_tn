@@ -8,11 +8,15 @@ import ptithcm.tttn.request.ProductSaleRequest;
 import ptithcm.tttn.request.StatisticRequest;
 import ptithcm.tttn.response.EntityResponse;
 import ptithcm.tttn.response.ListEntityResponse;
+import ptithcm.tttn.response.RevenueReportRsp;
 import ptithcm.tttn.service.OrderService;
 import ptithcm.tttn.service.ProductService;
+import ptithcm.tttn.service.TransactionService;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -23,6 +27,7 @@ public class StaffStatisticController {
 
     private final ProductService productService;
     private final OrderService orderService;
+    private final TransactionService transactionService;
 
     @GetMapping("/sales")
     public ResponseEntity<EntityResponse<List<StatisticRequest>>> getStatisticSaleOrder(@RequestHeader("Authorization") String jwt){
@@ -110,4 +115,36 @@ public class StaffStatisticController {
         }
         return new ResponseEntity<>(res,res.getStatus());
     }
+
+    @GetMapping("/revenue/report")
+    public ResponseEntity<ListEntityResponse<RevenueReportRsp>> getRevenueReportHandle(
+            @RequestHeader("Authorization") String jwt,
+            @RequestParam(value = "start", required = false) LocalDateTime dateStart,
+            @RequestParam(value = "end", required = false) LocalDateTime dateEnd) {
+
+        ListEntityResponse<RevenueReportRsp> res = new ListEntityResponse<>();
+        try {
+            // Đặt giá trị mặc định nếu không truyền start và end
+            if (dateStart == null) {
+                dateStart = LocalDateTime.of(2000, 1, 1, 0, 0); // Ngày bắt đầu hợp lệ
+            }
+            if (dateEnd == null) {
+                dateEnd = LocalDateTime.now(); // Ngày hiện tại
+            }
+
+            List<RevenueReportRsp> get = transactionService.getRevenueReport(dateStart, dateEnd);
+            res.setData(get);
+            res.setStatus(HttpStatus.OK);
+            res.setCode(HttpStatus.OK.value());
+            res.setMessage("success");
+        } catch (Exception e) {
+            res.setData(null);
+            res.setStatus(HttpStatus.CONFLICT);
+            res.setCode(HttpStatus.CONFLICT.value());
+            res.setMessage("error " + e.getMessage());
+        }
+        return new ResponseEntity<>(res, res.getStatus());
+    }
+
+
 }

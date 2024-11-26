@@ -8,12 +8,18 @@ import ptithcm.tttn.function.TypeTrans;
 import ptithcm.tttn.repository.*;
 import ptithcm.tttn.request.ProductTransRequest;
 import ptithcm.tttn.request.TransactionRequest;
+import ptithcm.tttn.response.RequestNotFullRsp;
+import ptithcm.tttn.response.TransactionStatisticRsp;
 import ptithcm.tttn.service.*;
 
 import javax.transaction.Transactional;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Service
@@ -98,6 +104,8 @@ public class TransactionRequestServiceImpl implements TransactionRequestService 
         request.setTotal_price(orders.getTotal_price());
         request.setCreated_at(LocalDateTime.now());
         request.setStaff_id_created(staff.getStaff_id());
+        request.setTransaction_code(generateTransactionCode());
+        request.setStatus("");
         request.setType_id(type.getType_id());
         request.setContent("Xuất kho");
         request.setOrder_id(orders.getOrder_id());
@@ -132,9 +140,7 @@ public class TransactionRequestServiceImpl implements TransactionRequestService 
                 currentDetail.setNote(detail.getNote());
                 currentDetail.setPrice(detail.getPrice());
                 detailRepo.save(currentDetail);
-            }
-            else
-            {
+            } else {
                 detail.setRequest_id(request.getRequest_id());
                 detail.setProduct_id(detail.getProduct_request().getProduct_id());
                 detail.setQuantity_request(detail.getQuantity_request());
@@ -148,12 +154,20 @@ public class TransactionRequestServiceImpl implements TransactionRequestService 
             boolean existsInNewList = rq.stream()
                     .anyMatch(d -> d.getProduct_request().getProduct_id().equals(existingDetail.getProduct_id()));
 
-            if (!existsInNewList)
-            {
+            if (!existsInNewList) {
                 detailRepo.delete(existingDetail);
             }
         }
     }
+
+    @Override
+    public List<RequestNotFullRsp> getRequestNotFull(Long id) {
+        List<Object[]> results = requestRepo.findUnfulfilledRequestDetails(id);
+        return results.stream()
+                .map(this::mapToRequestNotFull)
+                .collect(Collectors.toList());
+    }
+
     private String generateTransactionCode() {
         // Lấy năm hiện tại
         String currentYear = String.valueOf(java.time.Year.now().getValue()).substring(2); // Lấy 2 số cuối của năm
@@ -165,7 +179,7 @@ public class TransactionRequestServiceImpl implements TransactionRequestService 
         // Kiểm tra danh sách giao dịch
         for (Transaction p : transactions) {
             String transactionCode = p.getTransaction_code();
-            if (transactionCode.startsWith("PDN" + currentYear)) { // Kiểm tra xem có cùng năm không
+            if (transactionCode.startsWith("PDNX" + currentYear)) { // Kiểm tra xem có cùng năm không
                 String idStr = transactionCode.substring(4); // Loại bỏ "NK" + "21"
                 int id = Integer.parseInt(idStr);
                 if (id > maxId) {
@@ -176,11 +190,24 @@ public class TransactionRequestServiceImpl implements TransactionRequestService 
 
         // Nếu danh sách rỗng hoặc chưa có mã nào cùng năm, tạo mã đầu tiên
         if (maxId == 0) {
-            return String.format("PDN%s%06d", currentYear, 1); // Bắt đầu từ 001
+            return String.format("PDNX%s%06d", currentYear, 1); // Bắt đầu từ 001
         }
 
         // Nếu đã có mã, tăng số thứ tự lên
-        return String.format("PDN%s%06d", currentYear, maxId + 1);
+        return String.format("PDNX%s%06d", currentYear, maxId + 1);
+    }
+
+    private RequestNotFullRsp mapToRequestNotFull(Object[] result) {
+        BigInteger requestId = (BigInteger) result[0];
+        String productId = (String) result[1];
+        Integer  price = (Integer ) result[2];
+        String note = (String) result[3];
+        Integer  productQuantity = (Integer ) result[4];
+        String productName = (String) result[5];
+        Integer  quantityRequest = (Integer ) result[6];
+        BigDecimal  totalTransactedQuantity = (BigDecimal) result[7];
+        BigDecimal remainingQuantity = (BigDecimal) result[8];
+        return new RequestNotFullRsp(requestId, productId, price, note, productQuantity, productName, quantityRequest, totalTransactedQuantity, remainingQuantity);
     }
 
 }

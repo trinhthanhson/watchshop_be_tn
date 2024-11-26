@@ -7,6 +7,7 @@ import ptithcm.tttn.repository.*;
 import ptithcm.tttn.request.ProductTransRequest;
 import ptithcm.tttn.request.TransactionRequest;
 import ptithcm.tttn.response.DataAIRsp;
+import ptithcm.tttn.response.RevenueReportRsp;
 import ptithcm.tttn.response.StatisticRsp;
 import ptithcm.tttn.response.TransactionStatisticRsp;
 import ptithcm.tttn.service.ProductService;
@@ -127,7 +128,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public List<StatisticRsp> getAllStatisticByType(LocalDate startDate, LocalDate endDate, String type) {
-        List<Object[]> results = transactionRepo.getFullInventoryReportByType(startDate, endDate,type);
+        List<Object[]> results = transactionRepo.getFullInventoryReportByType(startDate, endDate, type);
         return results.stream()
                 .map(this::mapToStatisticByType)
                 .collect(Collectors.toList());
@@ -138,6 +139,14 @@ public class TransactionServiceImpl implements TransactionService {
         List<Object[]> results = transactionRepo.getProductData();
         return results.stream()
                 .map(this::mapToDataAI)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<RevenueReportRsp> getRevenueReport(LocalDateTime startDate, LocalDateTime endDate) {
+        List<Object[]> results = transactionRepo.getRevenueReport(startDate,endDate);
+        return results.stream()
+                .map(this::mapToRevenueReport)
                 .collect(Collectors.toList());
     }
 
@@ -209,20 +218,25 @@ public class TransactionServiceImpl implements TransactionService {
         BigDecimal export = BigDecimal.valueOf(0);
         BigDecimal export1 = BigDecimal.valueOf(0);
 
-        return new StatisticRsp(productCode, productName, openingQty, openingValue, importQty, importValue,export ,export1, closingQty, closingValue);
+        return new StatisticRsp(productCode, productName, openingQty, openingValue, importQty, importValue, export, export1, closingQty, closingValue);
 
     }
 
     private DataAIRsp mapToDataAI(Object[] result) {
-         String productId = (String) result[0];
-         String productName = (String) result[1];
-         Integer week = (Integer) result[2] ;
-        BigDecimal quantity = (BigDecimal) result[3] ;
-        BigDecimal differenceQuantity = (BigDecimal) result[4] ;
+        String productId = (String) result[0];
+        String productName = (String) result[1];
+        Integer week = (Integer) result[2];
+        BigDecimal quantity = (BigDecimal) result[3];
+        BigDecimal differenceQuantity = (BigDecimal) result[4];
         Double priceVolatility = (Double) result[5];
+        return new DataAIRsp(productId, productName, week, quantity, differenceQuantity, priceVolatility);
+    }
 
-        return new DataAIRsp(productId,productName,week,quantity,differenceQuantity,priceVolatility);
-
+    private RevenueReportRsp mapToRevenueReport(Object[] result) {
+         LocalDateTime transactionDate = (LocalDateTime) result[0];
+         BigDecimal totalRevenue = (BigDecimal) result[1];
+        BigDecimal totalQuantitySold = (BigDecimal) result[2];
+        return new RevenueReportRsp(transactionDate,totalRevenue,totalQuantitySold);
     }
 
 

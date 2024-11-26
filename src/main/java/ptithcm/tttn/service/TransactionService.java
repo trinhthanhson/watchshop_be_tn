@@ -4,10 +4,12 @@ import ptithcm.tttn.entity.Transaction;
 import ptithcm.tttn.entity.Type;
 import ptithcm.tttn.request.TransactionRequest;
 import ptithcm.tttn.response.DataAIRsp;
+import ptithcm.tttn.response.RevenueReportRsp;
 import ptithcm.tttn.response.StatisticRsp;
 import ptithcm.tttn.response.TransactionStatisticRsp;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface TransactionService {
@@ -25,5 +27,7 @@ public interface TransactionService {
     List<StatisticRsp> getAllStatisticByType(LocalDate startDate, LocalDate endDate, String type);
 
     List<DataAIRsp> getDataAI();
+
+    List<RevenueReportRsp> getRevenueReport(LocalDateTime startDate, LocalDateTime endDate);
 
 }
