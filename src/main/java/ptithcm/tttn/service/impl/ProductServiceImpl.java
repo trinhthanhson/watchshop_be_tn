@@ -10,6 +10,7 @@ import ptithcm.tttn.request.ProductSaleRequest;
 import ptithcm.tttn.service.*;
 
 import javax.transaction.Transactional;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -210,7 +211,15 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductSaleRequest> getProductSales() {
-        List<Object[]> results = productRepo.getProductSales();
+        List<Object[]> results = productRepo.getProductSalesTop5();
+        return results.stream()
+                .map(this::mapToProductSaleRequest)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ProductSaleRequest> getProductSalesReport() {
+        List<Object[]> results = productRepo.getProductSalesReport();
         return results.stream()
                 .map(this::mapToProductSaleRequest)
                 .collect(Collectors.toList());
@@ -233,8 +242,8 @@ public class ProductServiceImpl implements ProductService {
     private ProductSaleRequest mapToProductSaleRequest(Object[] result) {
         String productId = (String) result[0];
         String productName = (String) result[1];
-        long totalSoldQuantity = (long) result[2];
-        long totalQuanity = (long) result[3];
+        BigDecimal totalSoldQuantity = (BigDecimal) result[2];
+        BigDecimal totalQuanity = (BigDecimal) result[3];
         return new ProductSaleRequest(productId, productName, totalSoldQuantity, totalQuanity, null);
     }
 }

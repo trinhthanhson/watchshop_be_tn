@@ -13,6 +13,7 @@ import ptithcm.tttn.request.UpdateStatusRequest;
 import ptithcm.tttn.service.*;
 
 import javax.transaction.Transactional;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -414,8 +415,8 @@ public class OrderServiceImpl implements OrderService {
 
         String productId = (String) result[0];
         String productName = (String) result[1];
-        long totalSoldQuantity = (result[2] != null) ? (long) result[2] : 0L;
-        long totalQuantity = (result[3] != null) ? (long) result[3] : 0L;
+        BigDecimal totalSoldQuantity = (BigDecimal) result[2] ;
+        BigDecimal totalQuantity = (BigDecimal) result[3] ;
         Date datePay = (Date) result[4];
 
         return new ProductSaleRequest(productId, productName, totalSoldQuantity, totalQuantity, datePay);

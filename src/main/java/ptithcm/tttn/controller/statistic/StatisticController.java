@@ -29,6 +29,7 @@ public class StatisticController {
     private final ProductService productService;
     private final OrderService orderService;
 
+    // <editor-fold desc="revenue report (báo cáo doanh thu)">
     @GetMapping("/revenue/report")
     public ResponseEntity<ListEntityResponse<RevenueReportRsp>> getRevenueReportHandle(@RequestHeader("Authorization") String jwt, @RequestParam("start") String dateStart, @RequestParam("end") String dateEnd) {
 
@@ -58,68 +59,96 @@ public class StatisticController {
         }
         return new ResponseEntity<>(res, res.getStatus());
     }
+    // </editor-fold>
 
     @GetMapping("/sales")
-    public ResponseEntity<EntityResponse<List<StatisticRequest>>> getStatisticSaleOrder(@RequestHeader("Authorization") String jwt){
+    public ResponseEntity<EntityResponse<List<StatisticRequest>>> getStatisticSaleOrder(@RequestHeader("Authorization") String jwt) {
         EntityResponse<List<StatisticRequest>> res = new EntityResponse<>();
-        try{
+        try {
             List<StatisticRequest> rq = orderService.getTotalPriceByStatus();
             res.setData(rq);
             res.setStatus(HttpStatus.OK);
             res.setCode(HttpStatus.OK.value());
             res.setMessage("success");
-        }catch (Exception e) {
+        } catch (Exception e) {
             res.setData(null);
             res.setStatus(HttpStatus.CONFLICT);
             res.setCode(HttpStatus.CONFLICT.value());
             res.setMessage("error " + e.getMessage());
         }
-        return new ResponseEntity<>(res,res.getStatus());
+        return new ResponseEntity<>(res, res.getStatus());
     }
 
-
-    @GetMapping("/product")
-    public ResponseEntity<ListEntityResponse<ProductSaleRequest>> getStatisticProduct(@RequestHeader("Authorization") String jwt){
+    // <editor-fold desc="Top 5 product sale">
+    @GetMapping("/product/top")
+    public ResponseEntity<ListEntityResponse<ProductSaleRequest>> getStatisticProduct(@RequestHeader("Authorization") String jwt) {
         ListEntityResponse<ProductSaleRequest> res = new ListEntityResponse<>();
-        try{
+        try {
             List<ProductSaleRequest> get = productService.getProductSales();
-            for(ProductSaleRequest rq: get){
+            for (ProductSaleRequest rq : get) {
                 System.out.println(rq.getProduct_id());
             }
             res.setData(get);
             res.setStatus(HttpStatus.OK);
             res.setCode(HttpStatus.OK.value());
             res.setMessage("success");
-        }catch (Exception e) {
+        } catch (Exception e) {
             res.setData(null);
             res.setStatus(HttpStatus.CONFLICT);
             res.setCode(HttpStatus.CONFLICT.value());
             res.setMessage("error " + e.getMessage());
         }
-        return new ResponseEntity<>(res,res.getStatus());
+        return new ResponseEntity<>(res, res.getStatus());
     }
+    // </editor-fold>
 
+    // <editor-fold desc="Report product sale">
+    @GetMapping("/product/report")
+    public ResponseEntity<ListEntityResponse<ProductSaleRequest>> getStatisticProductReport(@RequestHeader("Authorization") String jwt) {
+        ListEntityResponse<ProductSaleRequest> res = new ListEntityResponse<>();
+        try {
+            List<ProductSaleRequest> get = productService.getProductSalesReport();
+            for (ProductSaleRequest rq : get) {
+                System.out.println(rq.getProduct_id());
+            }
+            res.setData(get);
+            res.setStatus(HttpStatus.OK);
+            res.setCode(HttpStatus.OK.value());
+            res.setMessage("success");
+        } catch (Exception e) {
+            res.setData(null);
+            res.setStatus(HttpStatus.CONFLICT);
+            res.setCode(HttpStatus.CONFLICT.value());
+            res.setMessage("error " + e.getMessage());
+        }
+        return new ResponseEntity<>(res, res.getStatus());
+    }
+    // </editor-fold>
+
+    // <editor-fold desc="Statistic by year">
     @GetMapping("/year")
-    public ResponseEntity<ListEntityResponse<StatisticRequest>> getStatisticOrder(@RequestHeader("Authorization") String jwt,@RequestParam String year, @RequestParam String type){
+    public ResponseEntity<ListEntityResponse<StatisticRequest>> getStatisticOrder(@RequestHeader("Authorization") String jwt, @RequestParam String year, @RequestParam String type) {
         int changeYear = Integer.valueOf(year);
         ListEntityResponse<StatisticRequest> res = new ListEntityResponse<>();
-        try{
+        try {
             List<StatisticRequest> get = orderService.getTotalAmountByMonth(changeYear, type);
             res.setData(get);
             res.setStatus(HttpStatus.OK);
             res.setCode(HttpStatus.OK.value());
             res.setMessage("success");
-        }catch (Exception e){
+        } catch (Exception e) {
             res.setData(null);
             res.setStatus(HttpStatus.CONFLICT);
             res.setCode(HttpStatus.CONFLICT.value());
             res.setMessage("error " + e.getMessage());
         }
-        return new ResponseEntity<>(res,res.getStatus());
+        return new ResponseEntity<>(res, res.getStatus());
     }
+    // </editor-fold>
 
+    // <editor-fold desc="Statistic by date">
     @GetMapping("/date")
-    public ResponseEntity<ListEntityResponse<ProductSaleRequest>> getStatisticOrderByDate(@RequestParam("start") String dateStart, @RequestParam("end") String dateEnd,@RequestHeader("Authorization") String jwt){
+    public ResponseEntity<ListEntityResponse<ProductSaleRequest>> getStatisticOrderByDate(@RequestParam("start") String dateStart, @RequestParam("end") String dateEnd, @RequestHeader("Authorization") String jwt) {
         SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
         Date start = null;
         Date end = null;
@@ -131,19 +160,19 @@ public class StatisticController {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        try{
+        try {
             List<ProductSaleRequest> get = orderService.getTotalAmountByDate(start, end);
             res.setData(get);
             res.setStatus(HttpStatus.OK);
             res.setCode(HttpStatus.OK.value());
             res.setMessage("success");
-        }catch (Exception e){
+        } catch (Exception e) {
             res.setData(null);
             res.setStatus(HttpStatus.CONFLICT);
             res.setCode(HttpStatus.CONFLICT.value());
             res.setMessage("error " + e.getMessage());
         }
-        return new ResponseEntity<>(res,res.getStatus());
+        return new ResponseEntity<>(res, res.getStatus());
     }
-
+// </editor-fold>
 }

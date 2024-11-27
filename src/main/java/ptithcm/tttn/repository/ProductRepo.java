@@ -9,7 +9,7 @@ import ptithcm.tttn.entity.Product;
 import java.util.List;
 
 @Repository
-public interface ProductRepo extends JpaRepository<Product,String> {
+public interface ProductRepo extends JpaRepository<Product, String> {
     @Query("SELECT p FROM Product p WHERE " +
             "p.product_name LIKE %:searchTerm% OR " +
             "p.band_material LIKE %:searchTerm% OR " +
@@ -28,13 +28,23 @@ public interface ProductRepo extends JpaRepository<Product,String> {
             "p.water_resistance LIKE %:searchTerm%")
     List<Product> searchProducts(@Param("searchTerm") String searchTerm);
 
-    @Query("SELECT p.product_id, p.product_name, SUM(od.quantity * od.price) as total_sold , SUM(od.quantity) AS total_quantity " +
+    @Query(value = "SELECT p.product_id, p.product_name, SUM(td.quantity * td.price) as total_sold, SUM(td.quantity) AS total_quantity " +
             "FROM Product p " +
-            "JOIN Order_detail od ON p.product_id = od.product_id " +
-            "JOIN Orders o ON od.order_id = o.order_id " +
+            "JOIN transaction_detail td ON p.product_id = td.product_id " +
+            "JOIN transaction t ON t.transaction_id = td.transaction_id " +
             "GROUP BY p.product_id, p.product_name " +
-            "ORDER BY total_sold DESC")
-    List<Object[]> getProductSales();
+            "ORDER BY total_sold DESC " +
+            "LIMIT 5", nativeQuery = true)
+    List<Object[]> getProductSalesTop5();
+
+    @Query(value = "SELECT p.product_id, p.product_name, SUM(td.quantity * td.price) as total_sold, SUM(td.quantity) AS total_quantity " +
+            "FROM Product p " +
+            "JOIN transaction_detail td ON p.product_id = td.product_id " +
+            "JOIN transaction t ON t.transaction_id = td.transaction_id " +
+            "GROUP BY p.product_id, p.product_name " +
+            "ORDER BY total_sold DESC", nativeQuery = true)
+    List<Object[]> getProductSalesReport();
+
 
     @Query(value = "SELECT * FROM product WHERE LOWER(product_name) = ?1  ", nativeQuery = true)
     Product findByName(String product_name);
