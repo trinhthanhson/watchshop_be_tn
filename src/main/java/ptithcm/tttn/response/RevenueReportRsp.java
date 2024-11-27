@@ -8,13 +8,14 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Data
 @Getter
 @Setter
 @AllArgsConstructor
 public class RevenueReportRsp {
-    private LocalDateTime transactionDate;
-    private BigDecimal totalRevenue;
-    private BigDecimal totalQuantitySold;
+    private Date transactionDate;
+    private Long totalRevenue;
+    private Long totalQuantitySold;
 }

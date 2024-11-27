@@ -35,9 +35,6 @@ public class Transaction {
     private int total_price;
 
     @Column
-    private String status;
-
-    @Column
     private Long type_id;
 
     @Column

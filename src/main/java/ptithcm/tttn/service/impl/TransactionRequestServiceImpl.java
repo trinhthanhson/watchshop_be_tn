@@ -33,9 +33,8 @@ public class TransactionRequestServiceImpl implements TransactionRequestService 
     private final TransactionRepo transactionRepo;
     private final TransactionDetailRepo transactionDetailRepo;
     private final SupplierService supplierService;
-    private final OrderService orderService;
     private final ProductRepo productRepo;
-
+    private final OrderRepo orderRepo;
     @Override
     @Transactional
     public Transaction_request createRequest(TransactionRequest rq, String jwt) throws Exception {
@@ -49,6 +48,7 @@ public class TransactionRequestServiceImpl implements TransactionRequestService 
         ett.setType_id(type.getType_id());
         ett.setStaff_id_created(staff.getStaff_id());
         ett.setTotal_quantity(rq.getTotal_quantity());
+        ett.setIs_cancel(false);
         ett.setTotal_price(rq.getTotal_price());
         ett.setStatus(RequestStatus.WAITING.getStatus());
         Transaction_request save = requestRepo.save(ett);
@@ -85,10 +85,36 @@ public class TransactionRequestServiceImpl implements TransactionRequestService 
         User user = userService.findUserByJwt(jwt);
         Staff staff = staffService.findByUserId(user.getUser_id());
         Transaction_request ett = findById(id);
-
+        Transaction transaction = new Transaction();
+        if(rq.getIs_cancel()){
+            ett.setIs_cancel(true);
+            Orders orders = orderRepo.findById(ett.getOrder_id())
+                    .orElseThrow(() -> new RuntimeException("Order not found with id: " + ett.getOrder_id()));
+            orders.setIs_cancel(rq.getIs_cancel());
+            orderRepo.save(orders);
+        }
         // Cập nhật trạng thái và nhân viên đã cập nhật
         ett.setStatus(rq.getStatus());
         ett.setStaff_id_updated(staff.getStaff_id());
+        transaction.setRequest_id(ett.getRequest_id());
+        transaction.setContent(ett.getContent());
+        transaction.setCreated_at(LocalDateTime.now());
+        transaction.setTransaction_code(generateTransactionCodeExport());
+        transaction.setTotal_quantity(ett.getTotal_quantity());
+        transaction.setTotal_price(ett.getTotal_price());
+        transaction.setType_id(ett.getType_id());
+        transaction.setStaff_id(staff.getStaff_id());
+        Transaction save = transactionRepo.save(transaction);
+        for(Request_detail item : ett.getRequestDetails()){
+            Transaction_detail detail = new Transaction_detail();
+            detail.setQuantity(item.getQuantity());
+            detail.setQuantity_request(item.getQuantity());
+            detail.setNote(item.getNote());
+            detail.setPrice(item.getPrice());
+            detail.setTransaction_id(save.getTransaction_id());
+            detail.setProduct_id(item.getProduct_id());
+            transactionDetailRepo.save(detail);
+        }
         requestRepo.save(ett);
 
         return ett;
@@ -96,7 +122,8 @@ public class TransactionRequestServiceImpl implements TransactionRequestService 
 
     @Override
     public Transaction_request createRequestExportByOrder(Long id, String jwt) throws Exception {
-        Orders orders = orderService.findById(id);
+        Orders orders = orderRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
         User user = userService.findUserByJwt(jwt);
         Staff staff = staffService.findByUserId(user.getUser_id());
         Type type = typeRepo.findTypeByName(TypeTrans.EXPORT.getTypeName());
@@ -105,7 +132,7 @@ public class TransactionRequestServiceImpl implements TransactionRequestService 
         request.setCreated_at(LocalDateTime.now());
         request.setStaff_id_created(staff.getStaff_id());
         request.setTransaction_code(generateTransactionCode());
-        request.setStatus("");
+        request.setStatus("WAITING");
         request.setType_id(type.getType_id());
         request.setContent("Xuất kho");
         request.setOrder_id(orders.getOrder_id());
@@ -117,6 +144,7 @@ public class TransactionRequestServiceImpl implements TransactionRequestService 
             detail.setRequest_id(save.getRequest_id());
             detail.setQuantity(item.getQuantity());
             detail.setProduct_id(item.getProduct_id());
+            detail.setQuantity_request(item.getQuantity());
             detailRepo.save(detail);
         }
         return save;
@@ -195,6 +223,35 @@ public class TransactionRequestServiceImpl implements TransactionRequestService 
 
         // Nếu đã có mã, tăng số thứ tự lên
         return String.format("PDNX%s%06d", currentYear, maxId + 1);
+    }
+
+    private String generateTransactionCodeExport() {
+        // Lấy năm hiện tại
+        String currentYear = String.valueOf(java.time.Year.now().getValue()).substring(2); // Lấy 2 số cuối của năm
+
+        // Lấy tất cả giao dịch
+        List<Transaction> transactions = transactionRepo.findAll();
+        int maxId = 0;
+
+        // Kiểm tra danh sách giao dịch
+        for (Transaction p : transactions) {
+            String transactionCode = p.getTransaction_code();
+            if (transactionCode.startsWith("PX" + currentYear)) { // Kiểm tra xem có cùng năm không
+                String idStr = transactionCode.substring(4); // Loại bỏ "NK" + "21"
+                int id = Integer.parseInt(idStr);
+                if (id > maxId) {
+                    maxId = id;
+                }
+            }
+        }
+
+        // Nếu danh sách rỗng hoặc chưa có mã nào cùng năm, tạo mã đầu tiên
+        if (maxId == 0) {
+            return String.format("PX%s%06d", currentYear, 1); // Bắt đầu từ 001
+        }
+
+        // Nếu đã có mã, tăng số thứ tự lên
+        return String.format("PX%s%06d", currentYear, maxId + 1);
     }
 
     private RequestNotFullRsp mapToRequestNotFull(Object[] result) {

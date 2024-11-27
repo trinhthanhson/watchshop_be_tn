@@ -2,6 +2,7 @@ package ptithcm.tttn.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ptithcm.tttn.entity.Orders;
 
@@ -13,11 +14,12 @@ public interface OrderRepo extends JpaRepository<Orders,Long> {
     @Query(value = "SELECT * FROM orders WHERE customer_id = ?1  ", nativeQuery = true)
     List<Orders> findByCustomerId(Long customer_id);
 
-    @Query("SELECT MONTH(o.created_at) AS month, SUM(o.total_price) AS totalAmount " +
-            "FROM Orders o " +
-            "WHERE YEAR(o.created_at) = :year " +
-            "GROUP BY MONTH(o.created_at)")
-    List<Object[]> getTotalAmountByMonth(int year);
+    @Query("SELECT MONTH(t.created_at) AS month, SUM(t.total_price) AS totalAmount " +
+            "FROM Transaction t " +
+            "JOIN Type tp ON tp.type_id = t.type_id " +
+            "WHERE YEAR(t.created_at) = :year AND tp.type_name = :typeName " +
+            "GROUP BY MONTH(t.created_at)")
+    List<Object[]> getTotalAmountByMonth(int year, String typeName);
 
     @Query("SELECT " +
             "    p.product_id AS product_id, " +
@@ -42,4 +44,19 @@ public interface OrderRepo extends JpaRepository<Orders,Long> {
 
     @Query("select sum(o.total_price) as total_price from Orders o ")
     List<Object[]> findTotalPriceByStatus();
+
+    @Query(value = "SELECT " +
+            "CASE " +
+            "WHEN EXISTS ( " +
+            "    SELECT 1 " +
+            "    FROM orders od " +
+            "    JOIN transaction_request tr ON tr.order_id = od.order_id " +
+            "    JOIN transaction t ON tr.request_id = t.request_id " +
+            "    WHERE od.order_id = :orderId " +
+            ") THEN 'True' " +  // Trả về 'True' nếu tồn tại
+            "ELSE 'False' " +    // Trả về 'False' nếu không tồn tại
+            "END AS is_transaction_created",
+            nativeQuery = true)
+    String isTransactionCreated(@Param("orderId") Long orderId);
+
 }

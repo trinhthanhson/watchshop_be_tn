@@ -28,88 +28,99 @@ public class StaffOrderController {
 
 
     @GetMapping("/all")
-    public ResponseEntity<ListEntityResponse<Orders>> getAllOrderByStaff(@RequestHeader("Authorization") String jwt){
+    public ResponseEntity<ListEntityResponse<Orders>> getAllOrderByStaff(@RequestHeader("Authorization") String jwt) {
         ListEntityResponse<Orders> res = new ListEntityResponse<>();
-        try{
+        try {
             List<Orders> getAllOrder = orderService.findAll();
             res.setData(getAllOrder);
             res.setStatus(HttpStatus.OK);
             res.setCode(HttpStatus.OK.value());
             res.setMessage("success");
-        }catch (Exception e){
+        } catch (Exception e) {
             res.setData(null);
             res.setStatus(HttpStatus.CONFLICT);
             res.setCode(HttpStatus.CONFLICT.value());
             res.setMessage("error " + e.getMessage());
         }
-        return new ResponseEntity<>(res,res.getStatus());
+        return new ResponseEntity<>(res, res.getStatus());
     }
+
     @PutMapping("/{id}/status")
-    public ResponseEntity<EntityResponse<Orders>> cancelOrderByCustomer(@RequestHeader("Authorization") String jwt, @PathVariable Long id, @RequestBody UpdateStatusRequest od){
+    public ResponseEntity<EntityResponse<Orders>> cancelOrderByCustomer(@RequestHeader("Authorization") String jwt, @PathVariable Long id, @RequestBody UpdateStatusRequest od) {
         EntityResponse<Orders> res = new EntityResponse<>();
-        try{
-           Orders orders = orderService.updateStatusOrderByStaff(od,id,jwt);
-          res.setData(orders);
+        try {
+            Orders orders = orderService.updateStatusOrderByStaff(od, id, jwt);
+            res.setData(orders);
             res.setMessage("success");
             res.setCode(HttpStatus.OK.value());
             res.setStatus(HttpStatus.OK);
-        }catch (Exception e){
+        } catch (Exception e) {
             res.setData(null);
             res.setMessage("error " + e.getMessage());
             res.setCode(HttpStatus.CONFLICT.value());
             res.setStatus(HttpStatus.CONFLICT);
         }
-        return new ResponseEntity<>(res,res.getStatus());
+        return new ResponseEntity<>(res, res.getStatus());
     }
 
     @GetMapping("/value")
-    public ResponseEntity<ValueResponse> getValueOrder(@RequestHeader("Authorization") String jwt){
+    public ResponseEntity<ValueResponse> getValueOrder(@RequestHeader("Authorization") String jwt) {
         ValueResponse res = new ValueResponse();
-        try{
+        try {
             List<Orders> getAllOrder = orderService.findAll();
             int total = 0;
-            for(Orders od : getAllOrder){
-                total+=od.getTotal_price();
+            for (Orders od : getAllOrder) {
+                total += od.getTotal_price();
             }
             res.setValue(total);
             res.setStatus(HttpStatus.OK);
             res.setCode(HttpStatus.OK.value());
             res.setMessage("success");
-        }catch (Exception e){
+        } catch (Exception e) {
             res.setValue(null);
             res.setStatus(HttpStatus.CONFLICT);
             res.setCode(HttpStatus.CONFLICT.value());
             res.setMessage("error " + e.getMessage());
         }
-        return new ResponseEntity<>(res,res.getStatus());
+        return new ResponseEntity<>(res, res.getStatus());
     }
 
 
     @GetMapping("/all/shipper")
-    public ResponseEntity<ListEntityResponse<Orders>> getAllOrderByStaffShipper(@RequestHeader("Authorization") String jwt){
+    public ResponseEntity<ListEntityResponse<Orders>> getAllOrderByStaffShipper(@RequestHeader("Authorization") String jwt) {
         ListEntityResponse<Orders> res = new ListEntityResponse<>();
-        try{
+        try {
             List<Orders> getAllOrder = orderService.allOrderReceiveByStaff(jwt);
 
             res.setData(getAllOrder);
             res.setStatus(HttpStatus.OK);
             res.setCode(HttpStatus.OK.value());
             res.setMessage("success");
-        }catch (Exception e){
+        } catch (Exception e) {
             res.setData(null);
             res.setStatus(HttpStatus.CONFLICT);
             res.setCode(HttpStatus.CONFLICT.value());
             res.setMessage("error " + e.getMessage());
         }
-        return new ResponseEntity<>(res,res.getStatus());
+        return new ResponseEntity<>(res, res.getStatus());
+    }
+
+    @GetMapping("/check")
+    public ResponseEntity<ApiResponse> checkTransaction(@RequestParam("orderId") Long orderId) {
+        String isCreated = orderService.isTransactionCreated(orderId);
+        ApiResponse res = new ApiResponse();
+        res.setCode(HttpStatus.OK.value());
+        res.setMessage(isCreated);
+        res.setStatus(HttpStatus.OK);
+        return new ResponseEntity<>(res, res.getStatus());
     }
 
     // <editor-fold desc="Transaction request">
     @PostMapping("/{id}/create/request")
-    public ResponseEntity<ApiResponse> createRequestExportByOder(@RequestHeader("Authorization") String jwt, @PathVariable Long id){
+    public ResponseEntity<ApiResponse> createRequestExportByOder(@RequestHeader("Authorization") String jwt, @PathVariable Long id) {
         ApiResponse res = new ApiResponse();
         try {
-            Transaction_request create =requestService.createRequestExportByOrder(id,jwt);
+            Transaction_request create = requestService.createRequestExportByOrder(id, jwt);
             res.setMessage("Success");
             res.setStatus(HttpStatus.OK);
             res.setCode(HttpStatus.OK.value());

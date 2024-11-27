@@ -22,7 +22,7 @@ public interface OrderService {
 
     Orders orderBuyCart(OrderRequest rq,String jwt) throws Exception;
 
-    List<StatisticRequest> getTotalAmountByMonth(int year);
+    List<StatisticRequest> getTotalAmountByMonth(int year, String typeName);
 
     List<Orders> findAll();
 
@@ -37,4 +37,7 @@ public interface OrderService {
     List<Orders> allOrderReceiveByStaff(String jwt) throws Exception;
 
     List<StatisticRequest>  getTotalPriceByStatus();
+
+    String isTransactionCreated(Long orderId);
+
 }

@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class StatisticRequest {
-    private int moth;
+    private int month;
     private long total_price;
     public StatisticRequest(long total_price) {
         this.total_price = total_price;

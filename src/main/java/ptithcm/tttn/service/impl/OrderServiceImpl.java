@@ -220,8 +220,8 @@ public class OrderServiceImpl implements OrderService {
 //        return createdOrders;
 //    }
     @Override
-    public List<StatisticRequest> getTotalAmountByMonth(int year) {
-        List<Object[]> results = ordersRepo.getTotalAmountByMonth(year);
+    public List<StatisticRequest> getTotalAmountByMonth(int year,String typeName) {
+        List<Object[]> results = ordersRepo.getTotalAmountByMonth(year,typeName);
         return results.stream()
                 .map(this::mapToStatisticRequest)
                 .collect(Collectors.toList());
@@ -398,6 +398,12 @@ public class OrderServiceImpl implements OrderService {
                 .filter(Objects::nonNull)  // Filter out null results
                 .map(this::mapToStatisticRequestSale)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public String isTransactionCreated(Long orderId) {
+        // Gọi phương thức trong repository để kiểm tra
+        return ordersRepo.isTransactionCreated(orderId);
     }
 
     private ProductSaleRequest mapToProductSaleRequest(Object[] result) {

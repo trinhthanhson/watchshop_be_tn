@@ -8,8 +8,10 @@ import ptithcm.tttn.response.RevenueReportRsp;
 import ptithcm.tttn.response.StatisticRsp;
 import ptithcm.tttn.response.TransactionStatisticRsp;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 public interface TransactionService {
@@ -28,6 +30,6 @@ public interface TransactionService {
 
     List<DataAIRsp> getDataAI();
 
-    List<RevenueReportRsp> getRevenueReport(LocalDateTime startDate, LocalDateTime endDate);
+    List<RevenueReportRsp> getRevenueReport(Date startDate, Date endDate);
 
 }

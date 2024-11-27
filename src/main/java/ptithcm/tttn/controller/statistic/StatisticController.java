@@ -1,6 +1,7 @@
-package ptithcm.tttn.controller.inventory;
+package ptithcm.tttn.controller.statistic;
 
 import lombok.AllArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,21 +14,50 @@ import ptithcm.tttn.service.OrderService;
 import ptithcm.tttn.service.ProductService;
 import ptithcm.tttn.service.TransactionService;
 
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/inventory/statistic")
+@RequestMapping("/api/statistic")
 @AllArgsConstructor
-public class StaffStatisticController {
-
+public class StatisticController {
+    private final TransactionService transactionService;
     private final ProductService productService;
     private final OrderService orderService;
-    private final TransactionService transactionService;
+
+    @GetMapping("/revenue/report")
+    public ResponseEntity<ListEntityResponse<RevenueReportRsp>> getRevenueReportHandle(@RequestHeader("Authorization") String jwt, @RequestParam("start") String dateStart, @RequestParam("end") String dateEnd) {
+
+        ListEntityResponse<RevenueReportRsp> res = new ListEntityResponse<>();
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+        Date start = null;
+        Date end = null;
+        try {
+            // Parsing a String to Date
+            start = dateFormatter.parse(dateStart);
+            end = dateFormatter.parse(dateEnd);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        try {
+
+            List<RevenueReportRsp> get = transactionService.getRevenueReport(start, end);
+            res.setData(get);
+            res.setStatus(HttpStatus.OK);
+            res.setCode(HttpStatus.OK.value());
+            res.setMessage("success");
+        } catch (Exception e) {
+            res.setData(null);
+            res.setStatus(HttpStatus.CONFLICT);
+            res.setCode(HttpStatus.CONFLICT.value());
+            res.setMessage("error " + e.getMessage());
+        }
+        return new ResponseEntity<>(res, res.getStatus());
+    }
 
     @GetMapping("/sales")
     public ResponseEntity<EntityResponse<List<StatisticRequest>>> getStatisticSaleOrder(@RequestHeader("Authorization") String jwt){
@@ -74,7 +104,7 @@ public class StaffStatisticController {
         int changeYear = Integer.valueOf(year);
         ListEntityResponse<StatisticRequest> res = new ListEntityResponse<>();
         try{
-            List<StatisticRequest> get = orderService.getTotalAmountByMonth(changeYear,type);
+            List<StatisticRequest> get = orderService.getTotalAmountByMonth(changeYear, type);
             res.setData(get);
             res.setStatus(HttpStatus.OK);
             res.setCode(HttpStatus.OK.value());
@@ -115,4 +145,5 @@ public class StaffStatisticController {
         }
         return new ResponseEntity<>(res,res.getStatus());
     }
+
 }

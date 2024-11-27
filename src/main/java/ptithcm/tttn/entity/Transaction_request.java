@@ -2,6 +2,7 @@ package ptithcm.tttn.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import ptithcm.tttn.config.BooleanToCharConverter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -29,6 +30,10 @@ public class Transaction_request {
 
     @Column
     private int total_price;
+
+    @Column(name = "is_cancel", columnDefinition = "CHAR(1)")
+    @Convert(converter = BooleanToCharConverter.class)
+    private Boolean is_cancel;
 
     @Column
     private LocalDateTime created_at;

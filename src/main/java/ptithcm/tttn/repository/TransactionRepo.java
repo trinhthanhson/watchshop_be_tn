@@ -7,8 +7,10 @@ import org.springframework.stereotype.Repository;
 import ptithcm.tttn.entity.Transaction;
 import ptithcm.tttn.response.RevenueReportRsp;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -125,9 +127,8 @@ public interface TransactionRepo extends JpaRepository<Transaction,Long> {
     @Query("SELECT DATE(t.created_at) as transactionDate, SUM(t.total_price) as totalRevenue, SUM(t.total_quantity) as totalQuantitySold " +
             "FROM Transaction t JOIN Type tp ON t.type_id = tp.type_id " +
             "WHERE tp.type_name = 'EXPORT' " +
-            "AND (CAST(:startDate AS timestamp) IS NULL OR CAST(:endDate AS timestamp) IS NULL OR t.created_at BETWEEN :startDate AND :endDate) " +
+            "AND (Date(:startDate) IS NULL OR Date(:endDate) IS NULL OR Date(t.created_at) BETWEEN Date(:startDate) AND Date(:endDate)) " +
             "GROUP BY DATE(t.created_at)")
-    List<Object[]> getRevenueReport(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
-
+    List<Object[]> getRevenueReport(@Param("startDate") Date startDate, @Param("endDate") Date endDate);
 
 }

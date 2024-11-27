@@ -18,6 +18,7 @@ import ptithcm.tttn.service.UserService;
 import javax.persistence.Column;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -143,7 +144,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<RevenueReportRsp> getRevenueReport(LocalDateTime startDate, LocalDateTime endDate) {
+    public List<RevenueReportRsp> getRevenueReport(Date startDate, Date endDate) {
         List<Object[]> results = transactionRepo.getRevenueReport(startDate,endDate);
         return results.stream()
                 .map(this::mapToRevenueReport)
@@ -233,12 +234,9 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     private RevenueReportRsp mapToRevenueReport(Object[] result) {
-         LocalDateTime transactionDate = (LocalDateTime) result[0];
-         BigDecimal totalRevenue = (BigDecimal) result[1];
-        BigDecimal totalQuantitySold = (BigDecimal) result[2];
+         Date transactionDate = (Date) result[0];
+         Long totalRevenue = (Long) result[1];
+        Long totalQuantitySold = (Long) result[2];
         return new RevenueReportRsp(transactionDate,totalRevenue,totalQuantitySold);
     }
-
-
-
 }
