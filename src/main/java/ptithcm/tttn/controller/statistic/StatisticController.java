@@ -31,16 +31,20 @@ public class StatisticController {
 
     // <editor-fold desc="revenue report (báo cáo doanh thu)">
     @GetMapping("/revenue/report")
-    public ResponseEntity<ListEntityResponse<RevenueReportRsp>> getRevenueReportHandle(@RequestHeader("Authorization") String jwt, @RequestParam("start") String dateStart, @RequestParam("end") String dateEnd) {
+    public ResponseEntity<ListEntityResponse<RevenueReportRsp>> getRevenueReportHandle(@RequestHeader("Authorization") String jwt, @RequestParam(value = "start",required = false) String dateStart, @RequestParam(value = "end",required = false) String dateEnd) {
 
         ListEntityResponse<RevenueReportRsp> res = new ListEntityResponse<>();
         SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
         Date start = null;
         Date end = null;
+
         try {
-            // Parsing a String to Date
-            start = dateFormatter.parse(dateStart);
-            end = dateFormatter.parse(dateEnd);
+            if (dateStart != null && !dateStart.isEmpty()) {
+                start = dateFormatter.parse(dateStart);
+            }
+            if (dateEnd != null && !dateEnd.isEmpty()) {
+                end = dateFormatter.parse(dateEnd);
+            }
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -127,11 +131,11 @@ public class StatisticController {
 
     // <editor-fold desc="Statistic by year">
     @GetMapping("/year")
-    public ResponseEntity<ListEntityResponse<StatisticRequest>> getStatisticOrder(@RequestHeader("Authorization") String jwt, @RequestParam String year, @RequestParam String type) {
+    public ResponseEntity<ListEntityResponse<StatisticRequest>> getStatisticOrder(@RequestHeader("Authorization") String jwt, @RequestParam String year) {
         int changeYear = Integer.valueOf(year);
         ListEntityResponse<StatisticRequest> res = new ListEntityResponse<>();
         try {
-            List<StatisticRequest> get = orderService.getTotalAmountByMonth(changeYear, type);
+            List<StatisticRequest> get = orderService.getTotalAmountByMonth(changeYear);
             res.setData(get);
             res.setStatus(HttpStatus.OK);
             res.setCode(HttpStatus.OK.value());

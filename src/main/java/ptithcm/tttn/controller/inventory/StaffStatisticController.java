@@ -74,7 +74,7 @@ public class StaffStatisticController {
         int changeYear = Integer.valueOf(year);
         ListEntityResponse<StatisticRequest> res = new ListEntityResponse<>();
         try{
-            List<StatisticRequest> get = orderService.getTotalAmountByMonth(changeYear,type);
+            List<StatisticRequest> get = orderService.getTotalAmountByMonth(changeYear);
             res.setData(get);
             res.setStatus(HttpStatus.OK);
             res.setCode(HttpStatus.OK.value());

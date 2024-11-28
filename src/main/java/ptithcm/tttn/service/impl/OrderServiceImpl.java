@@ -221,8 +221,8 @@ public class OrderServiceImpl implements OrderService {
 //        return createdOrders;
 //    }
     @Override
-    public List<StatisticRequest> getTotalAmountByMonth(int year,String typeName) {
-        List<Object[]> results = ordersRepo.getTotalAmountByMonth(year,typeName);
+    public List<StatisticRequest> getTotalAmountByMonth(int year) {
+        List<Object[]> results = ordersRepo.getTotalAmountByMonth(year);
         return results.stream()
                 .map(this::mapToStatisticRequest)
                 .collect(Collectors.toList());

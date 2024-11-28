@@ -22,7 +22,7 @@ public interface OrderService {
 
     Orders orderBuyCart(OrderRequest rq,String jwt) throws Exception;
 
-    List<StatisticRequest> getTotalAmountByMonth(int year, String typeName);
+    List<StatisticRequest> getTotalAmountByMonth(int year);
 
     List<Orders> findAll();
 

@@ -17,9 +17,9 @@ public interface OrderRepo extends JpaRepository<Orders,Long> {
     @Query("SELECT MONTH(t.created_at) AS month, SUM(t.total_price) AS totalAmount " +
             "FROM Transaction t " +
             "JOIN Type tp ON tp.type_id = t.type_id " +
-            "WHERE YEAR(t.created_at) = :year AND tp.type_name = :typeName " +
+            "WHERE YEAR(t.created_at) = :year  " +
             "GROUP BY MONTH(t.created_at)")
-    List<Object[]> getTotalAmountByMonth(int year, String typeName);
+    List<Object[]> getTotalAmountByMonth(int year);
 
     @Query("SELECT " +
             "    p.product_id AS product_id, " +
