@@ -28,6 +28,7 @@ public interface ProductRepo extends JpaRepository<Product, String> {
             "p.water_resistance LIKE %:searchTerm%")
     List<Product> searchProducts(@Param("searchTerm") String searchTerm);
 
+    // <editor-fold desc="Top 5 product sale report">
     @Query(value = "SELECT p.product_id, p.product_name, SUM(td.quantity * td.price) as total_sold, SUM(td.quantity) AS total_quantity " +
             "FROM Product p " +
             "JOIN transaction_detail td ON p.product_id = td.product_id " +
@@ -36,7 +37,9 @@ public interface ProductRepo extends JpaRepository<Product, String> {
             "ORDER BY total_sold DESC " +
             "LIMIT 5", nativeQuery = true)
     List<Object[]> getProductSalesTop5();
+    // </editor-fold>
 
+    // <editor-fold desc="product sale report">
     @Query(value = "SELECT p.product_id, p.product_name, SUM(td.quantity * td.price) as total_sold, SUM(td.quantity) AS total_quantity " +
             "FROM Product p " +
             "JOIN transaction_detail td ON p.product_id = td.product_id " +
@@ -44,7 +47,7 @@ public interface ProductRepo extends JpaRepository<Product, String> {
             "GROUP BY p.product_id, p.product_name " +
             "ORDER BY total_sold DESC", nativeQuery = true)
     List<Object[]> getProductSalesReport();
-
+    // </editor-fold>
 
     @Query(value = "SELECT * FROM product WHERE LOWER(product_name) = ?1  ", nativeQuery = true)
     Product findByName(String product_name);
@@ -55,4 +58,25 @@ public interface ProductRepo extends JpaRepository<Product, String> {
     @Query(value = "SELECT * FROM product WHERE brand_id = ?1  ", nativeQuery = true)
     List<Product> findByBrandId(Long brand_id);
 
+    // <editor-fold desc="quantity inventory report">
+    @Query(value = "SELECT " +
+            "    p.product_id, " +
+            "    p.product_name, " +
+            "    p.quantity, " +
+            "    SUM(CASE WHEN t_type.type_name = 'IMPORT' THEN td.quantity ELSE 0 END) AS total_import, " +
+            "    SUM(CASE WHEN t_type.type_name = 'EXPORT' THEN td.quantity ELSE 0 END) AS total_export, " +
+            "    (SUM(CASE WHEN t_type.type_name = 'IMPORT' THEN td.quantity ELSE 0 END) - " +
+            "     SUM(CASE WHEN t_type.type_name = 'EXPORT' THEN td.quantity ELSE 0 END)) AS current_stock " +
+            "FROM product p " +
+            "JOIN transaction_detail td ON td.product_id = p.product_id " +
+            "JOIN transaction t ON t.transaction_id = td.transaction_id " +
+            "JOIN type t_type ON t.type_id = t_type.type_id " +
+            "WHERE " +
+            "(:filter = 'all') OR " +
+            "(:filter = 'week' AND YEAR(t.created_at) = YEAR(CURRENT_DATE()) AND WEEK(t.created_at) = WEEK(CURRENT_DATE())) OR " +
+            "(:filter = 'month' AND YEAR(t.created_at) = YEAR(CURRENT_DATE()) AND MONTH(t.created_at) = MONTH(CURRENT_DATE())) OR " +
+            "(:filter = 'year' AND YEAR(t.created_at) = YEAR(CURRENT_DATE())) " +
+            "GROUP BY p.product_id, p.product_name, p.quantity", nativeQuery = true)
+    List<Object[]> getQuantityInventoryByFilter(@Param("filter") String filter);
+    // </editor-fold>
 }

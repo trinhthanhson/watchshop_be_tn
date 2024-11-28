@@ -9,6 +9,7 @@ import ptithcm.tttn.request.ProductSaleRequest;
 import ptithcm.tttn.request.StatisticRequest;
 import ptithcm.tttn.response.EntityResponse;
 import ptithcm.tttn.response.ListEntityResponse;
+import ptithcm.tttn.response.QuantityInventoryRsp;
 import ptithcm.tttn.response.RevenueReportRsp;
 import ptithcm.tttn.service.OrderService;
 import ptithcm.tttn.service.ProductService;
@@ -31,7 +32,7 @@ public class StatisticController {
 
     // <editor-fold desc="revenue report (báo cáo doanh thu)">
     @GetMapping("/revenue/report")
-    public ResponseEntity<ListEntityResponse<RevenueReportRsp>> getRevenueReportHandle(@RequestHeader("Authorization") String jwt, @RequestParam(value = "start",required = false) String dateStart, @RequestParam(value = "end",required = false) String dateEnd) {
+    public ResponseEntity<ListEntityResponse<RevenueReportRsp>> getRevenueReportHandle(@RequestHeader("Authorization") String jwt, @RequestParam(value = "start", required = false) String dateStart, @RequestParam(value = "end", required = false) String dateEnd) {
 
         ListEntityResponse<RevenueReportRsp> res = new ListEntityResponse<>();
         SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
@@ -132,7 +133,7 @@ public class StatisticController {
     // <editor-fold desc="Statistic by year">
     @GetMapping("/year")
     public ResponseEntity<ListEntityResponse<StatisticRequest>> getStatisticOrder(@RequestHeader("Authorization") String jwt, @RequestParam String year) {
-        int changeYear = Integer.valueOf(year);
+        int changeYear = Integer.parseInt(year);
         ListEntityResponse<StatisticRequest> res = new ListEntityResponse<>();
         try {
             List<StatisticRequest> get = orderService.getTotalAmountByMonth(changeYear);
@@ -162,7 +163,7 @@ public class StatisticController {
             start = dateFormatter.parse(dateStart);
             end = dateFormatter.parse(dateEnd);
         } catch (ParseException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         }
         try {
             List<ProductSaleRequest> get = orderService.getTotalAmountByDate(start, end);
@@ -178,5 +179,25 @@ public class StatisticController {
         }
         return new ResponseEntity<>(res, res.getStatus());
     }
-// </editor-fold>
+    // </editor-fold>
+
+    // <editor-fold desc="Quantity product report">
+    @GetMapping("/quantity/report")
+    public ResponseEntity<ListEntityResponse<QuantityInventoryRsp>> getQuantityProductReportHandle(@RequestHeader("Authorization") String jwt, @RequestParam String filter) {
+        ListEntityResponse<QuantityInventoryRsp> res = new ListEntityResponse<>();
+        try {
+            List<QuantityInventoryRsp> get = productService.getQuantityProductReport(filter);
+            res.setData(get);
+            res.setStatus(HttpStatus.OK);
+            res.setCode(HttpStatus.OK.value());
+            res.setMessage("success");
+        } catch (Exception e) {
+            res.setData(null);
+            res.setStatus(HttpStatus.CONFLICT);
+            res.setCode(HttpStatus.CONFLICT.value());
+            res.setMessage("error " + e.getMessage());
+        }
+        return new ResponseEntity<>(res, res.getStatus());
+    }
+    // </editor-fold>
 }

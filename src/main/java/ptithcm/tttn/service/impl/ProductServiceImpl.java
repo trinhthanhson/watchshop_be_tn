@@ -7,6 +7,7 @@ import ptithcm.tttn.repository.ProductRepo;
 import ptithcm.tttn.repository.UpdatePriceRepo;
 import ptithcm.tttn.request.ProductRequest;
 import ptithcm.tttn.request.ProductSaleRequest;
+import ptithcm.tttn.response.QuantityInventoryRsp;
 import ptithcm.tttn.service.*;
 
 import javax.transaction.Transactional;
@@ -146,8 +147,8 @@ public class ProductServiceImpl implements ProductService {
         Category category = categoryService.findByName(product.getCategory_name());
         Product update = new Product();
 
-        if(find != null){
-            if(checkExistProductName(product.getProduct_name())) {
+        if (find != null) {
+            if (checkExistProductName(product.getProduct_name())) {
                 find.setProduct_name(product.getProduct_name());
                 find.setCreated_at(LocalDateTime.now());
                 find.setCreated_by(staff.getStaff_id());
@@ -174,23 +175,24 @@ public class ProductServiceImpl implements ProductService {
                 find.setWater_resistance(product.getWater_resistance());
                 find.setImage(product.getImage());
                 Update_price updatePrice = updatePriceRepo.findByProductId(id);
-                if(product.getPrice() != updatePrice.getPrice_new()){
+                if (product.getPrice() != updatePrice.getPrice_new()) {
                     updatePrice.setPrice_old(updatePrice.getPrice_new());
                     updatePrice.setPrice_new(product.getPrice());
                     updatePrice.setUpdated_by(staff.getStaff_id());
                     updatePrice.setUpdated_at(LocalDateTime.now());
                     updatePriceRepo.save(updatePrice);
                 }
-            }else{
+            } else {
                 find.setProduct_name(product.getProduct_name());
             }
         }
         return update = productRepo.save(find);
     }
+
     @Override
     public boolean checkExistProductName(String name) throws Exception {
         Product find = productRepo.findByName(name);
-        if(find != null){
+        if (find != null) {
             return true;
         }
         return false;
@@ -225,6 +227,14 @@ public class ProductServiceImpl implements ProductService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<QuantityInventoryRsp> getQuantityProductReport(String filter) {
+        List<Object[]> results = productRepo.getQuantityInventoryByFilter(filter);
+        return results.stream()
+                .map(this::mapToQuantityInventory)
+                .collect(Collectors.toList());
+    }
+
     private String generateNewProductId() {
 
         List<Product> products = productRepo.findAll();
@@ -245,5 +255,15 @@ public class ProductServiceImpl implements ProductService {
         BigDecimal totalSoldQuantity = (BigDecimal) result[2];
         BigDecimal totalQuanity = (BigDecimal) result[3];
         return new ProductSaleRequest(productId, productName, totalSoldQuantity, totalQuanity, null);
+    }
+
+    private QuantityInventoryRsp mapToQuantityInventory(Object[] result) {
+        String product_id = (String) result[0];
+        String product_name = (String) result[1];
+        Integer quantity = (Integer) result[2];
+        BigDecimal total_import = (BigDecimal) result[3];
+        BigDecimal total_export = (BigDecimal) result[4];
+        BigDecimal current_stock = (BigDecimal) result[5];
+        return new QuantityInventoryRsp(product_id, product_name, quantity, total_import, total_export,current_stock);
     }
 }

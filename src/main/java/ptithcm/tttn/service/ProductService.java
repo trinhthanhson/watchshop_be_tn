@@ -3,6 +3,7 @@ package ptithcm.tttn.service;
 import ptithcm.tttn.entity.Product;
 import ptithcm.tttn.request.ProductRequest;
 import ptithcm.tttn.request.ProductSaleRequest;
+import ptithcm.tttn.response.QuantityInventoryRsp;
 
 import java.util.List;
 
@@ -30,5 +31,7 @@ public interface ProductService {
     List<ProductSaleRequest> getProductSales();
 
     List<ProductSaleRequest> getProductSalesReport();
+
+    List<QuantityInventoryRsp> getQuantityProductReport(String filter);
 
 }
