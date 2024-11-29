@@ -160,8 +160,10 @@ public class StatisticController {
         ListEntityResponse<ProductSaleRequest> res = new ListEntityResponse<>();
         try {
             // Parsing a String to Date
+
             start = dateFormatter.parse(dateStart);
             end = dateFormatter.parse(dateEnd);
+
         } catch (ParseException e) {
             System.err.println(e.getMessage());
         }
@@ -183,10 +185,25 @@ public class StatisticController {
 
     // <editor-fold desc="Quantity product report">
     @GetMapping("/quantity/report")
-    public ResponseEntity<ListEntityResponse<QuantityInventoryRsp>> getQuantityProductReportHandle(@RequestHeader("Authorization") String jwt, @RequestParam String filter) {
+    public ResponseEntity<ListEntityResponse<QuantityInventoryRsp>> getQuantityProductReportHandle(@RequestHeader("Authorization") String jwt, @RequestParam(required = false) String filter,@RequestParam(value = "start",required = false) String dateStart, @RequestParam(value = "end",required = false) String dateEnd) {
         ListEntityResponse<QuantityInventoryRsp> res = new ListEntityResponse<>();
+        Date start = null;
+        Date end = null;
+        System.err.println(filter + dateEnd + dateStart);
+        if(dateEnd != null || dateStart != null){
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+
         try {
-            List<QuantityInventoryRsp> get = productService.getQuantityProductReport(filter);
+            // Parsing a String to Date
+            start = dateFormatter.parse(dateStart);
+            end = dateFormatter.parse(dateEnd);
+
+        } catch (ParseException e) {
+            System.err.println(e.getMessage());
+        }
+        }
+        try {
+            List<QuantityInventoryRsp> get = productService.getQuantityProductReport(filter,start,end);
             res.setData(get);
             res.setStatus(HttpStatus.OK);
             res.setCode(HttpStatus.OK.value());

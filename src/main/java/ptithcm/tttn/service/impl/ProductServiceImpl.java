@@ -13,6 +13,7 @@ import ptithcm.tttn.service.*;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -228,8 +229,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<QuantityInventoryRsp> getQuantityProductReport(String filter) {
-        List<Object[]> results = productRepo.getQuantityInventoryByFilter(filter);
+    public List<QuantityInventoryRsp> getQuantityProductReport(String filter, Date startDate, Date endDate) {
+        List<Object[]> results = productRepo.getQuantityInventoryByFilter(filter,startDate,endDate);
         return results.stream()
                 .map(this::mapToQuantityInventory)
                 .collect(Collectors.toList());
@@ -260,10 +261,11 @@ public class ProductServiceImpl implements ProductService {
     private QuantityInventoryRsp mapToQuantityInventory(Object[] result) {
         String product_id = (String) result[0];
         String product_name = (String) result[1];
-        Integer quantity = (Integer) result[2];
-        BigDecimal total_import = (BigDecimal) result[3];
-        BigDecimal total_export = (BigDecimal) result[4];
-        BigDecimal current_stock = (BigDecimal) result[5];
-        return new QuantityInventoryRsp(product_id, product_name, quantity, total_import, total_export,current_stock);
+        String image = (String) result[2];
+        Integer quantity = (Integer) result[3];
+        BigDecimal total_import = (BigDecimal) result[4];
+        BigDecimal total_export = (BigDecimal) result[5];
+        BigDecimal current_stock = (BigDecimal) result[6];
+        return new QuantityInventoryRsp(product_id, product_name,image, quantity, total_import, total_export,current_stock);
     }
 }

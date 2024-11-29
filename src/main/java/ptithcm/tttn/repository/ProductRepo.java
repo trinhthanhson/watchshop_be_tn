@@ -5,7 +5,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ptithcm.tttn.entity.Product;
+import ptithcm.tttn.response.QuantityInventoryRsp;
 
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -62,6 +64,7 @@ public interface ProductRepo extends JpaRepository<Product, String> {
     @Query(value = "SELECT " +
             "    p.product_id, " +
             "    p.product_name, " +
+            "    p.image, " +
             "    p.quantity, " +
             "    SUM(CASE WHEN t_type.type_name = 'IMPORT' THEN td.quantity ELSE 0 END) AS total_import, " +
             "    SUM(CASE WHEN t_type.type_name = 'EXPORT' THEN td.quantity ELSE 0 END) AS total_export, " +
@@ -72,11 +75,16 @@ public interface ProductRepo extends JpaRepository<Product, String> {
             "JOIN transaction t ON t.transaction_id = td.transaction_id " +
             "JOIN type t_type ON t.type_id = t_type.type_id " +
             "WHERE " +
-            "(:filter = 'all') OR " +
+            "(COALESCE(:filter, '') = '' OR :filter = 'all' OR " +
             "(:filter = 'week' AND YEAR(t.created_at) = YEAR(CURRENT_DATE()) AND WEEK(t.created_at) = WEEK(CURRENT_DATE())) OR " +
             "(:filter = 'month' AND YEAR(t.created_at) = YEAR(CURRENT_DATE()) AND MONTH(t.created_at) = MONTH(CURRENT_DATE())) OR " +
-            "(:filter = 'year' AND YEAR(t.created_at) = YEAR(CURRENT_DATE())) " +
-            "GROUP BY p.product_id, p.product_name, p.quantity", nativeQuery = true)
-    List<Object[]> getQuantityInventoryByFilter(@Param("filter") String filter);
+            "(:filter = 'year' AND YEAR(t.created_at) = YEAR(CURRENT_DATE()))) " +
+            "AND (COALESCE(:startDate, NULL) IS NULL AND COALESCE(:endDate, NULL) IS NULL OR " +
+            "DATE(t.created_at) BETWEEN COALESCE(DATE(:startDate), DATE('1900-01-01')) AND COALESCE(DATE(:endDate), CURRENT_DATE())) " +
+            "GROUP BY p.product_id, p.product_name, p.quantity",
+            nativeQuery = true)
+    List<Object[]> getQuantityInventoryByFilter(@Param("filter") String filter,
+                                                @Param("startDate") Date startDate,
+                                                @Param("endDate") Date endDate);
     // </editor-fold>
 }

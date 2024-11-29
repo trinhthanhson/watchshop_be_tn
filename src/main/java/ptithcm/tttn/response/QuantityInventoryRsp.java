@@ -16,6 +16,7 @@ public class QuantityInventoryRsp {
 
     private String product_id;
     private String product_name;
+    private String image;
     private Integer quantity;
     private BigDecimal total_import;
     private BigDecimal total_export;
