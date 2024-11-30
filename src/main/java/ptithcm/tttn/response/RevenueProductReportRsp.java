@@ -12,16 +12,13 @@ import java.util.Date;
 @Getter
 @Setter
 @AllArgsConstructor
-
-public class QuantityInventoryRsp {
-
+public class RevenueProductReportRsp {
     private String product_id;
     private String product_name;
     private String image;
-    private Integer quantity;
-    private BigDecimal total_import;
-    private BigDecimal total_export;
-    private BigDecimal current_stock;
-    private Date period_value; // Giá trị tuần, tháng hoặc năm
+    private BigDecimal total_sold;
+    private BigDecimal total_quantity;
+    private String period_value; // Giá trị tuần, tháng hoặc năm
     private Date date_range;    // Chuỗi thể hiện khoảng thời gian (từ ngày đến ngày)
- }
+
+}

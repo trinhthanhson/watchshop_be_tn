@@ -7,10 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ptithcm.tttn.request.ProductSaleRequest;
 import ptithcm.tttn.request.StatisticRequest;
-import ptithcm.tttn.response.EntityResponse;
-import ptithcm.tttn.response.ListEntityResponse;
-import ptithcm.tttn.response.QuantityInventoryRsp;
-import ptithcm.tttn.response.RevenueReportRsp;
+import ptithcm.tttn.response.*;
 import ptithcm.tttn.service.OrderService;
 import ptithcm.tttn.service.ProductService;
 import ptithcm.tttn.service.TransactionService;
@@ -204,6 +201,41 @@ public class StatisticController {
         }
         try {
             List<QuantityInventoryRsp> get = productService.getQuantityProductReport(filter,start,end);
+            res.setData(get);
+            res.setStatus(HttpStatus.OK);
+            res.setCode(HttpStatus.OK.value());
+            res.setMessage("success");
+        } catch (Exception e) {
+            res.setData(null);
+            res.setStatus(HttpStatus.CONFLICT);
+            res.setCode(HttpStatus.CONFLICT.value());
+            res.setMessage("error " + e.getMessage());
+        }
+        return new ResponseEntity<>(res, res.getStatus());
+    }
+    // </editor-fold>
+
+    // <editor-fold desc="Revenue product report">
+    @GetMapping("/revenue/product")
+    public ResponseEntity<ListEntityResponse<RevenueProductReportRsp>> getRevenueProductReportHandle(@RequestHeader("Authorization") String jwt, @RequestParam(required = false) String filter,@RequestParam(value = "start",required = false) String dateStart, @RequestParam(value = "end",required = false) String dateEnd) {
+        ListEntityResponse<RevenueProductReportRsp> res = new ListEntityResponse<>();
+        Date start = null;
+        Date end = null;
+        System.err.println(filter + dateEnd + dateStart);
+        if(dateEnd != null || dateStart != null){
+            SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+
+            try {
+                // Parsing a String to Date
+                start = dateFormatter.parse(dateStart);
+                end = dateFormatter.parse(dateEnd);
+
+            } catch (ParseException e) {
+                System.err.println(e.getMessage());
+            }
+        }
+        try {
+            List<RevenueProductReportRsp> get = productService.getRevenueProductReport(filter,start,end);
             res.setData(get);
             res.setStatus(HttpStatus.OK);
             res.setCode(HttpStatus.OK.value());

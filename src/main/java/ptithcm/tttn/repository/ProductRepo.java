@@ -69,7 +69,12 @@ public interface ProductRepo extends JpaRepository<Product, String> {
             "    SUM(CASE WHEN t_type.type_name = 'IMPORT' THEN td.quantity ELSE 0 END) AS total_import, " +
             "    SUM(CASE WHEN t_type.type_name = 'EXPORT' THEN td.quantity ELSE 0 END) AS total_export, " +
             "    (SUM(CASE WHEN t_type.type_name = 'IMPORT' THEN td.quantity ELSE 0 END) - " +
-            "     SUM(CASE WHEN t_type.type_name = 'EXPORT' THEN td.quantity ELSE 0 END)) AS current_stock " +
+            "     SUM(CASE WHEN t_type.type_name = 'EXPORT' THEN td.quantity ELSE 0 END)) AS current_stock, " +
+            "    DATE(t.created_at) AS period_value, " +  // Lấy theo ngày nếu không có filter
+            "    CASE " +
+            "        WHEN :filter IS NULL OR :filter = '' THEN DATE(t.created_at) " +  // Hiển thị ngày cụ thể khi không có filter
+            "        ELSE NULL " +
+            "    END AS date_range " +
             "FROM product p " +
             "JOIN transaction_detail td ON td.product_id = p.product_id " +
             "JOIN transaction t ON t.transaction_id = td.transaction_id " +
@@ -81,10 +86,43 @@ public interface ProductRepo extends JpaRepository<Product, String> {
             "(:filter = 'year' AND YEAR(t.created_at) = YEAR(CURRENT_DATE()))) " +
             "AND (COALESCE(:startDate, NULL) IS NULL AND COALESCE(:endDate, NULL) IS NULL OR " +
             "DATE(t.created_at) BETWEEN COALESCE(DATE(:startDate), DATE('1900-01-01')) AND COALESCE(DATE(:endDate), CURRENT_DATE())) " +
-            "GROUP BY p.product_id, p.product_name, p.quantity",
+            "GROUP BY p.product_id, p.product_name, p.quantity, period_value, t.created_at " +  // Thêm period_value vào GROUP BY
+            "ORDER BY period_value ASC",  // Sắp xếp theo ngày
             nativeQuery = true)
     List<Object[]> getQuantityInventoryByFilter(@Param("filter") String filter,
                                                 @Param("startDate") Date startDate,
                                                 @Param("endDate") Date endDate);
+
+    // </editor-fold>
+
+    // <editor-fold desc="Revenue product report">
+    @Query(value = "SELECT p.product_id, " +
+            "       p.product_name, " +
+            "       p.image, " +
+            "       SUM(td.quantity * td.price) AS total_sold, " +
+            "       SUM(td.quantity) AS total_quantity, " +
+            "       CASE " +
+            "           WHEN :filter = 'week' THEN WEEK(t.created_at) " +
+            "           WHEN :filter = 'month' THEN MONTH(t.created_at) " +
+            "           WHEN :filter = 'year' THEN YEAR(t.created_at) " +
+            "           ELSE DATE(t.created_at) " +  // Nếu không có filter, trả về theo từng ngày
+            "       END AS period_value, " +
+            "       CASE " +
+            "           WHEN :filter IS NULL OR :filter = '' THEN DATE(t.created_at) " +  // Hiển thị ngày cụ thể khi không có filter
+            "           ELSE NULL " +
+            "       END AS date_range " +
+            "FROM Product p " +
+            "JOIN transaction_detail td ON p.product_id = td.product_id " +
+            "JOIN transaction t ON t.transaction_id = td.transaction_id " +
+            "JOIN type tp ON tp.type_id = t.type_id " +
+            "WHERE tp.type_name = 'EXPORT' " +
+            "  AND (:startDate IS NULL OR :endDate IS NULL OR DATE(t.created_at) BETWEEN DATE(:startDate) AND DATE(:endDate)) " +  // Điều kiện lọc theo từ ngày đến ngày
+            "GROUP BY p.product_id, p.product_name, period_value,t.created_at " +
+            "ORDER BY period_value ASC, total_sold DESC",  // Sắp xếp theo ngày và doanh thu
+            nativeQuery = true)
+    List<Object[]> getRevenueProduct(
+            @Param("filter") String filter,
+            @Param("startDate") Date startDate,
+            @Param("endDate") Date endDate);
     // </editor-fold>
 }

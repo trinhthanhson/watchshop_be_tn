@@ -131,4 +131,5 @@ public interface TransactionRepo extends JpaRepository<Transaction,Long> {
             "GROUP BY DATE(t.created_at)")
     List<Object[]> getRevenueReport(@Param("startDate") Date startDate, @Param("endDate") Date endDate);
 
+
 }

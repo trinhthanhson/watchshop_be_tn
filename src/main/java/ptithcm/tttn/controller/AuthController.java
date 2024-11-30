@@ -156,7 +156,7 @@ public class AuthController {
 
         boolean checkEmail = customerService.checkEmailExist(rq.getEmail());
 
-        if (checkEmail) {
+        if(checkEmail) {
             userService.sendMail(rq.getEmail(), subject, content, otp);
             userService.updatePassword(otp, rq.getEmail());
             res.setMessage("success");

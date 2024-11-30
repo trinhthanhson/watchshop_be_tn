@@ -4,6 +4,7 @@ import ptithcm.tttn.entity.Product;
 import ptithcm.tttn.request.ProductRequest;
 import ptithcm.tttn.request.ProductSaleRequest;
 import ptithcm.tttn.response.QuantityInventoryRsp;
+import ptithcm.tttn.response.RevenueProductReportRsp;
 
 import java.util.Date;
 import java.util.List;
@@ -34,5 +35,7 @@ public interface ProductService {
     List<ProductSaleRequest> getProductSalesReport();
 
     List<QuantityInventoryRsp> getQuantityProductReport(String filter, Date startDate, Date endDate);
+
+    List<RevenueProductReportRsp> getRevenueProductReport(String filter, Date startDate, Date endDate);
 
 }

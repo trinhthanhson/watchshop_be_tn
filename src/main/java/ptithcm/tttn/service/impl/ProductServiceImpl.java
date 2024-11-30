@@ -8,6 +8,7 @@ import ptithcm.tttn.repository.UpdatePriceRepo;
 import ptithcm.tttn.request.ProductRequest;
 import ptithcm.tttn.request.ProductSaleRequest;
 import ptithcm.tttn.response.QuantityInventoryRsp;
+import ptithcm.tttn.response.RevenueProductReportRsp;
 import ptithcm.tttn.service.*;
 
 import javax.transaction.Transactional;
@@ -230,9 +231,17 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<QuantityInventoryRsp> getQuantityProductReport(String filter, Date startDate, Date endDate) {
-        List<Object[]> results = productRepo.getQuantityInventoryByFilter(filter,startDate,endDate);
+        List<Object[]> results = productRepo.getQuantityInventoryByFilter(filter, startDate, endDate);
         return results.stream()
                 .map(this::mapToQuantityInventory)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<RevenueProductReportRsp> getRevenueProductReport(String filter, Date startDate, Date endDate) {
+        List<Object[]> results = productRepo.getRevenueProduct(filter, startDate, endDate);
+        return results.stream()
+                .map(this::mapToRevenueProduct)
                 .collect(Collectors.toList());
     }
 
@@ -266,6 +275,19 @@ public class ProductServiceImpl implements ProductService {
         BigDecimal total_import = (BigDecimal) result[4];
         BigDecimal total_export = (BigDecimal) result[5];
         BigDecimal current_stock = (BigDecimal) result[6];
-        return new QuantityInventoryRsp(product_id, product_name,image, quantity, total_import, total_export,current_stock);
+        Date period_value = (Date) result[7];
+        Date date_range = (Date) result[8];
+        return new QuantityInventoryRsp(product_id, product_name, image, quantity, total_import, total_export, current_stock,period_value,date_range);
+    }
+
+    private RevenueProductReportRsp mapToRevenueProduct(Object[] result) {
+        String product_id = (String) result[0];
+        String product_name = (String) result[1];
+        String image = (String) result[2];
+        BigDecimal total_sold = (BigDecimal) result[3];
+        BigDecimal total_quantity = (BigDecimal) result[4];
+        String period_value = (String) result[5];
+        Date date_range = (Date) result[6];
+        return new RevenueProductReportRsp(product_id,product_name,image,total_sold,total_quantity,period_value,date_range);
     }
 }
