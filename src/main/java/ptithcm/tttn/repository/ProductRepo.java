@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ptithcm.tttn.entity.Product;
-import ptithcm.tttn.response.QuantityInventoryRsp;
 
 import java.util.Date;
 import java.util.List;
@@ -124,5 +123,61 @@ public interface ProductRepo extends JpaRepository<Product, String> {
             @Param("filter") String filter,
             @Param("startDate") Date startDate,
             @Param("endDate") Date endDate);
+    // </editor-fold>
+
+    // <editor-fold desc="get all product or product have coupon">
+    @Query(value = "SELECT " +
+            "    p.*, " +
+            "    b.brand_name, " +
+            "    c.category_name, " +
+            "    CONCAT(s1.first_name, ' ', s1.last_name) AS created_by_name, " + // Tên người tạo
+            "    CONCAT(s2.first_name, ' ', s2.last_name) AS updated_by_name, " + // Tên người cập nhật
+            "    COALESCE(up.price_new, 0) AS current_price, " + // Nếu không có giá cập nhật, dùng 0
+            "    ROUND( " +
+            "        GREATEST( " +
+            "            COALESCE(up.price_new, 0) * (1 - LEAST(SUM(coupon.percent) / 100, 0.2)), " + // Giới hạn tối đa 20% giảm giá
+            "            0 " + // Đảm bảo giá trị không âm
+            "        ), 2 " +
+            "    ) AS discounted_price " +
+            "FROM " +
+            "    product p " +
+            "LEFT JOIN brand b ON p.brand_id = b.brand_id " + // Tham chiếu đến bảng brand
+            "LEFT JOIN category c ON p.category_id = c.category_id " + // Tham chiếu đến bảng category
+            "LEFT JOIN staff s1 ON p.created_by = s1.staff_id " + // Lấy thông tin người tạo
+            "LEFT JOIN staff s2 ON p.updated_by = s2.staff_id " + // Lấy thông tin người cập nhật
+            "LEFT JOIN ( " +
+            "    SELECT " +
+            "        product_id, " +
+            "        price_new " +
+            "    FROM " +
+            "        update_price up1 " +
+            "    WHERE " +
+            "        updated_at = ( " +
+            "            SELECT MAX(updated_at) " +
+            "            FROM update_price up2 " +
+            "            WHERE up1.product_id = up2.product_id " +
+            "        ) " +
+            ") up ON p.product_id = up.product_id " +
+            "LEFT JOIN coupon_detail cd ON p.product_id = cd.product_id " +
+            "LEFT JOIN coupon coupon ON cd.coupon_id = coupon.coupon_id " +
+            "WHERE " +
+            "    p.status = 'ACTIVE' " + // Chỉ lấy sản phẩm có status là ACTIVE
+            "    AND (coupon.status = 'ACTIVE' OR coupon.status IS NULL) " + // Chỉ lấy coupon có status là ACTIVE hoặc không có coupon
+            "GROUP BY " +
+            "    p.product_id, " +
+            "    p.product_name, " +
+            "    p.category_id, " +
+            "    p.brand_id, " +
+            "    b.brand_name, " +
+            "    c.category_name, " +
+            "    p.status, " +
+            "    p.created_at, " +
+            "    up.price_new, " +
+            "    s1.first_name, " +
+            "    s1.last_name, " +
+            "    s2.first_name, " +
+            "    s2.last_name",
+            nativeQuery = true)
+    List<Object[]> getAllProductOrProductByCoupon();
     // </editor-fold>
 }

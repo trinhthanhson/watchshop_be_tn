@@ -7,12 +7,15 @@ import ptithcm.tttn.repository.ProductRepo;
 import ptithcm.tttn.repository.UpdatePriceRepo;
 import ptithcm.tttn.request.ProductRequest;
 import ptithcm.tttn.request.ProductSaleRequest;
+import ptithcm.tttn.response.GetAllProductCouponRsp;
 import ptithcm.tttn.response.QuantityInventoryRsp;
 import ptithcm.tttn.response.RevenueProductReportRsp;
 import ptithcm.tttn.service.*;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -245,6 +248,14 @@ public class ProductServiceImpl implements ProductService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<GetAllProductCouponRsp> getAllProductCoupon() {
+        List<Object[]> results = productRepo.getAllProductOrProductByCoupon();
+        return results.stream()
+                .map(this::mapToGetAllProductCoupon)
+                .collect(Collectors.toList());
+    }
+
     private String generateNewProductId() {
 
         List<Product> products = productRepo.findAll();
@@ -277,7 +288,7 @@ public class ProductServiceImpl implements ProductService {
         BigDecimal current_stock = (BigDecimal) result[6];
         Date period_value = (Date) result[7];
         Date date_range = (Date) result[8];
-        return new QuantityInventoryRsp(product_id, product_name, image, quantity, total_import, total_export, current_stock,period_value,date_range);
+        return new QuantityInventoryRsp(product_id, product_name, image, quantity, total_import, total_export, current_stock, period_value, date_range);
     }
 
     private RevenueProductReportRsp mapToRevenueProduct(Object[] result) {
@@ -288,6 +299,45 @@ public class ProductServiceImpl implements ProductService {
         BigDecimal total_quantity = (BigDecimal) result[4];
         String period_value = (String) result[5];
         Date date_range = (Date) result[6];
-        return new RevenueProductReportRsp(product_id,product_name,image,total_sold,total_quantity,period_value,date_range);
+        return new RevenueProductReportRsp(product_id, product_name, image, total_sold, total_quantity, period_value, date_range);
+    }
+
+    private GetAllProductCouponRsp mapToGetAllProductCoupon(Object[] result) {
+       
+        String product_id = (String) result[0];
+        String band_material = (String) result[1];
+        String band_width = (String) result[2];
+        BigInteger brand_id = (BigInteger) result[3];
+        String case_diameter = (String) result[4];
+        String case_material = (String) result[5];
+        String case_thickness = (String) result[6];
+        BigInteger category_id = (BigInteger) result[7];
+        String color = (String) result[8];
+        String detail = (String) result[9];
+        String dial_type = (String) result[10];
+        String func = (String) result[11];
+        String gender = (String) result[12];
+        String machine_movement = (String) result[13];
+        String model = (String) result[14];
+        String product = (String) result[15];
+        Integer quantity = (Integer) result[16];
+        String series = (String) result[17];
+        String water_resistance = (String) result[18];
+        String image = (String) result[19];
+        BigInteger created_by = (BigInteger) result[20];
+        BigInteger updated_by = (BigInteger) result[21];
+        String status = (String) result[22];
+        Timestamp created_at = (Timestamp) result[23];
+        Timestamp updated_at = (Timestamp) result[24];
+        String brand_name = (String) result[25];
+        String category_name = (String) result[26];
+        String created_by_name = (String) result[27];
+        String updated_by_name = (String) result[28];
+        BigInteger current_price = (BigInteger) result[29];
+        Double discounted_price = (Double) result[30];
+        return new GetAllProductCouponRsp(product_id, band_material, band_width, brand_id, case_diameter, case_material,
+                case_thickness, category_id, color, detail, dial_type, func, gender, machine_movement, model, product, quantity,
+                series, water_resistance, image, created_by, updated_by, status, created_at, updated_at, brand_name, category_name,
+                created_by_name, updated_by_name, current_price, discounted_price);
     }
 }

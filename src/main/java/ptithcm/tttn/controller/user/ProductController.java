@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ptithcm.tttn.entity.Product;
 import ptithcm.tttn.response.EntityResponse;
+import ptithcm.tttn.response.GetAllProductCouponRsp;
 import ptithcm.tttn.response.ListEntityResponse;
 import ptithcm.tttn.service.ProductService;
 
@@ -68,6 +69,25 @@ public class ProductController {
         } catch (Exception e) {
             res.setCode(HttpStatus.CONFLICT.value());
             res.setMessage("error " + e.getMessage());
+            res.setStatus(HttpStatus.CONFLICT);
+            res.setData(null);
+        }
+        return new ResponseEntity<>(res, res.getStatus());
+    }
+
+    @GetMapping("/all/product")
+    public ResponseEntity<ListEntityResponse<GetAllProductCouponRsp>> findAllProductCoupon() {
+
+        ListEntityResponse<GetAllProductCouponRsp> res = new ListEntityResponse<>();
+        try {
+            List<GetAllProductCouponRsp> allProduct = productService.getAllProductCoupon();
+            res.setMessage("Success");
+            res.setStatus(HttpStatus.OK);
+            res.setCode(HttpStatus.OK.value());
+            res.setData(allProduct);
+        } catch (Exception e) {
+            res.setMessage("Error: " + e.getMessage());
+            res.setCode(HttpStatus.CONFLICT.value());
             res.setStatus(HttpStatus.CONFLICT);
             res.setData(null);
         }
