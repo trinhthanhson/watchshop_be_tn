@@ -14,8 +14,6 @@ public class Coupon_detail {
     @Column
     private Long coupon_detail_id;
 
-    @Column
-    private float percent;
 
     @Column
     private String status;

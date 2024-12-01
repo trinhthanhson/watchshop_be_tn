@@ -56,7 +56,7 @@ public class CouponServiceImpl  implements CouponService {
         create.setEnd_date(coupon.getEnd_date());
         create.setUpdated_at(LocalDateTime.now());
         create.setStatus(Status.ACTIVE.getUserStatus());
-
+        create.setPercent(coupon.getPercent());
         create.setUpdated_by(staff.getStaff_id());
         create.setTitle(coupon.getTitle());
         Coupon saved = couponRepo.save(create);
@@ -67,7 +67,7 @@ public class CouponServiceImpl  implements CouponService {
                     Coupon_detail couponDetail = new Coupon_detail();
                     couponDetail.setCoupon_id(saved.getCoupon_id());
                     couponDetail.setStatus(Status.ACTIVE.getUserStatus());
-                    couponDetail.setPercent(coupon.getPercent()/100);
+//                    couponDetail.setPercent(coupon.getPercent()/100);
                     couponDetail.setProduct_id(p.getProduct_id());
                     couponDetailRepo.save(couponDetail);
                 }

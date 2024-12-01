@@ -25,6 +25,9 @@ public class Coupon {
     private Date end_date;
 
     @Column
+    private float percent;
+
+    @Column
     private LocalDateTime created_at;
 
     @Column

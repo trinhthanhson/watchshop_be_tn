@@ -1,0 +1,32 @@
+use tn_watchshop;
+SELECT 
+    p.product_id,
+    p.product_name,
+    up.price_new AS current_price,
+    ROUND(
+        up.price_new * 
+        COALESCE(
+            EXP(SUM(LOG(1 - c.percent / 100))),
+            1
+        ), 2
+    ) AS discounted_price
+FROM 
+    product p
+LEFT JOIN (
+    -- Lấy giá cập nhật mới nhất cho từng sản phẩm
+    SELECT 
+        product_id,
+        price_new
+    FROM 
+        update_price up1
+    WHERE 
+        updated_at = (
+            SELECT MAX(updated_at)
+            FROM update_price up2
+            WHERE up1.product_id = up2.product_id
+        )
+) up ON p.product_id = up.product_id
+LEFT JOIN coupon_detail cd ON p.product_id = cd.product_id
+LEFT JOIN coupon c ON cd.coupon_id = c.coupon_id
+GROUP BY p.product_id, p.product_name, up.price_new;
+
