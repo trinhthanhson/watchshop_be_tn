@@ -2,6 +2,7 @@ package ptithcm.tttn.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import ptithcm.tttn.config.BooleanToCharConverter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -41,6 +42,10 @@ public class Coupon {
 
     @Column
     private String title;
+
+    @Column(name = "is_delete", columnDefinition = "CHAR(1)")
+    @Convert(converter = BooleanToCharConverter.class)
+    private Boolean is_delete;
 
     @Column
     private Long created_by;
