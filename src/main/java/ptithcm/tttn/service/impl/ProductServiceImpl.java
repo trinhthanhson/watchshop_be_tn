@@ -56,8 +56,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<Product> findByDetail(String desc) {
-        return productRepo.searchProducts(desc);
+    public List<GetAllProductCouponRsp> findByDetail(String desc) {
+    List<Object[]> results = productRepo.searchProducts(desc);
+        return results.stream()
+                .map(this::mapToGetAllProductCoupon)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -336,7 +339,7 @@ public class ProductServiceImpl implements ProductService {
         BigInteger current_price = (BigInteger) result[29];
         Double discounted_price = (Double) result[30];
         return new GetAllProductCouponRsp(product_id, band_material, band_width, brand_id, case_diameter, case_material,
-                case_thickness, category_id, color, detail, dial_type, func, gender, machine_movement, model, product, quantity,
+                case_thickness, category_id, color, detail, dial_type, func, gender, machine_movement, model, product, quantity,null,
                 series, water_resistance, image, created_by, updated_by, status, created_at, updated_at, brand_name, category_name,
                 created_by_name, updated_by_name, current_price, discounted_price);
     }

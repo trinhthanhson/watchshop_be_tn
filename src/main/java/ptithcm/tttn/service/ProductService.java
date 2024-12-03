@@ -15,7 +15,7 @@ public interface ProductService {
 
     Product findById(String id) throws Exception;
 
-    List<Product> findByDetail(String desc);
+    List<GetAllProductCouponRsp> findByDetail(String desc);
 
     Product findByName(String name) throws Exception;
 

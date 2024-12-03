@@ -5,29 +5,86 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ptithcm.tttn.entity.Product;
+import ptithcm.tttn.response.GetAllProductCouponRsp;
 
 import java.util.Date;
 import java.util.List;
 
 @Repository
 public interface ProductRepo extends JpaRepository<Product, String> {
-    @Query("SELECT p FROM Product p WHERE " +
-            "p.product_name LIKE %:searchTerm% OR " +
-            "p.band_material LIKE %:searchTerm% OR " +
-            "p.band_width LIKE %:searchTerm% OR " +
-            "p.case_diameter LIKE %:searchTerm% OR " +
-            "p.case_material LIKE %:searchTerm% OR " +
-            "p.case_thickness LIKE %:searchTerm% OR " +
-            "p.color LIKE %:searchTerm% OR " +
-            "p.detail LIKE %:searchTerm% OR " +
-            "p.dial_type LIKE %:searchTerm% OR " +
-            "p.func LIKE %:searchTerm% OR " +
-            "p.gender LIKE %:searchTerm% OR " +
-            "p.machine_movement LIKE %:searchTerm% OR " +
-            "p.model LIKE %:searchTerm% OR " +
-            "p.series LIKE %:searchTerm% OR " +
-            "p.water_resistance LIKE %:searchTerm%")
-    List<Product> searchProducts(@Param("searchTerm") String searchTerm);
+    @Query(value = "SELECT " +
+            "p.*, " +
+            "b.brand_name, " +
+            "c.category_name, " +
+            "CONCAT(s1.first_name, ' ', s1.last_name) AS created_by_name, " +
+            "CONCAT(s2.first_name, ' ', s2.last_name) AS updated_by_name, " +
+            "COALESCE(up.price_new, up.price_new) AS current_price, " +
+            "COALESCE( " +
+            "    ROUND( " +
+            "        GREATEST( " +
+            "            COALESCE(up.price_new, 0) * (1 - LEAST(SUM(coupon.percent) / 100, 0.2)), " +
+            "            0 " +
+            "        ), 2 " +
+            "    ), " +
+            "    up.price_new " +
+            ") AS discounted_price " +
+            "FROM " +
+            "product p " +
+            "LEFT JOIN brand b ON p.brand_id = b.brand_id " +
+            "LEFT JOIN category c ON p.category_id = c.category_id " +
+            "LEFT JOIN staff s1 ON p.created_by = s1.staff_id " +
+            "LEFT JOIN staff s2 ON p.updated_by = s2.staff_id " +
+            "LEFT JOIN ( " +
+            "    SELECT " +
+            "        product_id, " +
+            "        price_new " +
+            "    FROM " +
+            "        update_price up1 " +
+            "    WHERE " +
+            "        updated_at = ( " +
+            "            SELECT MAX(updated_at) " +
+            "            FROM update_price up2 " +
+            "            WHERE up1.product_id = up2.product_id " +
+            "        ) " +
+            ") up ON p.product_id = up.product_id " +
+            "LEFT JOIN coupon_detail cd ON p.product_id = cd.product_id " +
+            "LEFT JOIN coupon coupon ON cd.coupon_id = coupon.coupon_id " +
+            "WHERE " +
+            "p.status = 'ACTIVE' " +
+            "AND (coupon.status = 'ACTIVE' OR coupon.status IS NULL) " +
+            "AND ( " +
+            "    p.product_name LIKE %:searchTerm% OR " +
+            "    p.band_material LIKE %:searchTerm% OR " +
+            "    p.band_width LIKE %:searchTerm% OR " +
+            "    p.case_diameter LIKE %:searchTerm% OR " +
+            "    p.case_material LIKE %:searchTerm% OR " +
+            "    p.case_thickness LIKE %:searchTerm% OR " +
+            "    p.color LIKE %:searchTerm% OR " +
+            "    p.detail LIKE %:searchTerm% OR " +
+            "    p.dial_type LIKE %:searchTerm% OR " +
+            "    p.func LIKE %:searchTerm% OR " +
+            "    p.gender LIKE %:searchTerm% OR " +
+            "    p.machine_movement LIKE %:searchTerm% OR " +
+            "    p.model LIKE %:searchTerm% OR " +
+            "    p.series LIKE %:searchTerm% OR " +
+            "    p.water_resistance LIKE %:searchTerm% " +
+            ") " +
+            "GROUP BY " +
+            "p.product_id, " +
+            "p.product_name, " +
+            "p.category_id, " +
+            "p.brand_id, " +
+            "b.brand_name, " +
+            "c.category_name, " +
+            "p.status, " +
+            "p.created_at, " +
+            "up.price_new, " +
+            "s1.first_name, " +
+            "s1.last_name, " +
+            "s2.first_name, " +
+            "s2.last_name;",nativeQuery = true
+    )
+    List<Object[]> searchProducts(@Param("searchTerm") String searchTerm);
 
     // <editor-fold desc="Top 5 product sale report">
     @Query(value = "SELECT p.product_id, p.product_name, SUM(td.quantity * td.price) as total_sold, SUM(td.quantity) AS total_quantity " +
@@ -127,24 +184,27 @@ public interface ProductRepo extends JpaRepository<Product, String> {
 
     // <editor-fold desc="get all product or product have coupon">
     @Query(value = "SELECT " +
-            "    p.*, " +
-            "    b.brand_name, " +
-            "    c.category_name, " +
-            "    CONCAT(s1.first_name, ' ', s1.last_name) AS created_by_name, " + // Tên người tạo
-            "    CONCAT(s2.first_name, ' ', s2.last_name) AS updated_by_name, " + // Tên người cập nhật
-            "    COALESCE(up.price_new, 0) AS current_price, " + // Nếu không có giá cập nhật, dùng 0
+            "p.*, " +
+            "b.brand_name, " +
+            "c.category_name, " +
+            "CONCAT(s1.first_name, ' ', s1.last_name) AS created_by_name, " +
+            "CONCAT(s2.first_name, ' ', s2.last_name) AS updated_by_name, " +
+            "COALESCE(up.price_new, up.price_new) AS current_price, " +
+            "COALESCE( " +
             "    ROUND( " +
             "        GREATEST( " +
-            "            COALESCE(up.price_new, 0) * (1 - LEAST(SUM(coupon.percent) / 100, 0.2)), " + // Giới hạn tối đa 20% giảm giá
-            "            0 " + // Đảm bảo giá trị không âm
+            "            COALESCE(up.price_new, 0) * (1 - LEAST(SUM(coupon.percent) / 100, 0.2)), " +
+            "            0 " +
             "        ), 2 " +
-            "    ) AS discounted_price " +
+            "    ), " +
+            "    up.price_new " +
+            ") AS discounted_price " +
             "FROM " +
-            "    product p " +
-            "LEFT JOIN brand b ON p.brand_id = b.brand_id " + // Tham chiếu đến bảng brand
-            "LEFT JOIN category c ON p.category_id = c.category_id " + // Tham chiếu đến bảng category
-            "LEFT JOIN staff s1 ON p.created_by = s1.staff_id " + // Lấy thông tin người tạo
-            "LEFT JOIN staff s2 ON p.updated_by = s2.staff_id " + // Lấy thông tin người cập nhật
+            "product p " +
+            "LEFT JOIN brand b ON p.brand_id = b.brand_id " +
+            "LEFT JOIN category c ON p.category_id = c.category_id " +
+            "LEFT JOIN staff s1 ON p.created_by = s1.staff_id " +
+            "LEFT JOIN staff s2 ON p.updated_by = s2.staff_id " +
             "LEFT JOIN ( " +
             "    SELECT " +
             "        product_id, " +
@@ -161,22 +221,22 @@ public interface ProductRepo extends JpaRepository<Product, String> {
             "LEFT JOIN coupon_detail cd ON p.product_id = cd.product_id " +
             "LEFT JOIN coupon coupon ON cd.coupon_id = coupon.coupon_id " +
             "WHERE " +
-            "    p.status = 'ACTIVE' " + // Chỉ lấy sản phẩm có status là ACTIVE
-            "    AND (coupon.status = 'ACTIVE' OR coupon.status IS NULL) " + // Chỉ lấy coupon có status là ACTIVE hoặc không có coupon
+            "p.status = 'ACTIVE' " +
+            "AND (coupon.status = 'ACTIVE' OR coupon.status IS NULL) " +
             "GROUP BY " +
-            "    p.product_id, " +
-            "    p.product_name, " +
-            "    p.category_id, " +
-            "    p.brand_id, " +
-            "    b.brand_name, " +
-            "    c.category_name, " +
-            "    p.status, " +
-            "    p.created_at, " +
-            "    up.price_new, " +
-            "    s1.first_name, " +
-            "    s1.last_name, " +
-            "    s2.first_name, " +
-            "    s2.last_name",
+            "p.product_id, " +
+            "p.product_name, " +
+            "p.category_id, " +
+            "p.brand_id, " +
+            "b.brand_name, " +
+            "c.category_name, " +
+            "p.status, " +
+            "p.created_at, " +
+            "up.price_new, " +
+            "s1.first_name, " +
+            "s1.last_name, " +
+            "s2.first_name, " +
+            "s2.last_name",
             nativeQuery = true)
     List<Object[]> getAllProductOrProductByCoupon();
     // </editor-fold>

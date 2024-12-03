@@ -58,10 +58,10 @@ public class ProductController {
     }
 
     @GetMapping("/find")
-    public ResponseEntity<ListEntityResponse<Product>> getAllProductByDetail(@RequestParam String keyword) {
-        ListEntityResponse<Product> res = new ListEntityResponse<>();
+    public ResponseEntity<ListEntityResponse<GetAllProductCouponRsp>> getAllProductByDetail(@RequestParam String keyword) {
+        ListEntityResponse<GetAllProductCouponRsp> res = new ListEntityResponse<>();
         try {
-            List<Product> find = productService.findByDetail(keyword);
+            List<GetAllProductCouponRsp> find = productService.findByDetail(keyword);
             res.setCode(HttpStatus.OK.value());
             res.setMessage("Success");
             res.setStatus(HttpStatus.OK);

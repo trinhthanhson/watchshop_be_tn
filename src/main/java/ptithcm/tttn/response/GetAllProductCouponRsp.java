@@ -25,8 +25,9 @@ public class GetAllProductCouponRsp {
     private String gender;
     private String machine_movement;
     private String model;
-    private String product;
+    private String product_name;
     private Integer quantity;
+    private Integer quantityProduct;
     private String series;
     private String water_resistance;
     private String image;

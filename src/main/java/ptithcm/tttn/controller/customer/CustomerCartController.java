@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ptithcm.tttn.entity.Cart_detail;
 import ptithcm.tttn.response.ApiResponse;
+import ptithcm.tttn.response.GetAllProductCouponRsp;
 import ptithcm.tttn.response.ListEntityResponse;
 import ptithcm.tttn.service.CartDetailService;
 
@@ -82,6 +83,24 @@ public class CustomerCartController {
             res.setCode(HttpStatus.CONFLICT.value());
             res.setStatus(HttpStatus.CONFLICT);
             res.setMessage("Delete cart item fail: " + e.getMessage());
+        }
+        return new ResponseEntity<>(res, res.getStatus());
+    }
+
+    @GetMapping("/get")
+    public ResponseEntity<ListEntityResponse<GetAllProductCouponRsp>> getProductCouponCartCustomer(@RequestHeader("Authorization") String jwt) {
+        ListEntityResponse<GetAllProductCouponRsp> res = new ListEntityResponse<>();
+        try {
+            List<GetAllProductCouponRsp> all = cartDetailService.getProductCouponInCartDetail(jwt);
+            res.setCode(HttpStatus.OK.value());
+            res.setStatus(HttpStatus.OK);
+            res.setData(all);
+            res.setMessage("Success");
+        } catch (Exception e) {
+            res.setCode(HttpStatus.CONFLICT.value());
+            res.setStatus(HttpStatus.CONFLICT);
+            res.setData(null);
+            res.setMessage("Error: " + e.getMessage());
         }
         return new ResponseEntity<>(res, res.getStatus());
     }
