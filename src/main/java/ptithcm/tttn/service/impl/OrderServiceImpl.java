@@ -10,6 +10,8 @@ import ptithcm.tttn.request.OrderRequest;
 import ptithcm.tttn.request.ProductSaleRequest;
 import ptithcm.tttn.request.StatisticRequest;
 import ptithcm.tttn.request.UpdateStatusRequest;
+import ptithcm.tttn.response.CartResponse;
+import ptithcm.tttn.response.GetAllProductCouponRsp;
 import ptithcm.tttn.service.*;
 
 import javax.transaction.Transactional;
@@ -129,32 +131,34 @@ public class OrderServiceImpl implements OrderService {
         User user = userService.findUserByJwt(jwt);
         Customer customer = customerService.findByUserId(user.getUser_id());
         OrderStatus status = statusRepo.findStatusIndex(1);
-        List<Cart_detail> cart = cartDetailService.findCartByJwt(jwt);
         List<Order_detail> list = new ArrayList<>();
         int totalQuantity = 0;
 
-        for (Cart_detail detail : cart) {
+        // Duyệt qua từng sản phẩm trong giỏ hàng
+        for (CartResponse product : rq.getCart()) {
             Order_detail orderDetail = new Order_detail();
-            // Lấy giá mới nhất từ product_cart
-            List<Update_price> updatePrices = detail.getProduct_cart().getUpdatePrices();
-            if (updatePrices != null && !updatePrices.isEmpty()) {
-                orderDetail.setPrice(updatePrices.get(0).getPrice_new()); // Lấy giá mới nhất
-            } else {
-                throw new Exception("No price available for product: " + detail.getProduct_id());
-            }
 
-            orderDetail.setProduct_id(detail.getProduct_id());
-            Optional<Product> find = productRepo.findById(detail.getProduct_id());
+            // Lấy thông tin sản phẩm từ DB
+            Optional<Product> find = productRepo.findById(product.getProduct_id());
             Product get = find.get();
-            get.setQuantity(get.getQuantity() - detail.getQuantity()); // Trừ số lượng sản phẩm
+            // Kiểm tra và cập nhật số lượng sản phẩm
+            if (get.getQuantity() < product.getQuantity()) {
+                throw new Exception("Not enough quantity for product: " + product.getProduct_id());
+            }
+            get.setQuantity(get.getQuantity() - product.getQuantity());
             productRepo.save(get);
 
-            orderDetail.setQuantity(detail.getQuantity());
+            // Thiết lập thông tin Order_detail
+            orderDetail.setProduct_id(product.getProduct_id());
+            orderDetail.setPrice(product.getDiscounted_price());
+            orderDetail.setQuantity(product.getQuantity());
             Order_detail createDetail = orderDetailRepo.save(orderDetail);
+
             totalQuantity += createDetail.getQuantity();
             list.add(createDetail);
         }
 
+        // Tạo đơn hàng
         Orders orders = new Orders();
         orders.setCreated_at(LocalDateTime.now());
         orders.setNote(rq.getNote());
@@ -167,14 +171,15 @@ public class OrderServiceImpl implements OrderService {
         orders.setTotal_price(rq.getTotal_price());
         orders.setTotal_quantity(totalQuantity);
 
+        // Lưu Orders và cập nhật Order_id trong Order_detail
         Orders createdOrders = ordersRepo.save(orders);
-
         for (Order_detail item : list) {
             item.setOrder_id(createdOrders.getOrder_id());
             orderDetailRepo.save(item);
         }
 
-        cartDetailService.deleteCart(jwt); // Xóa chi tiết giỏ hàng
+        // Xóa giỏ hàng sau khi đặt hàng thành công
+        cartDetailService.deleteCart(jwt);
         return createdOrders;
     }
 
