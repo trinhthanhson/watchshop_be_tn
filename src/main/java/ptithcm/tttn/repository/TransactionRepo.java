@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ptithcm.tttn.entity.Transaction;
+import ptithcm.tttn.entity.Transaction_request;
 import ptithcm.tttn.response.RevenueReportRsp;
 
 import java.sql.Timestamp;
@@ -14,7 +15,7 @@ import java.util.Date;
 import java.util.List;
 
 @Repository
-public interface TransactionRepo extends JpaRepository<Transaction,Long> {
+public interface TransactionRepo extends JpaRepository<Transaction, Long> {
     @Query(value = "SELECT " +
             "DATE(t.created_at) AS createDate, " +
             "t.transaction_code AS transactionCode, " +
@@ -130,6 +131,5 @@ public interface TransactionRepo extends JpaRepository<Transaction,Long> {
             "AND (Date(:startDate) IS NULL OR Date(:endDate) IS NULL OR Date(t.created_at) BETWEEN Date(:startDate) AND Date(:endDate)) " +
             "GROUP BY DATE(t.created_at)")
     List<Object[]> getRevenueReport(@Param("startDate") Date startDate, @Param("endDate") Date endDate);
-
 
 }

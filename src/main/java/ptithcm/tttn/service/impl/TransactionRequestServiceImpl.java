@@ -196,6 +196,11 @@ public class TransactionRequestServiceImpl implements TransactionRequestService 
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<Transaction_request> findTransactionRequestsNotFull() {
+        return requestRepo.findTransactionRequestsNotFull();
+    }
+
     private String generateTransactionCode() {
         // Lấy năm hiện tại
         String currentYear = String.valueOf(java.time.Year.now().getValue()).substring(2); // Lấy 2 số cuối của năm

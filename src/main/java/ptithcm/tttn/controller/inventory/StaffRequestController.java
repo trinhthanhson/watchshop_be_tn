@@ -24,15 +24,15 @@ public class StaffRequestController {
 
 
     @GetMapping("/all")
-    public ResponseEntity<ListEntityResponse<Transaction_request>> getAllTransactionRequestHandle(@RequestHeader("Authorization") String jwt){
+    public ResponseEntity<ListEntityResponse<Transaction_request>> getAllTransactionRequestHandle(@RequestHeader("Authorization") String jwt) {
         ListEntityResponse<Transaction_request> res = new ListEntityResponse<>();
-        try{
+        try {
             List<Transaction_request> etts = requestService.findAll();
             res.setMessage(MessageSuccess.E01.getMessage());
             res.setData(etts);
             res.setCode(HttpStatus.OK.value());
             res.setStatus(HttpStatus.OK);
-        }catch (Exception e){
+        } catch (Exception e) {
             res.setMessage(MessageError.E01.getMessage());
             res.setData(null);
             res.setCode(HttpStatus.OK.value());
@@ -42,7 +42,7 @@ public class StaffRequestController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<ApiResponse> addTransactionRequestHandle(@RequestHeader("Authorization") String jwt, @RequestBody TransactionRequest rq){
+    public ResponseEntity<ApiResponse> addTransactionRequestHandle(@RequestHeader("Authorization") String jwt, @RequestBody TransactionRequest rq) {
         ApiResponse res = new ApiResponse();
         try {
             Transaction_request add = requestService.createRequest(rq, jwt);
@@ -58,47 +58,47 @@ public class StaffRequestController {
     }
 
     @GetMapping("{id}/get")
-    public ResponseEntity<EntityResponse<Transaction_request>> findOrderById(@PathVariable Long id){
+    public ResponseEntity<EntityResponse<Transaction_request>> findOrderById(@PathVariable Long id) {
 
         EntityResponse<Transaction_request> res = new EntityResponse<>();
-        try{
+        try {
             Transaction_request ett = requestService.findById(id);
             res.setData(ett);
             res.setStatus(HttpStatus.OK);
             res.setCode(HttpStatus.OK.value());
             res.setMessage(MessageSuccess.E01.getMessage());
-        }catch (Exception e){
+        } catch (Exception e) {
             res.setStatus(HttpStatus.CONFLICT);
             res.setCode(HttpStatus.CONFLICT.value());
             res.setMessage(MessageError.E01.getMessage() + e.getMessage());
         }
-        return new ResponseEntity<>(res,res.getStatus());
+        return new ResponseEntity<>(res, res.getStatus());
     }
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<EntityResponse<Transaction_request>> cancelOrderByCustomer(@RequestHeader("Authorization") String jwt, @PathVariable Long id, @RequestBody Transaction_request rq){
+    public ResponseEntity<EntityResponse<Transaction_request>> cancelOrderByCustomer(@RequestHeader("Authorization") String jwt, @PathVariable Long id, @RequestBody Transaction_request rq) {
         EntityResponse<Transaction_request> res = new EntityResponse<>();
-        try{
-            Transaction_request ett = requestService.updateStatus(rq,id,jwt);
+        try {
+            Transaction_request ett = requestService.updateStatus(rq, id, jwt);
             res.setData(ett);
             res.setMessage(MessageSuccess.E01.getMessage());
             res.setCode(HttpStatus.OK.value());
             res.setStatus(HttpStatus.OK);
-        }catch (Exception e){
+        } catch (Exception e) {
             res.setData(null);
             res.setMessage(MessageError.E01.getMessage() + e.getMessage());
             res.setCode(HttpStatus.CONFLICT.value());
             res.setStatus(HttpStatus.CONFLICT);
             System.err.println(e.getMessage());
         }
-        return new ResponseEntity<>(res,res.getStatus());
+        return new ResponseEntity<>(res, res.getStatus());
     }
 
     @PostMapping("/{id}/update")
-    public ResponseEntity<ApiResponse> updateRequestDetailByManager(@RequestHeader("Authorization") String jwt, @PathVariable Long id, @RequestBody List<Request_detail> rq){
+    public ResponseEntity<ApiResponse> updateRequestDetailByManager(@RequestHeader("Authorization") String jwt, @PathVariable Long id, @RequestBody List<Request_detail> rq) {
         ApiResponse res = new ApiResponse();
         try {
-            requestService.updateRequestDetail(id,rq);
+            requestService.updateRequestDetail(id, rq);
             res.setMessage("Success");
             res.setStatus(HttpStatus.OK);
             res.setCode(HttpStatus.OK.value());
@@ -111,12 +111,9 @@ public class StaffRequestController {
     }
 
     @GetMapping("{id}/find")
-    public ResponseEntity<EntityResponse<RequestDetailRsp>> getRequestDataNotFullHandle(@PathVariable Long id,@RequestHeader("Authorization") String jwt) throws Exception {
-
-
-
+    public ResponseEntity<EntityResponse<RequestDetailRsp>> getRequestDataNotFullHandle(@PathVariable Long id, @RequestHeader("Authorization") String jwt) throws Exception {
         EntityResponse<RequestDetailRsp> res = new EntityResponse<>();
-        try{
+        try {
             Transaction_request request = requestService.findById(id);
             RequestDetailRsp rsp = new RequestDetailRsp();
             rsp.setContent(request.getContent());
@@ -129,12 +126,29 @@ public class StaffRequestController {
             res.setStatus(HttpStatus.OK);
             res.setCode(HttpStatus.OK.value());
             res.setMessage(MessageSuccess.E01.getMessage());
-        }catch (Exception e){
+        } catch (Exception e) {
             res.setStatus(HttpStatus.CONFLICT);
             res.setCode(HttpStatus.CONFLICT.value());
             res.setMessage(MessageError.E01.getMessage() + e.getMessage());
         }
-        return new ResponseEntity<>(res,res.getStatus());
+        return new ResponseEntity<>(res, res.getStatus());
     }
 
+    @GetMapping("/all/not-full")
+    public ResponseEntity<ListEntityResponse<Transaction_request>> getAllTransactionRequestsNotFullHandle(@RequestHeader("Authorization") String jwt) {
+        ListEntityResponse<Transaction_request> res = new ListEntityResponse<>();
+        try {
+            List<Transaction_request> etts = requestService.findTransactionRequestsNotFull();
+            res.setMessage(MessageSuccess.E01.getMessage());
+            res.setData(etts);
+            res.setCode(HttpStatus.OK.value());
+            res.setStatus(HttpStatus.OK);
+        } catch (Exception e) {
+            res.setMessage(MessageError.E01.getMessage());
+            res.setData(null);
+            res.setCode(HttpStatus.OK.value());
+            res.setStatus(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(res, res.getStatus());
+    }
 }

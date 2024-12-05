@@ -24,4 +24,6 @@ public interface TransactionRequestService {
 
     List<RequestNotFullRsp> getRequestNotFull(Long rq);
 
+    List<Transaction_request> findTransactionRequestsNotFull();
+
 }
