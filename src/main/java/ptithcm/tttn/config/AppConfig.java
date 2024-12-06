@@ -42,11 +42,14 @@ public class AppConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/api/auth/**").permitAll()
                 .antMatchers("/api/user/**").permitAll()  // Require authentication
-                .antMatchers("/api/staff/**").hasAnyAuthority(RoleName.STAFF.getRoleName(), RoleName.MANAGER.getRoleName(), RoleName.SHIPPER.getRoleName())
-                .antMatchers("/api/inventory/request/all").hasAnyAuthority(RoleName.STAFF.getRoleName(), RoleName.MANAGER.getRoleName(),RoleName.WAREHOUSE_STAFF.getRoleName(),RoleName.WAREHOUSE_MANAGER.getRoleName())
-                .antMatchers("/api/manager/**").hasAnyAuthority(RoleName.MANAGER.getRoleName(), RoleName.STAFF.getRoleName())
-                .antMatchers("/api/inventory/**").hasAnyAuthority(RoleName.WAREHOUSE_STAFF.getRoleName(),RoleName.WAREHOUSE_MANAGER.getRoleName())
-                .antMatchers("/api/manager/inventory/**").hasAnyAuthority(RoleName.WAREHOUSE_STAFF.getRoleName(),RoleName.WAREHOUSE_MANAGER.getRoleName())
+                .antMatchers("/api/staff/**").hasAnyAuthority(RoleName.STAFF.getRoleName(), RoleName.MANAGER.getRoleName(), RoleName.SHIPPER.getRoleName(), RoleName.BUSINESS_STAFF.getRoleName(), RoleName.DIRECTOR.getRoleName(), RoleName.SALESPERSON.getRoleName())
+                .antMatchers("/api/inventory/request/all").hasAnyAuthority(RoleName.STAFF.getRoleName(), RoleName.MANAGER.getRoleName(),
+                        RoleName.WAREHOUSE_STAFF.getRoleName(), RoleName.WAREHOUSE_MANAGER.getRoleName(), RoleName.WAREHOUSE_KEEPER.getRoleName(), RoleName.DIRECTOR.getRoleName())
+                .antMatchers("/api/manager/**").hasAnyAuthority(RoleName.MANAGER.getRoleName(), RoleName.STAFF.getRoleName(), RoleName.BUSINESS_STAFF.getRoleName(), RoleName.DIRECTOR.getRoleName())
+                .antMatchers("/api/inventory/**").hasAnyAuthority(RoleName.WAREHOUSE_STAFF.getRoleName(), RoleName.WAREHOUSE_MANAGER.getRoleName(),
+                        RoleName.WAREHOUSE_KEEPER.getRoleName(), RoleName.DIRECTOR.getRoleName())
+                .antMatchers("/api/manager/inventory/**").hasAnyAuthority(RoleName.WAREHOUSE_STAFF.getRoleName(), RoleName.WAREHOUSE_MANAGER.getRoleName(),
+                        RoleName.WAREHOUSE_KEEPER.getRoleName(), RoleName.DIRECTOR.getRoleName())
 
 
                 .and()
@@ -63,7 +66,8 @@ public class AppConfig extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService);
     }
-//.oauth2Login(oauth2login -> {
+
+    //.oauth2Login(oauth2login -> {
 //        oauth2login
 //                .loginPage("/login")
 //                .successHandler((request, response, authentication) -> {
