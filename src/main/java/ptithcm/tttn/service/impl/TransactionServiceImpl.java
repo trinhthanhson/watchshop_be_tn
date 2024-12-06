@@ -3,6 +3,7 @@ package ptithcm.tttn.service.impl;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ptithcm.tttn.entity.*;
+import ptithcm.tttn.function.RequestStatus;
 import ptithcm.tttn.repository.*;
 import ptithcm.tttn.request.ProductTransRequest;
 import ptithcm.tttn.request.TransactionRequest;
@@ -36,6 +37,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final StaffService staffService;
     private final BillSupplierRepo billSupplierRepo;
     private final TransactionDetailRepo detailRepo;
+    private final TransactionRequestRepo requestRepo;
     private final ProductRepo productRepo;
 
     @Override
@@ -43,6 +45,8 @@ public class TransactionServiceImpl implements TransactionService {
         Transaction ett = new Transaction();
         Type type = typeRepo.findTypeByName(rq.getType_name());
         User user = userService.findUserByJwt(jwt);
+        Optional<Transaction_request> findRequest = requestRepo.findById(rq.getRequest_id());
+        Transaction_request request = findRequest.get();
         Staff staff = staffService.findByUserId(user.getUser_id());
         ett.setContent(rq.getContent());
         ett.setCreated_at(LocalDateTime.now());
@@ -64,10 +68,11 @@ public class TransactionServiceImpl implements TransactionService {
                 detail.setProduct_id(item.getProductId());
                 detail.setTransaction_id(save.getTransaction_id());
                 detail.setStart_quantity(item.getStock());
-                detailRepo.save(detail);
+                Transaction_detail transactionDetail = detailRepo.save(detail);
                 get.setQuantity(get.getQuantity() + detail.getQuantity());
                 productRepo.save(get);
             }
+
         } else {
             ett.setRequest_id(rq.getRequest_id());
             save = transactionRepo.save(ett);
@@ -87,6 +92,13 @@ public class TransactionServiceImpl implements TransactionService {
                 productRepo.save(get);
             }
         }
+        String checkCompleteRequest = requestRepo.checkQuantityRequest(rq.getRequest_id());
+        if(checkCompleteRequest.equals("TRUE")){
+            request.setStatus(RequestStatus.FULL.getStatus());
+        }else {
+            request.setStatus(RequestStatus.NOT_FULL.getStatus());
+        }
+        requestRepo.save(request);
         Bill_supplier billSupplier = new Bill_supplier();
         billSupplier.setBill_code(rq.getBill_code());
         billSupplier.setSupplier_id(rq.getSupplier_id());
@@ -145,7 +157,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public List<RevenueReportRsp> getRevenueReport(Date startDate, Date endDate) {
-        List<Object[]> results = transactionRepo.getRevenueReport(startDate,endDate);
+        List<Object[]> results = transactionRepo.getRevenueReport(startDate, endDate);
         return results.stream()
                 .map(this::mapToRevenueReport)
                 .collect(Collectors.toList());
@@ -234,9 +246,9 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     private RevenueReportRsp mapToRevenueReport(Object[] result) {
-         Date transactionDate = (Date) result[0];
-         Long totalRevenue = (Long) result[1];
+        Date transactionDate = (Date) result[0];
+        Long totalRevenue = (Long) result[1];
         Long totalQuantitySold = (Long) result[2];
-        return new RevenueReportRsp(transactionDate,totalRevenue,totalQuantitySold);
+        return new RevenueReportRsp(transactionDate, totalRevenue, totalQuantitySold);
     }
 }

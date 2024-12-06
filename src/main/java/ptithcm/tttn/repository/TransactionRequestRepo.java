@@ -73,4 +73,25 @@ public interface TransactionRequestRepo extends JpaRepository<Transaction_reques
                     "    tr.request_id",
             nativeQuery = true)
     List<Transaction_request> findTransactionRequestsNotFull();
+
+    @Query(value = "SELECT " +
+            "    CASE " +
+            "        WHEN COUNT(CASE " +
+            "                      WHEN rd.quantity > COALESCE( " +
+            "                          (SELECT SUM(td_sub.quantity) " +
+            "                           FROM transaction_detail td_sub " +
+            "                           JOIN transaction t_sub ON td_sub.transaction_id = t_sub.transaction_id " +
+            "                           WHERE t_sub.request_id = tr.request_id " +
+            "                             AND td_sub.product_id = rd.product_id), 0) " +
+            "                          THEN 1 " +
+            "                  END) = 0 THEN 'TRUE' " +
+            "        ELSE 'FALSE' " +
+            "    END AS is_fully_fulfilled " +
+            "FROM " +
+            "    transaction_request tr " +
+            "LEFT JOIN " +
+            "    request_detail rd ON tr.request_id = rd.request_id " +
+            "WHERE " +
+            "    tr.request_id = :request_id", nativeQuery = true)
+    String checkQuantityRequest(Long request_id);
 }

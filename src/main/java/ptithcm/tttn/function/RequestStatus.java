@@ -7,7 +7,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum RequestStatus {
     WAITING("WAITING"),
-    CONFIRM("APPROVED"),
+    NOT_FULL("NOTFULL"),
+    FULL("FULL"),
     REJECT("REJECT");
 
     private final String status;

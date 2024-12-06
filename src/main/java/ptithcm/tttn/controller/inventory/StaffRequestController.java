@@ -13,6 +13,7 @@ import ptithcm.tttn.response.*;
 import ptithcm.tttn.service.TransactionRequestService;
 import ptithcm.tttn.service.impl.TransactionRequestServiceImpl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -23,13 +24,45 @@ public class StaffRequestController {
     private final TransactionRequestService requestService;
 
 
-    @GetMapping("/all")
-    public ResponseEntity<ListEntityResponse<Transaction_request>> getAllTransactionRequestHandle(@RequestHeader("Authorization") String jwt) {
+    @GetMapping("/all/import")
+    public ResponseEntity<ListEntityResponse<Transaction_request>> getAllTransactionRequestImportHandle(@RequestHeader("Authorization") String jwt) {
         ListEntityResponse<Transaction_request> res = new ListEntityResponse<>();
+        List<Transaction_request> all = new ArrayList<>();
+
         try {
             List<Transaction_request> etts = requestService.findAll();
+            for(Transaction_request item : etts){
+                if(item.getType_request().getType_name().equals("IMPORT")){
+                    all.add(item);
+                }
+            }
             res.setMessage(MessageSuccess.E01.getMessage());
-            res.setData(etts);
+            res.setData(all);
+            res.setCode(HttpStatus.OK.value());
+            res.setStatus(HttpStatus.OK);
+        } catch (Exception e) {
+            res.setMessage(MessageError.E01.getMessage());
+            res.setData(null);
+            res.setCode(HttpStatus.OK.value());
+            res.setStatus(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(res, res.getStatus());
+    }
+
+    @GetMapping("/all/export")
+    public ResponseEntity<ListEntityResponse<Transaction_request>> getAllTransactionRequestExportHandle(@RequestHeader("Authorization") String jwt) {
+        ListEntityResponse<Transaction_request> res = new ListEntityResponse<>();
+        List<Transaction_request> all = new ArrayList<>();
+
+        try {
+            List<Transaction_request> etts = requestService.findAll();
+            for(Transaction_request item : etts){
+                if(item.getType_request().getType_name().equals("EXPORT")){
+                    all.add(item);
+                }
+            }
+            res.setMessage(MessageSuccess.E01.getMessage());
+            res.setData(all);
             res.setCode(HttpStatus.OK.value());
             res.setStatus(HttpStatus.OK);
         } catch (Exception e) {
