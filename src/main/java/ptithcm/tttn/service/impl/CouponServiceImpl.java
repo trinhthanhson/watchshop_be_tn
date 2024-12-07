@@ -66,8 +66,6 @@ public class CouponServiceImpl  implements CouponService {
                 if (p.getStatus().equals(Status.ACTIVE.getUserStatus())) {
                     Coupon_detail couponDetail = new Coupon_detail();
                     couponDetail.setCoupon_id(saved.getCoupon_id());
-                    couponDetail.setStatus(Status.ACTIVE.getUserStatus());
-//                    couponDetail.setPercent(coupon.getPercent()/100);
                     couponDetail.setProduct_id(p.getProduct_id());
                     couponDetailRepo.save(couponDetail);
                 }

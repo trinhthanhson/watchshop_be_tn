@@ -101,19 +101,5 @@ public class StaffCouponController {
         return new ResponseEntity<>(res,res.getStatus());
     }
 
-    @PutMapping("/{id}/delete")
-    public ResponseEntity<ApiResponse> updateStatusCouponDetail(@RequestHeader("Authorization") String jwt,@PathVariable Long id, @RequestBody Coupon_detail detail){
-        ApiResponse res = new ApiResponse();
-        try {
-            Coupon_detail couponDetail = couponDetailService.updateStatusDetail(detail, id);
-            res.setStatus(HttpStatus.OK);
-            res.setMessage("success");
-            res.setCode(HttpStatus.OK.value());
-        }catch (Exception e){
-            res.setStatus(HttpStatus.CONFLICT);
-            res.setMessage("error " + e.getMessage());
-            res.setCode(HttpStatus.CONFLICT.value());
-        }
-        return new ResponseEntity<>(res,res.getStatus());
-    }
+
 }

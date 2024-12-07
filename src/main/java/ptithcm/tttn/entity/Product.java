@@ -68,6 +68,9 @@ public class Product {
     @Column(length = 10)
     private String status;
 
+    @Column(length = 10)
+    private String warranty;
+
     @Column
     private LocalDateTime created_at;
 
@@ -129,5 +132,8 @@ public class Product {
     @JsonIgnore
     private List<Review> reviews;
 
+    @OneToOne(mappedBy = "product_warranty")
+    @JsonIgnore
+    private Warranty warranties;
 
 }

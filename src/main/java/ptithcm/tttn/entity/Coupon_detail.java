@@ -14,10 +14,6 @@ public class Coupon_detail {
     @Column
     private Long coupon_detail_id;
 
-
-    @Column
-    private String status;
-
     @Column
     private Long coupon_id;
 

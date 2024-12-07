@@ -20,6 +20,9 @@ public class Coupon {
     private Long coupon_id;
 
     @Column
+    private String content;
+
+    @Column
     private Date start_date;
 
     @Column
@@ -36,9 +39,6 @@ public class Coupon {
 
     @Column
     private String status;
-
-    @Column
-    private String content;
 
     @Column
     private String title;

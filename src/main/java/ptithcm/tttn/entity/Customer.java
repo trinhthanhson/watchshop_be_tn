@@ -11,10 +11,14 @@ import java.util.List;
 @Entity
 @Table(name = "customer")
 public class Customer {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private Long customer_id;
+
+    @Column
+    private LocalDate birthday;
 
     @Column
     private String citizen_id;
@@ -24,9 +28,6 @@ public class Customer {
 
     @Column
     private String last_name;
-
-    @Column
-    private LocalDate birthday;
 
     @Column
     private String gender;

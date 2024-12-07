@@ -17,14 +17,14 @@ public class Warranty_detail {
     private String content;
 
     @Column
-    private Long order_detail_id;
-
-    @Column
     private Long warranty_id;
 
+    @Column
+    private Long staff_id;
+
     @ManyToOne
-    @JoinColumn(name = "order_detail_id",insertable = false,updatable = false)
-    private Order_detail warranty_order_detail;
+    @JoinColumn(name = "staff_id",insertable = false,updatable = false)
+    private Staff warranty_staff;
 
     @ManyToOne
     @JoinColumn(name = "warranty_id",insertable = false,updatable = false)

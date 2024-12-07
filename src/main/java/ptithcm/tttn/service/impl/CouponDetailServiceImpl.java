@@ -17,17 +17,6 @@ public class CouponDetailServiceImpl implements CouponDetailService {
     }
 
     @Override
-    public Coupon_detail updateStatusDetail(Coupon_detail detail, Long coupon_detail_id) throws Exception {
-        Coupon_detail find = findById(coupon_detail_id);
-        if(detail.getStatus().equals(Status.ACTIVE.getUserStatus())){
-            find.setStatus(Status.INACTIVE.getUserStatus());
-        }else{
-            find.setStatus(Status.ACTIVE.getUserStatus());
-        }
-        return couponDetailRepo.save(find);
-    }
-
-    @Override
     public Coupon_detail findById(Long id) throws Exception {
         Optional<Coupon_detail> find = couponDetailRepo.findById(id);
         if(find.isPresent()){

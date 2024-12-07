@@ -41,9 +41,6 @@ public class User {
     private LocalDateTime expired_date;
 
     @Column
-    private float points;
-
-    @Column
     private Long role_id;
 
     @Column

@@ -27,10 +27,6 @@ public class Order_detail {
     @Column
     private Long order_id;
 
-    @OneToMany(mappedBy = "warranty_order_detail")
-    @JsonIgnore
-    private List<Warranty_detail> warrantyDetails;
-
     @ManyToOne
     @JoinColumn(name = "product_id",insertable = false,updatable = false)
     private Product product_order;

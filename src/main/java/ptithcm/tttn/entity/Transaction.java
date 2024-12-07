@@ -20,6 +20,9 @@ public class Transaction {
     private String content;
 
     @Column
+    private String note;
+
+    @Column
     private String transaction_code;
 
     @Column

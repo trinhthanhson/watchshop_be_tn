@@ -1,6 +1,8 @@
 package ptithcm.tttn.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import org.apache.tomcat.jni.Local;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -16,19 +18,29 @@ public class Warranty {
     private Long warranty_id;
 
     @Column
+    private LocalDateTime start_date;
+
+    @Column
+    private LocalDateTime end_date;
+
+    @Column
+    private LocalDateTime updated_at;
+
+    @Column
     private LocalDateTime created_at;
 
     @Column
     private String status;
 
     @Column
-    private Long staff_id;
+    private String product_id;
 
-    @ManyToOne
-    @JoinColumn(name = "staff_id",insertable = false,updatable = false)
-    private Staff staff_warranty;
+    @OneToOne
+    @JoinColumn(name = "product_id", insertable = false, updatable = false)
+    private Product product_warranty;
 
     @OneToMany(mappedBy = "warranty_detail")
+    @JsonIgnore
     private List<Warranty_detail> warrantyDetails;
 
 

@@ -6,6 +6,7 @@ import lombok.Data;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
+
 @Data
 @Entity
 @Table(name = "staff")
@@ -44,6 +45,9 @@ public class Staff {
     private String phone;
 
     @Column
+    private String address;
+
+    @Column
     private LocalDateTime created_at;
 
     @Column
@@ -53,7 +57,7 @@ public class Staff {
     private Long user_id;
 
     @OneToOne
-    @JoinColumn(name = "user_id",insertable = false,updatable = false)
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;
 
     @OneToMany(mappedBy = "staff_bill")
@@ -64,9 +68,9 @@ public class Staff {
     @JsonIgnore
     private List<User> user_update;
 
-    @OneToMany(mappedBy = "staff_warranty")
+    @OneToMany(mappedBy = "warranty_staff")
     @JsonIgnore
-    private List<Warranty> warranties;
+    private List<Warranty_detail> warranties;
 
     @OneToMany(mappedBy = "staff_order")
     @JsonIgnore
