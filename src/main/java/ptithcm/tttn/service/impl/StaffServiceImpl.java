@@ -62,4 +62,9 @@ public class StaffServiceImpl implements StaffService {
     public List<Staff> findAll() {
         return staffRepo.findAll();
     }
+
+    @Override
+    public List<Staff> findStaffInventory() {
+        return staffRepo.findWarehouseRelatedStaff();
+    }
 }

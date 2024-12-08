@@ -132,7 +132,7 @@ public class TransactionRequestServiceImpl implements TransactionRequestService 
         request.setCreated_at(LocalDateTime.now());
         request.setStaff_id_created(staff.getStaff_id());
         request.setTransaction_code(generateTransactionCode());
-        request.setStatus("WAITING");
+        request.setStatus(RequestStatus.WAITING.getStatus());
         request.setType_id(type.getType_id());
         request.setContent("Xuất kho");
         request.setOrder_id(orders.getOrder_id());
@@ -199,6 +199,16 @@ public class TransactionRequestServiceImpl implements TransactionRequestService 
     @Override
     public List<Transaction_request> findTransactionRequestsNotFull() {
         return requestRepo.findTransactionRequestsNotFull();
+    }
+
+    @Override
+    public Transaction_request updateByDirector(String jwt,Long id) throws Exception {
+        User user = userService.findUserByJwt(jwt);
+        Staff staff = staffService.findByUserId(user.getUser_id());
+        Transaction_request ett = findById(id);
+        ett.setStatus(RequestStatus.ACCEPT.getStatus());
+        ett.setStaff_id_updated(staff.getStaff_id());
+        return requestRepo.save(ett);
     }
 
     private String generateTransactionCode() {

@@ -59,7 +59,7 @@ public interface TransactionRequestRepo extends JpaRepository<Transaction_reques
                     "LEFT JOIN " +
                     "    transaction_detail td ON td.transaction_id = t.transaction_id AND td.product_id = rd.product_id " +
                     "WHERE " +
-                    "    tr.is_cancel = 'f' " + // Chỉ lấy request_id không bị hủy
+                    "    tr.is_cancel = 'f' AND tr.status = 'ACCEPT' "  + // Chỉ lấy request_id không bị hủy
                     "    AND ( " +
                     "        rd.quantity > COALESCE( " +
                     "            (SELECT SUM(td_sub.quantity) " +

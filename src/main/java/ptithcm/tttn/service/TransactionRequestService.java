@@ -26,4 +26,6 @@ public interface TransactionRequestService {
 
     List<Transaction_request> findTransactionRequestsNotFull();
 
+    Transaction_request updateByDirector(String jwt,Long id) throws Exception;
+
 }

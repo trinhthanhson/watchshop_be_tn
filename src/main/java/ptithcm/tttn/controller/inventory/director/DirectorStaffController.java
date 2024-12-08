@@ -1,4 +1,4 @@
-package ptithcm.tttn.controller.manager;
+package ptithcm.tttn.controller.inventory.director;
 
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -7,62 +7,30 @@ import org.springframework.web.bind.annotation.*;
 import ptithcm.tttn.entity.Staff;
 import ptithcm.tttn.entity.User;
 import ptithcm.tttn.function.MessageSuccess;
-import ptithcm.tttn.function.RoleName;
 import ptithcm.tttn.request.SignUpRequest;
 import ptithcm.tttn.response.ApiResponse;
-import ptithcm.tttn.response.EntityResponse;
 import ptithcm.tttn.response.ListEntityResponse;
 import ptithcm.tttn.service.StaffService;
 import ptithcm.tttn.service.UserService;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/manager/staff")
+@RequestMapping("/api/director/staff")
 @AllArgsConstructor
-public class ManagerStaffController {
-
+public class DirectorStaffController {
+    private final StaffService staffService;
     private final UserService userService;
 
-    private final StaffService staffService;
-
-    // <editor-fold desc="User">
-    @GetMapping("/all")
-    public ResponseEntity<ListEntityResponse<User>> findAllStaffHandle(@RequestHeader("Authorization") String jwt) throws Exception {
-        ListEntityResponse<User> res = new ListEntityResponse<>();
-        List<User> listUser = userService.findAll();
-        List<User> allUserStaff = new ArrayList<>();
-        for (User u : listUser) {
-            if (u.getRole_user().getRole_name().equals(RoleName.MANAGER.getRoleName()) || u.getRole_user().getRole_name().equals(RoleName.CUSTOMER.getRoleName())) {
-                System.err.println();
-            } else {
-                allUserStaff.add(u);
-            }
-        }
-        res.setCode(HttpStatus.OK.value());
-        res.setMessage(MessageSuccess.E01.getMessage());
-        res.setData(allUserStaff);
+    @GetMapping("/inventory")
+    public ResponseEntity<ListEntityResponse<Staff>> getAllStaffByDirectorHandle(@RequestHeader("Authorization") String jwt) {
+        ListEntityResponse<Staff> res = new ListEntityResponse<>();
+        List<Staff> all = staffService.findStaffInventory();
         res.setStatus(HttpStatus.OK);
+        res.setMessage(MessageSuccess.E01.getMessage());
+        res.setCode(HttpStatus.OK.value());
+        res.setData(all);
         return new ResponseEntity<>(res, res.getStatus());
-    }
-
-    @PutMapping("/{id}/update")
-    public ResponseEntity<ApiResponse> updateStatusStaff(@PathVariable Long id, @RequestHeader("Authorization") String jwt, @RequestBody User user) throws Exception {
-
-        ApiResponse res = new ApiResponse();
-        try{
-            User update = userService.updateStatus(id, user.getStatus(),jwt);
-            res.setCode(HttpStatus.OK.value());
-            res.setStatus(HttpStatus.OK);
-            res.setMessage("Success");
-        }catch (Exception e){
-            res.setCode(HttpStatus.CONFLICT.value());
-            res.setStatus(HttpStatus.CONFLICT);
-            res.setMessage("fail " + e.getMessage());
-        }
-        return new ResponseEntity<>(res,res.getStatus());
     }
 
     @PostMapping("/add")
@@ -134,20 +102,4 @@ public class ManagerStaffController {
         }
         return new ResponseEntity<>(res,res.getStatus());
     }
-    // </editor-fold>
-
-    // <editor-fold desc="Staff">
-    @GetMapping("/{id}/find")
-    public ResponseEntity<EntityResponse<Staff>> findStaffHandle(@RequestHeader("Authorization") String jwt, @PathVariable Long id) throws Exception {
-        EntityResponse<Staff> res = new EntityResponse<>();
-
-        res.setCode(HttpStatus.OK.value());
-        res.setMessage(MessageSuccess.E01.getMessage());
-        res.setData(staffService.findByUserId(id));
-        res.setStatus(HttpStatus.OK);
-        return new ResponseEntity<>(res, res.getStatus());
-    }
-    // </editor-fold>
-
-
 }

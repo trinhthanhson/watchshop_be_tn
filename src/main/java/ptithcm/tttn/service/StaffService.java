@@ -13,4 +13,6 @@ public interface StaffService {
     boolean checkEmailExist(String email);
 
     List<Staff> findAll();
+
+    List<Staff> findStaffInventory();
 }
