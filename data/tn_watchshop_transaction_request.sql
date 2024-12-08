@@ -1,0 +1,70 @@
+-- MySQL dump 10.13  Distrib 8.0.38, for Win64 (x86_64)
+--
+-- Host: localhost    Database: tn_watchshop
+-- ------------------------------------------------------
+-- Server version	8.0.38
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `transaction_request`
+--
+
+DROP TABLE IF EXISTS `transaction_request`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `transaction_request` (
+  `request_id` bigint NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(6) DEFAULT NULL,
+  `note` varchar(255) DEFAULT NULL,
+  `staff_id_created` bigint DEFAULT NULL,
+  `staff_id_updated` bigint DEFAULT NULL,
+  `total_price` int DEFAULT NULL,
+  `total_quantity` int DEFAULT NULL,
+  `type_id` bigint DEFAULT NULL,
+  `content` varchar(255) DEFAULT NULL,
+  `status` varchar(255) DEFAULT NULL,
+  `order_id` bigint DEFAULT NULL,
+  `transaction_code` varchar(255) DEFAULT NULL,
+  `is_cancel` char(1) DEFAULT NULL,
+  PRIMARY KEY (`request_id`),
+  KEY `FK9eqcbb61wajplh9l8c9lssxfy` (`staff_id_created`),
+  KEY `FKhbyobmwk2v8142ywwb20k6njj` (`staff_id_updated`),
+  KEY `FKa569jydm96rdck6sabr7bqfb6` (`type_id`),
+  KEY `FKqimft2xocfxg82qautg5qjdn4` (`order_id`),
+  CONSTRAINT `FK9eqcbb61wajplh9l8c9lssxfy` FOREIGN KEY (`staff_id_created`) REFERENCES `staff` (`staff_id`),
+  CONSTRAINT `FKa569jydm96rdck6sabr7bqfb6` FOREIGN KEY (`type_id`) REFERENCES `type` (`type_id`),
+  CONSTRAINT `FKhbyobmwk2v8142ywwb20k6njj` FOREIGN KEY (`staff_id_updated`) REFERENCES `staff` (`staff_id`),
+  CONSTRAINT `FKqimft2xocfxg82qautg5qjdn4` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `transaction_request`
+--
+
+LOCK TABLES `transaction_request` WRITE;
+/*!40000 ALTER TABLE `transaction_request` DISABLE KEYS */;
+INSERT INTO `transaction_request` VALUES (18,'2024-12-06 23:43:47.257553',NULL,6,NULL,386000000,220,1,'Nhập kho đầu kỳ','FULL',NULL,'PDNX24000001','f'),(19,'2024-12-06 23:51:30.403026',NULL,6,NULL,143650000,90,1,'Nhập kho thêm hàng','FULL',NULL,'PDNX24000001','f'),(20,'2024-12-07 00:12:09.849581',NULL,6,NULL,44850000,35,1,'Nhập thêm hàng đợt 2','FULL',NULL,'PDNX24000001','f'),(23,'2024-12-07 00:21:21.993199',NULL,6,NULL,44240000,25,1,'Nhập thêm hàng','FULL',NULL,'PDNX24000001','f'),(24,'2024-12-07 00:28:17.051810',NULL,6,NULL,59600000,43,1,'Nhập kho','FULL',NULL,'PDNX24000001','f'),(25,'2024-12-07 00:36:09.090237',NULL,6,NULL,87500000,40,1,'Nhập hàng','FULL',NULL,'PDNX24000001','f'),(26,'2024-12-07 00:56:23.259560',NULL,6,NULL,39300000,23,1,'','FULL',NULL,'PDNX24000001','f'),(27,'2024-12-07 01:29:38.397445',NULL,6,NULL,48050000,47,1,'Nhập thêm hàng','FULL',NULL,'PDNX24000001','f'),(28,'2024-12-07 01:43:02.022609',NULL,6,NULL,30450000,13,1,'Nhập thêm hàng','FULL',NULL,'PDNX24000001','f'),(29,'2024-12-07 01:58:10.070596',NULL,6,NULL,23200000,13,1,'Nhập thêm hàng','FULL',NULL,'PDNX24000001','f'),(30,'2024-12-08 13:14:13.819685',NULL,5,NULL,51300000,38,1,'Nhập kho','FULL',NULL,'PDNX24000001','f'),(31,'2024-12-08 13:18:55.089514',NULL,5,NULL,43800000,23,1,'Nhập kho','FULL',NULL,'PDNX24000001','f'),(32,'2024-12-08 13:24:35.253586',NULL,5,NULL,47040000,43,1,'Nhập kho','FULL',NULL,'PDNX24000001','f'),(33,'2024-12-08 13:28:05.400163',NULL,5,NULL,44560000,22,1,'Nhập kho','FULL',NULL,'PDNX24000001','f'),(34,'2024-12-08 13:38:24.247232',NULL,5,NULL,30640000,17,1,'Nhập kho','FULL',NULL,'PDNX24000001','f'),(35,'2024-12-08 13:43:47.225260',NULL,5,NULL,52080000,46,1,'Nhập kho','FULL',NULL,'PDNX24000001','f'),(36,'2024-12-08 13:47:34.250035',NULL,5,NULL,28450000,12,1,'Nhập kho','FULL',NULL,'PDNX24000001','f'),(37,'2024-12-08 13:50:40.539307',NULL,5,NULL,14550000,12,1,'Nhập kho','FULL',NULL,'PDNX24000001','f'),(38,'2024-12-08 13:54:38.558067',NULL,5,NULL,35900000,21,1,'Nhập kho','FULL',NULL,'PDNX24000001','f'),(39,'2024-12-08 14:00:21.705140',NULL,5,NULL,45400000,33,1,'Nhập kho','FULL',NULL,'PDNX24000001','f'),(40,'2024-12-08 14:03:17.648384',NULL,5,NULL,38250000,19,1,'Nhập kho','FULL',NULL,'PDNX24000001','f'),(41,'2024-12-08 14:06:07.275842',NULL,5,NULL,37650000,25,1,'Nhập kho','FULL',NULL,'PDNX24000001','f');
+/*!40000 ALTER TABLE `transaction_request` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2024-12-09  0:15:22
