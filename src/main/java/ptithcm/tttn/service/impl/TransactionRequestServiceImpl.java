@@ -1,6 +1,8 @@
 package ptithcm.tttn.service.impl;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ptithcm.tttn.entity.*;
 import ptithcm.tttn.function.RequestStatus;
@@ -68,6 +70,11 @@ public class TransactionRequestServiceImpl implements TransactionRequestService 
     @Override
     public List<Transaction_request> findAll() {
         return requestRepo.findAll();
+    }
+
+    @Override
+    public Page<Transaction_request> getAllTransactionRequestByType(String typeName, Pageable pageable) {
+        return requestRepo.getAllTransactionRequestByType(typeName,pageable);
     }
 
     @Override

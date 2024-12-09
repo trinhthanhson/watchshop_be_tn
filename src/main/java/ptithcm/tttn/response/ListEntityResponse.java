@@ -15,4 +15,6 @@ public class ListEntityResponse<T> {
     private HttpStatus status;
     private String message;
     private int code;
+    private int totalPages;
+    private long totalElements;
 }

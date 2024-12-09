@@ -1,5 +1,7 @@
 package ptithcm.tttn.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import ptithcm.tttn.entity.Request_detail;
 import ptithcm.tttn.entity.Transaction_request;
 import ptithcm.tttn.request.ProductTransRequest;
@@ -13,6 +15,8 @@ public interface TransactionRequestService {
     Transaction_request createRequest(TransactionRequest request, String jwt) throws Exception;
 
     List<Transaction_request> findAll();
+
+    Page<Transaction_request> getAllTransactionRequestByType(String typeName, Pageable pageable);
 
     Transaction_request findById(Long id) throws Exception;
 

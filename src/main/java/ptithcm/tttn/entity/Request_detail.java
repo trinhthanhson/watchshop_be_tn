@@ -1,5 +1,6 @@
 package ptithcm.tttn.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
@@ -33,7 +34,7 @@ public class Request_detail {
     private String product_id;
 
     @ManyToOne
-    @JsonIgnore
+    @JsonBackReference
     @JoinColumn(name = "request_id",insertable = false,updatable = false)
     private Transaction_request request;
 

@@ -1,5 +1,7 @@
 package ptithcm.tttn.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,6 +13,18 @@ import java.util.List;
 
 @Repository
 public interface TransactionRequestRepo extends JpaRepository<Transaction_request, Long> {
+
+    @Query(value = "SELECT tr.* " +
+            "FROM transaction_request tr " +
+            "JOIN type t ON tr.type_id = t.type_id " +
+            "WHERE t.type_name = :typeName ",
+            countQuery = "SELECT COUNT(tr.request_id) " +
+                    "FROM transaction_request tr " +
+                    "JOIN type t ON tr.type_id = t.type_id " +
+                    "WHERE t.type_name = :typeName",
+            nativeQuery = true)
+    Page<Transaction_request> getAllTransactionRequestByType(@Param("typeName") String typeName, Pageable pageable);
+
     @Query(value =
             "SELECT " +
                     "    rq.request_id AS requestId, " +
@@ -59,7 +73,7 @@ public interface TransactionRequestRepo extends JpaRepository<Transaction_reques
                     "LEFT JOIN " +
                     "    transaction_detail td ON td.transaction_id = t.transaction_id AND td.product_id = rd.product_id " +
                     "WHERE " +
-                    "    tr.is_cancel = 'f' AND tr.status = 'ACCEPT' "  + // Chỉ lấy request_id không bị hủy
+                    "    tr.is_cancel = 'f' AND tr.status = 'ACCEPT' " + // Chỉ lấy request_id không bị hủy
                     "    AND ( " +
                     "        rd.quantity > COALESCE( " +
                     "            (SELECT SUM(td_sub.quantity) " +

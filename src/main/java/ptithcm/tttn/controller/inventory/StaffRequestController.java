@@ -1,6 +1,11 @@
 package ptithcm.tttn.controller.inventory;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -8,6 +13,7 @@ import ptithcm.tttn.entity.Request_detail;
 import ptithcm.tttn.entity.Transaction_request;
 import ptithcm.tttn.function.MessageError;
 import ptithcm.tttn.function.MessageSuccess;
+import ptithcm.tttn.function.TypeTrans;
 import ptithcm.tttn.request.TransactionRequest;
 import ptithcm.tttn.response.*;
 import ptithcm.tttn.service.TransactionRequestService;
@@ -25,26 +31,31 @@ public class StaffRequestController {
 
 
     @GetMapping("/all/import")
-    public ResponseEntity<ListEntityResponse<Transaction_request>> getAllTransactionRequestImportHandle(@RequestHeader("Authorization") String jwt) {
-        ListEntityResponse<Transaction_request> res = new ListEntityResponse<>();
-        List<Transaction_request> all = new ArrayList<>();
+    public ResponseEntity<ListEntityResponse<Transaction_request>> getAllTransactionRequestImportHandle(
+            @RequestHeader("Authorization") String jwt,
+            @RequestParam("page") int page, // Accept page number as a query parameter
+            @RequestParam("limit") int limit) { // Accept limit (page size) as a query parameter
 
+        ListEntityResponse<Transaction_request> res = new ListEntityResponse<>();
         try {
-            List<Transaction_request> etts = requestService.findAll();
-            for(Transaction_request item : etts){
-                if(item.getType_request().getType_name().equals("IMPORT")){
-                    all.add(item);
-                }
-            }
+            // Create Pageable object using the page and limit parameters
+            Pageable pageable = PageRequest.of(page - 1, limit); // Spring Pageable is 0-indexed, so subtract 1 from page
+
+            Page<Transaction_request> etts = requestService.getAllTransactionRequestByType(TypeTrans.IMPORT.getTypeName(), pageable);
             res.setMessage(MessageSuccess.E01.getMessage());
-            res.setData(all);
+            res.setData(etts.getContent()); // Lấy danh sách từ Page
             res.setCode(HttpStatus.OK.value());
             res.setStatus(HttpStatus.OK);
+
+            // Thêm thông tin phân trang vào response
+            res.setTotalPages(etts.getTotalPages()); // Tổng số trang
+            res.setTotalElements(etts.getTotalElements()); // Tổng số mục
+
         } catch (Exception e) {
             res.setMessage(MessageError.E01.getMessage());
             res.setData(null);
-            res.setCode(HttpStatus.OK.value());
-            res.setStatus(HttpStatus.OK);
+            res.setCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            res.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(res, res.getStatus());
     }
@@ -56,8 +67,8 @@ public class StaffRequestController {
 
         try {
             List<Transaction_request> etts = requestService.findAll();
-            for(Transaction_request item : etts){
-                if(item.getType_request().getType_name().equals("EXPORT")){
+            for (Transaction_request item : etts) {
+                if (item.getType_request().getType_name().equals("EXPORT")) {
                     all.add(item);
                 }
             }
