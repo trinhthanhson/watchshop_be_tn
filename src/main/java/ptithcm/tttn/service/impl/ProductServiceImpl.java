@@ -336,11 +336,20 @@ public class ProductServiceImpl implements ProductService {
         String category_name = (String) result[26];
         String created_by_name = (String) result[27];
         String updated_by_name = (String) result[28];
-        BigInteger current_price = (BigInteger) result[29];
+        String currentPrice =(String) result[29];// Or whatever index the discounted price is
+        Double current_price = parseToDouble(currentPrice);
+
         Double discounted_price = (Double) result[30];
         return new GetAllProductCouponRsp(product_id, band_material, band_width, brand_id, case_diameter, case_material,
                 case_thickness, category_id, color, detail, dial_type, func, gender, machine_movement, model, product, quantity,null,
                 series, water_resistance, image, created_by, updated_by, status, created_at, updated_at, brand_name, category_name,
                 created_by_name, updated_by_name, current_price, discounted_price);
+    }
+    private Double parseToDouble(String value) {
+        try {
+            return value != null ? Double.parseDouble(value) : 0.0;
+        } catch (NumberFormatException e) {
+            return 0.0; // Fallback in case of invalid format
+        }
     }
 }

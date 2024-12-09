@@ -40,6 +40,6 @@ public class GetAllProductCouponRsp {
     private String category_name;
     private String created_by_name;
     private String updated_by_name;
-    private BigInteger current_price;
+    private Double current_price;
     private Double discounted_price;
 }

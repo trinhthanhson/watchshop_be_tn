@@ -105,12 +105,19 @@ public class CartDetailServiceImpl implements CartDetailService {
         Integer quantity = (Integer) result[3];
         Integer quantityCart = (Integer) result[4];
         Double discounted_price = (Double) result[5];
-        BigInteger current_price = (BigInteger) result[6];
+        String currentPrice =(String) result[6];// Or whatever index the discounted price is
+        Double current_price = parseToDouble(currentPrice);
 
         return new GetAllProductCouponRsp(product_id, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, product_name, quantityCart,quantity,
                 null, null, image, null, null, null, null, null, null, null,
                 null, null,current_price , discounted_price);
     }
-
+    private Double parseToDouble(String value) {
+        try {
+            return value != null ? Double.parseDouble(value) : 0.0;
+        } catch (NumberFormatException e) {
+            return 0.0; // Fallback in case of invalid format
+        }
+    }
 }

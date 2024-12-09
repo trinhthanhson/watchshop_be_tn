@@ -32,7 +32,7 @@ public interface OrderService {
 
     Orders orderPaymentBuyNow(OrderRequest rq, String jwt) throws Exception;
 
-    //Orders orderPaymentBuyCart(OrderRequest rq, String jwt) throws Exception;
+    Orders orderPaymentBuyCart(OrderRequest rq, String jwt) throws Exception;
 
     List<Orders> allOrderReceiveByStaff(String jwt) throws Exception;
 

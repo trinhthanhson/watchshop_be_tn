@@ -170,6 +170,64 @@ public class OrderServiceImpl implements OrderService {
         orders.setStatus_id(status.getStatus_id()); // Trạng thái đơn hàng
         orders.setTotal_price(rq.getTotal_price());
         orders.setTotal_quantity(totalQuantity);
+        orders.setIs_cancel(false);
+        orders.setIs_payment(false);
+        // Lưu Orders và cập nhật Order_id trong Order_detail
+        Orders createdOrders = ordersRepo.save(orders);
+        for (Order_detail item : list) {
+            item.setOrder_id(createdOrders.getOrder_id());
+            orderDetailRepo.save(item);
+        }
+
+        // Xóa giỏ hàng sau khi đặt hàng thành công
+        cartDetailService.deleteCart(jwt);
+        return createdOrders;
+    }
+    @Override
+    public Orders orderPaymentBuyCart(OrderRequest rq, String jwt) throws Exception {
+        User user = userService.findUserByJwt(jwt);
+        Customer customer = customerService.findByUserId(user.getUser_id());
+        OrderStatus status = statusRepo.findStatusIndex(1);
+        List<Order_detail> list = new ArrayList<>();
+        int totalQuantity = 0;
+
+        // Duyệt qua từng sản phẩm trong giỏ hàng
+        for (CartResponse product : rq.getCart()) {
+            Order_detail orderDetail = new Order_detail();
+
+            // Lấy thông tin sản phẩm từ DB
+            Optional<Product> find = productRepo.findById(product.getProduct_id());
+            Product get = find.get();
+            // Kiểm tra và cập nhật số lượng sản phẩm
+            if (get.getQuantity() < product.getQuantity()) {
+                throw new Exception("Not enough quantity for product: " + product.getProduct_id());
+            }
+            get.setQuantity(get.getQuantity() - product.getQuantity());
+            productRepo.save(get);
+
+            // Thiết lập thông tin Order_detail
+            orderDetail.setProduct_id(product.getProduct_id());
+            orderDetail.setPrice(product.getDiscounted_price());
+            orderDetail.setQuantity(product.getQuantity());
+            Order_detail createDetail = orderDetailRepo.save(orderDetail);
+
+            totalQuantity += createDetail.getQuantity();
+            list.add(createDetail);
+        }
+        // Tạo đơn hàng
+        Orders orders = new Orders();
+        orders.setCreated_at(LocalDateTime.now());
+        orders.setNote(rq.getNote());
+        orders.setAddress(rq.getAddress());
+        orders.setRecipient_name(rq.getRecipient_name());
+        orders.setRecipient_phone(rq.getRecipient_phone());
+        orders.setUpdated_at(LocalDateTime.now());
+        orders.setCustomer_id(customer.getCustomer_id());
+        orders.setIs_payment(true);
+        orders.setIs_cancel(false);
+        orders.setStatus_id(status.getStatus_id()); // Trạng thái đơn hàng
+        orders.setTotal_price(rq.getTotal_price());
+        orders.setTotal_quantity(totalQuantity);
 
         // Lưu Orders và cập nhật Order_id trong Order_detail
         Orders createdOrders = ordersRepo.save(orders);

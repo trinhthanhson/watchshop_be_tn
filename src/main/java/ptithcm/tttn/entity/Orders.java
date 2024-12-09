@@ -45,6 +45,9 @@ public class Orders {
     @Convert(converter = BooleanToCharConverter.class)
     private Boolean is_cancel;
 
+    @Column(name = "is_payment", columnDefinition = "CHAR(1)")
+    @Convert(converter = BooleanToCharConverter.class)
+    private Boolean is_payment;
     @Column
     private Long staff_id;
 

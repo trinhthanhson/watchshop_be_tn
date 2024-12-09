@@ -189,15 +189,15 @@ public interface ProductRepo extends JpaRepository<Product, String> {
             "c.category_name, " +
             "CONCAT(s1.first_name, ' ', s1.last_name) AS created_by_name, " +
             "CONCAT(s2.first_name, ' ', s2.last_name) AS updated_by_name, " +
-            "COALESCE(up.price_new, up.price_new) AS current_price, " +
+            "COALESCE(CAST(up.price_new AS DOUBLE), CAST(up.price_new AS DOUBLE)) AS current_price, " +
             "COALESCE( " +
             "    ROUND( " +
             "        GREATEST( " +
-            "            COALESCE(up.price_new, 0) * (1 - LEAST(SUM(coupon.percent) / 100, 0.2)), " +
+            "            COALESCE(CAST(up.price_new AS DOUBLE), 0) * (1 - LEAST(SUM(coupon.percent) / 100, 0.2)), " +
             "            0 " +
             "        ), 2 " +
             "    ), " +
-            "    up.price_new " +
+            "    CAST(up.price_new AS DOUBLE) " +
             ") AS discounted_price " +
             "FROM " +
             "product p " +
