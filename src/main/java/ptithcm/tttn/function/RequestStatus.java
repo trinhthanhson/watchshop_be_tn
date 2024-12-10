@@ -10,6 +10,7 @@ public enum RequestStatus {
     ACCEPT("ACCEPT"),
     NOT_FULL("NOTFULL"),
     FULL("FULL"),
+    COMPLETED("COMPLETED"),
     REJECT("REJECT");
 
     private final String status;

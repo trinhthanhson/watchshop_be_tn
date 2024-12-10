@@ -8,6 +8,7 @@ import ptithcm.tttn.entity.Transaction;
 import ptithcm.tttn.entity.Transaction_request;
 import ptithcm.tttn.response.RevenueReportRsp;
 
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,6 +17,16 @@ import java.util.List;
 
 @Repository
 public interface TransactionRepo extends JpaRepository<Transaction, Long> {
+
+    @Query(value = "SELECT EXISTS ( " +
+            "    SELECT 1 " +
+            "    FROM transaction t " +
+            "    JOIN transaction_request tr ON t.request_id = tr.request_id " +
+            "    WHERE t.request_id = :requestId " +
+            ")", nativeQuery = true)
+    BigInteger existsByRequestId(@Param("requestId") Long requestId);
+
+
     @Query(value = "SELECT " +
             "DATE(t.created_at) AS createDate, " +
             "t.transaction_code AS transactionCode, " +
@@ -115,12 +126,14 @@ public interface TransactionRepo extends JpaRepository<Transaction, Long> {
             "WEEK(t.created_at) AS week, " +
             "SUM(ti.quantity) AS quantity, " +
             "SUM(ti.quantity) - LAG(SUM(ti.quantity)) OVER (PARTITION BY ti.product_id ORDER BY WEEK(t.created_at)) AS difference_quantity, " +
-            "STDDEV_POP(ti.price) AS price_volatility " +
+            "STDDEV_POP(ti.price) AS price_volatility, " +
+            "up.price_new " +
             "FROM tn_watchshop.transaction t " +
             "LEFT JOIN tn_watchshop.transaction_detail ti ON t.transaction_id = ti.transaction_id " +
             "LEFT JOIN tn_watchshop.type ty ON t.type_id = ty.type_id " +
             "LEFT JOIN tn_watchshop.product b ON ti.product_id = b.product_id " +
-            "GROUP BY ti.product_id, b.product_name, WEEK(t.created_at) " +
+            "JOIN tn_watchshop.update_price up ON b.product_id = up.product_id " +
+            "GROUP BY ti.product_id, b.product_name, WEEK(t.created_at),up.price_new  " +
             "ORDER BY ti.product_id, WEEK(t.created_at)", // Đảm bảo WEEK được đặt trong ORDER BY
             nativeQuery = true)
     List<Object[]> getProductData();

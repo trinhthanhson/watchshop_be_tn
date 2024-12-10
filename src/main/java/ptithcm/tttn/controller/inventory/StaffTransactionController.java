@@ -14,6 +14,7 @@ import ptithcm.tttn.response.EntityResponse;
 import ptithcm.tttn.response.ListEntityResponse;
 import ptithcm.tttn.service.TransactionService;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,11 +26,44 @@ public class StaffTransactionController {
     private final TransactionService transactionService;
 
     @PostMapping("/add")
-    public ResponseEntity<ApiResponse> addTransactionRequestHandle(@RequestHeader("Authorization") String jwt, @RequestBody TransactionRequest rq){
+    public ResponseEntity<ApiResponse> addTransactionImportHandle(@RequestHeader("Authorization") String jwt, @RequestBody TransactionRequest rq){
         ApiResponse res = new ApiResponse();
         try {
             Transaction add = transactionService.create(rq, jwt);
             res.setMessage("Success");
+            res.setStatus(HttpStatus.OK);
+            res.setCode(HttpStatus.OK.value());
+        } catch (Exception e) {
+            res.setStatus(HttpStatus.BAD_REQUEST);
+            res.setCode(HttpStatus.BAD_REQUEST.value());
+            res.setMessage("error " + e.getMessage());
+        }
+        return new ResponseEntity<>(res, res.getStatus());
+    }
+
+
+    @PostMapping("/{id}/add")
+    public ResponseEntity<ApiResponse> addTransactionExportHandle(@RequestHeader("Authorization") String jwt, @PathVariable Long id){
+        ApiResponse res = new ApiResponse();
+        try {
+            Transaction add = transactionService.createExport(id, jwt);
+            res.setMessage("Success");
+            res.setStatus(HttpStatus.OK);
+            res.setCode(HttpStatus.OK.value());
+        } catch (Exception e) {
+            res.setStatus(HttpStatus.BAD_REQUEST);
+            res.setCode(HttpStatus.BAD_REQUEST.value());
+            res.setMessage("error " + e.getMessage());
+        }
+        return new ResponseEntity<>(res, res.getStatus());
+    }
+
+    @GetMapping("/{id}/check")
+    public ResponseEntity<ApiResponse> existsByRequestId(@RequestHeader("Authorization") String jwt, @PathVariable Long id){
+        ApiResponse res = new ApiResponse();
+        try {
+            BigInteger add = transactionService.existsByRequestId(id);
+            res.setMessage(add.toString());
             res.setStatus(HttpStatus.OK);
             res.setCode(HttpStatus.OK.value());
         } catch (Exception e) {

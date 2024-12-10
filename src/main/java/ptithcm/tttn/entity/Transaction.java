@@ -19,8 +19,6 @@ public class Transaction {
     @Column
     private String content;
 
-    @Column
-    private String note;
 
     @Column
     private String transaction_code;

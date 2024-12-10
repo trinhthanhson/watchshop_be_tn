@@ -13,5 +13,6 @@ public class ApiResponse {
     private String message;
     private HttpStatus status;
     private int code;
+    private boolean isCheck;
 
 }

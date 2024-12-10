@@ -34,13 +34,13 @@ public interface CartDetailRepo extends JpaRepository<Cart_detail, Long> {
             "    COALESCE( " +
             "        ROUND( " +
             "            GREATEST( " +
-            "                COALESCE(up.price_new, 0) * (1 - LEAST(SUM(c.percent) / 100, 0.2)), " + // Giới hạn giảm giá tối đa 20%
-            "                 0 " + // Đảm bảo giá trị không âm
+            "                COALESCE(CAST(up.price_new AS DOUBLE), 0.0) * (1 - LEAST(SUM(c.percent) / 100, 0.2)), " + // Giới hạn giảm giá tối đa 20%
+            "                 0.0 " + // Đảm bảo giá trị không âm
             "            ), 2 " +
             "        ), " +
-            "        up.price_new " + // Nếu không có giảm giá, lấy giá gốc
+            "        CAST(up.price_new AS DOUBLE) " + // Nếu không có giảm giá, lấy giá gốc
             "    ) AS discounted_price, " +
-            "    COALESCE(up.price_new, up.price_new) AS price_new " + // Giá gốc
+            "    COALESCE(CAST(up.price_new AS DOUBLE), 0.0) AS price_new " + // Giá gốc
             "FROM " +
             "    cart_detail cd " +
             "LEFT JOIN product p ON cd.product_id = p.product_id " +
@@ -60,7 +60,7 @@ public interface CartDetailRepo extends JpaRepository<Cart_detail, Long> {
             "LEFT JOIN coupon_detail cd2 ON p.product_id = cd2.product_id " +
             "LEFT JOIN coupon c ON cd2.coupon_id = c.coupon_id " +
             "WHERE " +
-            "    cd.customer_id = ? " + // Truyền vào customer_id
+            "    cd.customer_id = :customer_id " + // Sử dụng tham số có tên
             "    AND p.status = 'ACTIVE' " + // Chỉ lấy sản phẩm ACTIVE
             "    AND (c.status = 'ACTIVE' OR c.status IS NULL) " + // Coupon ACTIVE hoặc không có coupon
             "GROUP BY " +
@@ -70,5 +70,6 @@ public interface CartDetailRepo extends JpaRepository<Cart_detail, Long> {
             "    p.quantity, " +
             "    cd.quantity, " +
             "    p.image", nativeQuery = true)
-    List<Object[]> getProductCouponInCartDetail(Long customer_id);
+    List<Object[]> getProductCouponInCartDetail(@Param("customer_id") Long customer_id);
+
 }

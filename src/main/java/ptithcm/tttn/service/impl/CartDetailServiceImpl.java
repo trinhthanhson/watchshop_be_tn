@@ -105,8 +105,7 @@ public class CartDetailServiceImpl implements CartDetailService {
         Integer quantity = (Integer) result[3];
         Integer quantityCart = (Integer) result[4];
         Double discounted_price = (Double) result[5];
-        String currentPrice =(String) result[6];// Or whatever index the discounted price is
-        Double current_price = parseToDouble(currentPrice);
+        Double current_price =(Double) result[6];// Or whatever index the discounted price is
 
         return new GetAllProductCouponRsp(product_id, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, product_name, quantityCart,quantity,

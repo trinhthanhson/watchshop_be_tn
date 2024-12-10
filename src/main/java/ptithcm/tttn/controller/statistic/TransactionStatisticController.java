@@ -1,11 +1,18 @@
 package ptithcm.tttn.controller.statistic;
 
 import lombok.AllArgsConstructor;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ptithcm.tttn.entity.Orders;
 import ptithcm.tttn.entity.Type;
 import ptithcm.tttn.response.DataAIRsp;
 import ptithcm.tttn.response.ListEntityResponse;
@@ -13,6 +20,12 @@ import ptithcm.tttn.response.StatisticRsp;
 import ptithcm.tttn.response.TransactionStatisticRsp;
 import ptithcm.tttn.service.TransactionService;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -103,20 +116,69 @@ public class TransactionStatisticController {
 
 
     @GetMapping("/get/data")
-    public ResponseEntity<ListEntityResponse<DataAIRsp>> getDataAI(@RequestHeader("Authorization") String jwt) {
-        ListEntityResponse<DataAIRsp> res = new ListEntityResponse<>();
+    public ResponseEntity<ByteArrayResource> exportDataToExcel(@RequestHeader("Authorization") String jwt) {
         try {
             List<DataAIRsp> statistic = transactionService.getDataAI();
-            res.setData(statistic);
-            res.setStatus(HttpStatus.OK);
-            res.setCode(HttpStatus.OK.value());
-            res.setMessage("success");
+
+            // Tạo workbook
+            Workbook workbook = new XSSFWorkbook();
+            Sheet sheet = workbook.createSheet("Data AI");
+
+            // Tạo header
+            Row headerRow = sheet.createRow(0);
+            String[] columns = {"productId", "week", "quantity", "difference_quantity", "price_volatility", "price"};
+            for (int i = 0; i < columns.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(columns[i]);
+            }
+
+            // Điền dữ liệu
+            int rowNum = 1;
+            for (DataAIRsp data : statistic) {
+                Row row = sheet.createRow(rowNum++);
+                row.createCell(0).setCellValue(data.getProductId());
+                row.createCell(1).setCellValue(data.getWeek());
+                row.createCell(2).setCellValue(data.getQuantity().toString());
+                if (data.getDifferenceQuantity() == null) {
+                    data.setDifferenceQuantity(BigDecimal.valueOf(0));
+                }
+                row.createCell(3).setCellValue(data.getDifferenceQuantity().toString());
+                row.createCell(4).setCellValue(data.getPriceVolatility());
+                row.createCell(5).setCellValue(data.getPrice().toString());
+            }
+
+            // Lưu file Excel vào đường dẫn cố định
+            String filePath = "C:\\Users\\ADMIN\\Desktop\\DATN\\DATN\\watchshop_be_tn\\data_ai.xlsx";
+            try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
+                workbook.write(fileOut);
+            }
+
+            // Đóng workbook
+            workbook.close();
+
+            // Đọc file vừa lưu để trả về
+            File file = new File(filePath);
+            ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(file.toPath()));
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=data_ai.xlsx")
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .body(resource);
+
         } catch (Exception e) {
-            res.setStatus(HttpStatus.CONFLICT);
-            res.setCode(HttpStatus.CONFLICT.value());
-            res.setMessage("error " + e.getMessage());
+            // Xử lý lỗi trả về file rỗng kèm thông báo
+            ByteArrayResource emptyResource = new ByteArrayResource(new byte[0]);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=error.txt")
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body(new ByteArrayResource(("Error: " + e.getMessage()).getBytes(StandardCharsets.UTF_8)));
         }
-        return new ResponseEntity<>(res, res.getStatus());
     }
+
+
+
+
+
+
 
 }

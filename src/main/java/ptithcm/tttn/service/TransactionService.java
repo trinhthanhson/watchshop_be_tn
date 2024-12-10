@@ -1,10 +1,12 @@
 package ptithcm.tttn.service;
 
+import org.springframework.data.repository.query.Param;
 import ptithcm.tttn.entity.Transaction;
 import ptithcm.tttn.entity.Type;
 import ptithcm.tttn.request.TransactionRequest;
 import ptithcm.tttn.response.*;
 
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -17,6 +19,8 @@ public interface TransactionService {
 
     List<Transaction> findAll();
 
+    BigInteger existsByRequestId(@Param("requestId") Long requestId);
+
     Transaction findById(Long id) throws Exception;
 
     List<TransactionStatisticRsp> getStatisticTransaction(String inputType);
@@ -28,4 +32,6 @@ public interface TransactionService {
     List<DataAIRsp> getDataAI();
 
     List<RevenueReportRsp> getRevenueReport(Date startDate, Date endDate);
+
+    Transaction createExport(Long request_id,String jwt) throws Exception;
 }

@@ -1,9 +1,11 @@
 package ptithcm.tttn.service.impl;
 
 import lombok.AllArgsConstructor;
+import org.apache.tomcat.jni.Local;
 import org.springframework.stereotype.Service;
 import ptithcm.tttn.entity.*;
 import ptithcm.tttn.function.RequestStatus;
+import ptithcm.tttn.function.TypeTrans;
 import ptithcm.tttn.repository.*;
 import ptithcm.tttn.request.ProductTransRequest;
 import ptithcm.tttn.request.TransactionRequest;
@@ -93,9 +95,9 @@ public class TransactionServiceImpl implements TransactionService {
             }
         }
         String checkCompleteRequest = requestRepo.checkQuantityRequest(rq.getRequest_id());
-        if(checkCompleteRequest.equals("TRUE")){
+        if (checkCompleteRequest.equals("TRUE")) {
             request.setStatus(RequestStatus.FULL.getStatus());
-        }else {
+        } else {
             request.setStatus(RequestStatus.NOT_FULL.getStatus());
         }
         requestRepo.save(request);
@@ -112,6 +114,11 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public List<Transaction> findAll() {
         return transactionRepo.findAll();
+    }
+
+    @Override
+    public BigInteger existsByRequestId(Long requestId) {
+        return transactionRepo.existsByRequestId(requestId);
     }
 
     @Override
@@ -163,6 +170,46 @@ public class TransactionServiceImpl implements TransactionService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public Transaction createExport(Long request_id, String jwt) throws Exception {
+        User user = userService.findUserByJwt(jwt);
+        Staff staff = staffService.findByUserId(user.getUser_id());
+        Optional<Transaction_request> find = requestRepo.findById(request_id);
+        Type type = typeRepo.findTypeByName(TypeTrans.EXPORT.getTypeName());
+        Transaction_request request = find.get();
+        int total_quantity = 0;
+        int total_price = 0;
+        Transaction transaction = new Transaction();
+        transaction.setCreated_at(LocalDateTime.now());
+        transaction.setContent("Xuất kho");
+        transaction.setType_id(type.getType_id());
+        transaction.setStaff_id(staff.getStaff_id());
+        transaction.setRequest_id(request_id);
+        transaction.setTransaction_code(generateTransactionExportCode());
+        Transaction save = transactionRepo.save(transaction);
+        for (Request_detail item : request.getRequestDetails()) {
+            Optional<Product> product = productRepo.findById(item.getProduct_id());
+            Product get = product.get();
+            Transaction_detail detail = new Transaction_detail();
+            total_price += item.getPrice();
+            total_quantity += item.getQuantity();
+            detail.setNote(item.getNote());
+            detail.setQuantity(item.getQuantity());
+            detail.setPrice(item.getPrice());
+            detail.setProduct_id(item.getProduct_id());
+            detail.setQuantity_request(item.getQuantity_request());
+            detail.setTransaction_id(save.getTransaction_id());
+            detailRepo.save(detail);
+            get.setQuantity(get.getQuantity() - detail.getQuantity());
+            productRepo.save(get);
+        }
+        save.setTotal_price(total_price);
+        save.setTotal_quantity(total_quantity);
+        request.setStatus(RequestStatus.COMPLETED.getStatus());
+        requestRepo.save(request);
+        return transactionRepo.save(save);
+    }
+
     private String generateTransactionCode() {
         // Lấy năm hiện tại
         String currentYear = String.valueOf(java.time.Year.now().getValue()).substring(2); // Lấy 2 số cuối của năm
@@ -190,6 +237,35 @@ public class TransactionServiceImpl implements TransactionService {
 
         // Nếu đã có mã, tăng số thứ tự lên
         return String.format("PN%s%06d", currentYear, maxId + 1);
+    }
+
+    private String generateTransactionExportCode() {
+        // Lấy năm hiện tại
+        String currentYear = String.valueOf(java.time.Year.now().getValue()).substring(2); // Lấy 2 số cuối của năm
+
+        // Lấy tất cả giao dịch
+        List<Transaction> transactions = transactionRepo.findAll();
+        int maxId = 0;
+
+        // Kiểm tra danh sách giao dịch
+        for (Transaction p : transactions) {
+            String transactionCode = p.getTransaction_code();
+            if (transactionCode.startsWith("PX" + currentYear)) { // Kiểm tra xem có cùng năm không
+                String idStr = transactionCode.substring(4); // Loại bỏ "NK" + "21"
+                int id = Integer.parseInt(idStr);
+                if (id > maxId) {
+                    maxId = id;
+                }
+            }
+        }
+
+        // Nếu danh sách rỗng hoặc chưa có mã nào cùng năm, tạo mã đầu tiên
+        if (maxId == 0) {
+            return String.format("PX%s%06d", currentYear, 1); // Bắt đầu từ 001
+        }
+
+        // Nếu đã có mã, tăng số thứ tự lên
+        return String.format("PX%s%06d", currentYear, maxId + 1);
     }
 
     private TransactionStatisticRsp mapToTransactionStatistic(Object[] result) {
@@ -242,7 +318,8 @@ public class TransactionServiceImpl implements TransactionService {
         BigDecimal quantity = (BigDecimal) result[3];
         BigDecimal differenceQuantity = (BigDecimal) result[4];
         Double priceVolatility = (Double) result[5];
-        return new DataAIRsp(productId, productName, week, quantity, differenceQuantity, priceVolatility);
+        Integer price = (Integer) result[6];
+        return new DataAIRsp(productId, productName, week, quantity, differenceQuantity, priceVolatility,price);
     }
 
     private RevenueReportRsp mapToRevenueReport(Object[] result) {
