@@ -85,7 +85,6 @@ public class StaffOrderController {
         return new ResponseEntity<>(res, res.getStatus());
     }
 
-
     @GetMapping("/all/shipper")
     public ResponseEntity<ListEntityResponse<Orders>> getAllOrderByStaffShipper(@RequestHeader("Authorization") String jwt) {
         ListEntityResponse<Orders> res = new ListEntityResponse<>();
@@ -111,6 +110,17 @@ public class StaffOrderController {
         ApiResponse res = new ApiResponse();
         res.setCode(HttpStatus.OK.value());
         res.setMessage(isCreated);
+        res.setStatus(HttpStatus.OK);
+        return new ResponseEntity<>(res, res.getStatus());
+    }
+
+
+    @PutMapping("/{id}/order-shipper")
+    public ResponseEntity<ApiResponse> updateIsDeliveryShipper(@PathVariable Long id,@RequestHeader("Authorization") String jwt,@RequestBody UpdateStatusRequest od) throws Exception {
+        Orders isCreated = orderService.updateOrderShipper(id,jwt,od);
+        ApiResponse res = new ApiResponse();
+        res.setCode(HttpStatus.OK.value());
+        res.setMessage("success");
         res.setStatus(HttpStatus.OK);
         return new ResponseEntity<>(res, res.getStatus());
     }

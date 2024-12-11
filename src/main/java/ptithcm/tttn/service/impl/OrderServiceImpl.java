@@ -56,6 +56,9 @@ public class OrderServiceImpl implements OrderService {
         orders.setCustomer_id(customer.getCustomer_id());
         orders.setNote(rq.getNote());
         orders.setRecipient_phone(rq.getRecipient_phone());
+        orders.setIs_payment(false);
+        orders.setIs_cancel(false);
+        orders.setIs_delivery(false);
         Orders createOrders = ordersRepo.save(orders);
         if (createOrders != null) {
             Order_detail orderDetail = new Order_detail();
@@ -174,6 +177,7 @@ public class OrderServiceImpl implements OrderService {
         orders.setTotal_quantity(totalQuantity);
         orders.setIs_cancel(false);
         orders.setIs_payment(false);
+        orders.setIs_delivery(false);
         // Lưu Orders và cập nhật Order_id trong Order_detail
         Orders createdOrders = ordersRepo.save(orders);
         for (Order_detail item : list) {
@@ -227,6 +231,7 @@ public class OrderServiceImpl implements OrderService {
         orders.setCustomer_id(customer.getCustomer_id());
         orders.setIs_payment(true);
         orders.setIs_cancel(false);
+        orders.setIs_delivery(false);
         orders.setStatus_id(status.getStatus_id()); // Trạng thái đơn hàng
         orders.setTotal_price(rq.getTotal_price());
         orders.setTotal_quantity(totalQuantity);
@@ -373,6 +378,9 @@ public class OrderServiceImpl implements OrderService {
         orders.setCustomer_id(customer.getCustomer_id());
         orders.setNote(rq.getNote());
         orders.setRecipient_phone(rq.getRecipient_phone());
+        orders.setIs_payment(false);
+        orders.setIs_cancel(false);
+        orders.setIs_delivery(false);
         Orders createOrders = ordersRepo.save(orders);
         if (createOrders != null) {
             Order_detail orderDetail = new Order_detail();
@@ -487,6 +495,16 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Page<Orders> getAllOrderDelivery(Pageable pageable) {
         return  ordersRepo.getAllOrderDelivery(pageable);
+    }
+
+    @Override
+    public Orders updateOrderShipper(Long id,String jwt,UpdateStatusRequest od) throws Exception {
+        User user = userService.findUserByJwt(jwt);
+        Staff staff = staffService.findByUserId(user.getUser_id());
+        Orders orders = findById(id);
+        orders.setIs_delivery(od.getIs_delivery());
+        orders.setUpdated_by(staff.getStaff_id());
+        return ordersRepo.save(orders);
     }
 
     private ProductSaleRequest mapToProductSaleRequest(Object[] result) {

@@ -12,6 +12,8 @@ import ptithcm.tttn.entity.Transaction_request;
 import ptithcm.tttn.function.MessageError;
 import ptithcm.tttn.function.MessageSuccess;
 import ptithcm.tttn.function.TypeTrans;
+import ptithcm.tttn.request.UpdateStatusRequest;
+import ptithcm.tttn.response.EntityResponse;
 import ptithcm.tttn.response.ListEntityResponse;
 import ptithcm.tttn.service.OrderService;
 
@@ -52,5 +54,21 @@ public class ShipperOrderController {
         }
         return new ResponseEntity<>(res, res.getStatus());
     }
-
+    @PutMapping("/{id}/status")
+    public ResponseEntity<EntityResponse<Orders>> cancelOrderByCustomer(@RequestHeader("Authorization") String jwt, @PathVariable Long id, @RequestBody UpdateStatusRequest od) {
+        EntityResponse<Orders> res = new EntityResponse<>();
+        try {
+            Orders orders = orderService.updateStatusOrderByStaff(od, id, jwt);
+            res.setData(orders);
+            res.setMessage("success");
+            res.setCode(HttpStatus.OK.value());
+            res.setStatus(HttpStatus.OK);
+        } catch (Exception e) {
+            res.setData(null);
+            res.setMessage("error " + e.getMessage());
+            res.setCode(HttpStatus.CONFLICT.value());
+            res.setStatus(HttpStatus.CONFLICT);
+        }
+        return new ResponseEntity<>(res, res.getStatus());
+    }
 }

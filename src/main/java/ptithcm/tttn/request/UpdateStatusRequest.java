@@ -12,4 +12,6 @@ public class UpdateStatusRequest {
     private int status_index;
 
     private Boolean is_cancel;
+
+    private Boolean is_delivery;
 }

@@ -46,4 +46,6 @@ public interface OrderService {
 
     Page<Orders> getAllOrderDelivery(Pageable pageable);
 
+    Orders updateOrderShipper(Long id, String jwt,UpdateStatusRequest od) throws Exception;
+
 }

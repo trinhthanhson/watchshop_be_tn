@@ -57,6 +57,52 @@ public class CustomerPaymentController {
         // Redirect the client to the VNPay URL
     }
 
+    @PostMapping("/paypal/buy-now")
+    public ResponseEntity<ApiResponse> createPaymentBuyNow(@RequestBody OrderRequest orderRequest, @RequestHeader("Authorization") String jwt) throws Exception {
+        // Xử lý đặt hàng và tạo thanh toán
+        Orders orders = ordersService.orderBuyNow(orderRequest,jwt);
+        System.out.println(orderRequest);
+        // URL chuyển hướng khi hủy hoặc thành công
+        String cancelUrl = "http://localhost:5173/404"; // URL hủy thanh toán
+        String successUrl = "http://localhost:9999/api/customer/payment/paypal/success"; // URL khi thành công
+
+        // Số tiền cần thanh toán (VND)
+        double vndAmount = orderRequest.getPrice();
+        double conversionRate = 0.00003942; // Tỷ giá chuyển đổi VND sang USD
+        double usdAmount = vndAmount * conversionRate;
+
+        // Tạo Payment thông qua PaypalService
+        Payment payment = paypalService.createPayment(
+                usdAmount, // Số tiền thanh toán
+                "USD", // Đơn vị tiền tệ
+                "paypal", // Phương thức thanh toán
+                "sale", // Intent
+                "Payment Description", // Mô tả thanh toán
+                cancelUrl, // URL hủy thanh toán
+                successUrl, // URL khi thành công
+                orders.getRecipient_name(), // Tên người nhận
+                orders.getRecipient_phone(), // Số điện thoại người nhận
+                orders.getAddress(), // Địa chỉ người nhận
+                orders.getOrder_id(), // ID đơn hàng
+                orders.getTotal_quantity() // Số lượng tổng
+        );
+
+        // Lấy URL chuyển hướng đến PayPal
+        String approvalUrl = payment.getLinks().stream()
+                .filter(link -> "approval_url".equals(link.getRel()))
+                .findFirst()
+                .map(link -> link.getHref())
+                .orElseThrow(() -> new PayPalRESTException("Approval URL not found"));
+
+        // Trả về URL để frontend có thể chuyển hướng đến PayPal
+        ApiResponse res = new ApiResponse();
+        res.setCode(HttpStatus.OK.value());
+        res.setStatus(HttpStatus.OK);
+        res.setMessage(approvalUrl);
+
+        return ResponseEntity.ok(res); // Trả về kết quả cho frontend
+    }
+
     @PostMapping("/paypal")
     public ResponseEntity<ApiResponse> createPayment(@RequestBody OrderRequest orderRequest, @RequestHeader("Authorization") String jwt) throws Exception {
         // Xử lý đặt hàng và tạo thanh toán
@@ -103,8 +149,6 @@ public class CustomerPaymentController {
 
         return ResponseEntity.ok(res); // Trả về kết quả cho frontend
     }
-
-
     @GetMapping("/paypal/success")
     public ResponseEntity<?> successPayment(
             @RequestParam("paymentId") String paymentId,
