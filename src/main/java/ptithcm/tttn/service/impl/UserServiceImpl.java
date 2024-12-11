@@ -123,7 +123,7 @@ public class UserServiceImpl implements UserService {
         Staff staff = staffRepo.findByUserId(user.getUser_id());
         User update = findById(id);
         User save = new User();
-        if(update != null && (user.getRole_user().getRole_name().equals(RoleName.MANAGER.getRoleName()) || user.getRole_user().getRole_name().equals(RoleName.STAFF.getRoleName())) ){
+        if(update != null && (user.getRole_user().getRole_name().equals(RoleName.MANAGER.getRoleName()) || user.getRole_user().getRole_name().equals(RoleName.STAFF.getRoleName()) || user.getRole_user().getRole_name().equals(RoleName.SALESPERSON.getRoleName()) )){
             update.setStatus(status);
             update.setUpdated_by(staff.getStaff_id());
             save = userRepo.save(update);

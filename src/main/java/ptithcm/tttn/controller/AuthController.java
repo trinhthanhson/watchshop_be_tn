@@ -82,13 +82,20 @@ public class AuthController {
             Timestamp expiredAccressTokenTimestamp = Timestamp.valueOf(expiredAccressToken);
 
             // Create new user
-            res.setStatus(true);
-            res.setToken(tokenSevenday);
             User user = userService.findByUsername(username);
+            if(user.getStatus().equals("INACTIVE")){
+                res.setToken(null);
+                res.setLock(true);
+                res.setStatus(false);
+                return new ResponseEntity<>(res, HttpStatus.OK);
+            }
+            res.setLock(false);
             user.setAccess_token(tokenSevenday);
             user.setExpired_date(expiredAccressToken);
             userService.signIn(user);
-            System.err.println(authentication);
+            res.setStatus(true);
+            res.setToken(tokenSevenday);
+
         } else {
             res.setStatus(false);
             res.setToken("No blank characters allowed");
@@ -98,7 +105,7 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<AuthResponse> logout(@RequestHeader("Authorization") String jwt) throws  Exception {
+    public ResponseEntity<AuthResponse> logout(@RequestHeader("Authorization") String jwt) throws Exception {
         String newtoken = jwtTokenProvider.invalidateToken(jwt);
         User user = userService.findUserByJwt(jwt);
         user.setAccess_token(newtoken);
@@ -156,13 +163,13 @@ public class AuthController {
 
         boolean checkEmail = customerService.checkEmailExist(rq.getEmail());
 
-        if(checkEmail) {
+        if (checkEmail) {
             userService.sendMail(rq.getEmail(), subject, content, otp);
             userService.updatePassword(otp, rq.getEmail());
             res.setMessage("success");
             res.setStatus(HttpStatus.OK);
             res.setCode(HttpStatus.OK.value());
-        }else{
+        } else {
             res.setMessage("Email not exist");
             res.setStatus(HttpStatus.OK);
             res.setCode(HttpStatus.OK.value());
@@ -218,19 +225,19 @@ public class AuthController {
                 + "</body>"
                 + "</html>";
 
-        if(existUsername){
+        if (existUsername) {
             res.setMessage("username exist");
             res.setStatus(HttpStatus.OK);
             res.setCode(HttpStatus.OK.value());
             System.err.println("username exist");
-        }else if(checkEmail){
+        } else if (checkEmail) {
             res.setMessage("email exist");
             res.setStatus(HttpStatus.OK);
             res.setCode(HttpStatus.OK.value());
             System.err.println("email exist");
-        }else {
+        } else {
             try {
-                userService.sendMail(rq.getEmail(),subject,content,otp);
+                userService.sendMail(rq.getEmail(), subject, content, otp);
                 res.setMessage("success");
                 res.setStatus(HttpStatus.OK);
                 res.setCode(HttpStatus.OK.value());
@@ -240,7 +247,7 @@ public class AuthController {
                 res.setCode(HttpStatus.CONFLICT.value());
             }
         }
-        return new ResponseEntity<>(res,res.getStatus());
+        return new ResponseEntity<>(res, res.getStatus());
     }
 
     private Authentication authenticate(String username, String password) {
