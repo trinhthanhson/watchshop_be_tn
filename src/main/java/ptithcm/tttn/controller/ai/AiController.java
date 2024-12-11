@@ -1,5 +1,5 @@
-package ptithcm.tttn.controller.ai;
-
-@
-public class AiController {
-}
+//package ptithcm.tttn.controller.ai;
+//
+//@
+//public class AiController {
+//}
