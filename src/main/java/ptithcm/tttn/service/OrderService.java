@@ -1,5 +1,7 @@
 package ptithcm.tttn.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import ptithcm.tttn.entity.Orders;
 import ptithcm.tttn.request.OrderRequest;
 import ptithcm.tttn.request.ProductSaleRequest;
@@ -39,5 +41,9 @@ public interface OrderService {
     List<StatisticRequest>  getTotalPriceByStatus();
 
     String isTransactionCreated(Long orderId);
+
+    Orders paymentSuccess(Long id, Boolean isPayment) throws Exception;
+
+    Page<Orders> getAllOrderDelivery(Pageable pageable);
 
 }

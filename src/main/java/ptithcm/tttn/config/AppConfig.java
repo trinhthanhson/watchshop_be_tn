@@ -44,9 +44,10 @@ public class AppConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/user/**").permitAll()  // Require authentication
                 .antMatchers("/api/staff/**").hasAnyAuthority(RoleName.STAFF.getRoleName(), RoleName.MANAGER.getRoleName(), RoleName.SHIPPER.getRoleName(), RoleName.BUSINESS_STAFF.getRoleName(), RoleName.DIRECTOR.getRoleName(), RoleName.SALESPERSON.getRoleName())
                 .antMatchers("/api/director/**").hasAnyAuthority(RoleName.DIRECTOR.getRoleName())
+                .antMatchers("/api/shipper/**").hasAnyAuthority(RoleName.DELIVERY_STAFF.getRoleName())
                 .antMatchers("/api/inventory/request/all/**").hasAnyAuthority(RoleName.STAFF.getRoleName(), RoleName.MANAGER.getRoleName(),
                         RoleName.WAREHOUSE_STAFF.getRoleName(), RoleName.WAREHOUSE_MANAGER.getRoleName(), RoleName.WAREHOUSE_KEEPER.getRoleName(), RoleName.DIRECTOR.getRoleName(), RoleName.BUSINESS_STAFF.getRoleName(), RoleName.DIRECTOR.getRoleName(), RoleName.SALESPERSON.getRoleName())
-                .antMatchers("/api/manager/order-status/all").hasAnyAuthority(RoleName.MANAGER.getRoleName(), RoleName.STAFF.getRoleName(), RoleName.BUSINESS_STAFF.getRoleName(), RoleName.DIRECTOR.getRoleName(), RoleName.BUSINESS_STAFF.getRoleName(), RoleName.DIRECTOR.getRoleName(), RoleName.SALESPERSON.getRoleName())
+                .antMatchers("/api/manager/order-status/all").hasAnyAuthority(RoleName.MANAGER.getRoleName(), RoleName.STAFF.getRoleName(), RoleName.BUSINESS_STAFF.getRoleName(), RoleName.DIRECTOR.getRoleName(), RoleName.BUSINESS_STAFF.getRoleName(), RoleName.DIRECTOR.getRoleName(), RoleName.SALESPERSON.getRoleName(),RoleName.DELIVERY_STAFF.getRoleName())
 
                 .antMatchers("/api/manager/**").hasAnyAuthority(RoleName.MANAGER.getRoleName(), RoleName.STAFF.getRoleName(), RoleName.BUSINESS_STAFF.getRoleName(), RoleName.DIRECTOR.getRoleName(), RoleName.BUSINESS_STAFF.getRoleName(), RoleName.DIRECTOR.getRoleName(), RoleName.SALESPERSON.getRoleName())
                 .antMatchers("/api/inventory/**").hasAnyAuthority(RoleName.WAREHOUSE_STAFF.getRoleName(), RoleName.WAREHOUSE_MANAGER.getRoleName(),
@@ -92,7 +93,8 @@ public class AppConfig extends WebSecurityConfigurerAdapter {
                 "http://localhost:5173",
                 "http://localhost:4200",
                 "http://localhost:5174",// Angular
-                "https://wachshop-react.onrender.com"
+                "https://wachshop-react.onrender.com",
+                "https://www.sandbox.paypal.com/cgi-bin/webscr"
                 // Add the deployed GitHub Pages URL
 
         ));

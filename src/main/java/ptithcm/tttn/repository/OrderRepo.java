@@ -1,16 +1,19 @@
 package ptithcm.tttn.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ptithcm.tttn.entity.Orders;
+import ptithcm.tttn.entity.Transaction_request;
 
 import java.util.Date;
 import java.util.List;
 
 @Repository
-public interface OrderRepo extends JpaRepository<Orders,Long> {
+public interface OrderRepo extends JpaRepository<Orders, Long> {
     @Query(value = "SELECT * FROM orders WHERE customer_id = ?1  ", nativeQuery = true)
     List<Orders> findByCustomerId(Long customer_id);
 
@@ -26,7 +29,7 @@ public interface OrderRepo extends JpaRepository<Orders,Long> {
             "    p.product_name AS product_name, " +
             "    SUM(od.quantity * od.price) AS total_sold,  " +
             "	 SUM(od.quantity) AS total_quantity,	 " +
-            "    DATE(o.updated_at) as date_pay "+
+            "    DATE(o.updated_at) as date_pay " +
             "FROM " +
             "    Product p " +
             "JOIN " +
@@ -58,5 +61,27 @@ public interface OrderRepo extends JpaRepository<Orders,Long> {
             "END AS is_transaction_created",
             nativeQuery = true)
     String isTransactionCreated(@Param("orderId") Long orderId);
+
+    @Query(value = "SELECT tr.* " +
+            "FROM transaction_request tr " +
+            "JOIN type t ON tr.type_id = t.type_id " +
+            "WHERE t.type_name = :typeName ",
+            countQuery = "SELECT COUNT(tr.request_id) " +
+                    "FROM transaction_request tr " +
+                    "JOIN type t ON tr.type_id = t.type_id " +
+                    "WHERE t.type_name = :typeName",
+            nativeQuery = true)
+    Page<Transaction_request> getAllTransactionRequestByType(@Param("typeName") String typeName, Pageable pageable);
+
+    @Query(value = "SELECT * FROM transaction t " +
+            "JOIN transaction_request tr ON t.request_id = tr.request_id " +
+            "JOIN orders od ON tr.order_id = od.order_id " +
+            "WHERE od.is_delivery = 't'",
+            countQuery = "SELECT COUNT(*) FROM transaction t " +
+                    "JOIN transaction_request tr ON t.request_id = tr.request_id " +
+                    "JOIN orders od ON tr.order_id = od.order_id " +
+                    "WHERE od.is_delivery = 't'",
+            nativeQuery = true)
+    Page<Orders> getAllOrderDelivery(Pageable pageable);
 
 }

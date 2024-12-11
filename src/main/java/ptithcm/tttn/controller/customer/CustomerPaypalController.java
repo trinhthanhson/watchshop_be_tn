@@ -6,8 +6,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ptithcm.tttn.request.OrderRequest;
 import ptithcm.tttn.response.ApiResponse;
 import ptithcm.tttn.service.impl.PaypalServiceImpl;
 
@@ -19,10 +21,7 @@ public class CustomerPaypalController {
     private final PaypalServiceImpl paypalService;
 
     @GetMapping("/create")
-    public ResponseEntity<ApiResponse> createPaypal() throws PayPalRESTException {
-        String cancelUrl = "";
-        String successUrl = "http://localhost:5173/orders-history";
-        Payment payment = paypalService.createPayment(10.0,"VND","paypal","sale","payment",cancelUrl,successUrl);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<ApiResponse> createPaypal(@RequestBody OrderRequest rq) throws PayPalRESTException {
+      return  null;
     }
 }

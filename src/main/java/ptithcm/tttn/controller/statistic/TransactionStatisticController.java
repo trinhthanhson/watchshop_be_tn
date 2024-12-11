@@ -174,11 +174,4 @@ public class TransactionStatisticController {
                     .body(new ByteArrayResource(("Error: " + e.getMessage()).getBytes(StandardCharsets.UTF_8)));
         }
     }
-
-
-
-
-
-
-
 }

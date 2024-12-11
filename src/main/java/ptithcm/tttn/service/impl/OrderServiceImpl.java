@@ -2,6 +2,8 @@ package ptithcm.tttn.service.impl;
 
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ptithcm.tttn.entity.*;
 import ptithcm.tttn.function.OrderStatusDF;
@@ -468,6 +470,23 @@ public class OrderServiceImpl implements OrderService {
     public String isTransactionCreated(Long orderId) {
         // Gọi phương thức trong repository để kiểm tra
         return ordersRepo.isTransactionCreated(orderId);
+    }
+
+    @Override
+    public Orders paymentSuccess(Long id, Boolean isPayment) throws Exception {
+        Orders orders = findById(id);
+        if(isPayment == null){
+            orders.setIs_payment(false);
+
+        }
+        orders.setIs_payment(isPayment);
+
+        return ordersRepo.save(orders);
+    }
+
+    @Override
+    public Page<Orders> getAllOrderDelivery(Pageable pageable) {
+        return  ordersRepo.getAllOrderDelivery(pageable);
     }
 
     private ProductSaleRequest mapToProductSaleRequest(Object[] result) {
