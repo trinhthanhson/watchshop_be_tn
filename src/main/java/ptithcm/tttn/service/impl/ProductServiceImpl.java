@@ -1,5 +1,7 @@
 package ptithcm.tttn.service.impl;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ptithcm.tttn.entity.*;
 import ptithcm.tttn.function.Status;
@@ -47,12 +49,23 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public Page<Product> findAllPageable(Pageable pageable) {
+        return productRepo.findAll(pageable);
+    }
+
+
+    @Override
     public Product findById(String id) throws Exception {
         Optional<Product> find = productRepo.findById(id);
         if (find.isPresent()) {
             return find.get();
         }
         throw new Exception("Not found product by id " + id);
+    }
+
+    @Override
+    public Page<Product> searchProductById(String product_id,Pageable pageable) {
+        return productRepo.searchProductById(product_id, pageable);
     }
 
     @Override

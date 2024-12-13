@@ -1,5 +1,7 @@
 package ptithcm.tttn.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import ptithcm.tttn.entity.Product;
 import ptithcm.tttn.request.ProductRequest;
 import ptithcm.tttn.request.ProductSaleRequest;
@@ -13,7 +15,11 @@ import java.util.List;
 public interface ProductService {
     List<Product> findAll();
 
+    Page<Product> findAllPageable(Pageable pageable);
+
     Product findById(String id) throws Exception;
+
+    Page<Product> searchProductById(String product_id,Pageable pageable);
 
     List<GetAllProductCouponRsp> findByDetail(String desc);
 

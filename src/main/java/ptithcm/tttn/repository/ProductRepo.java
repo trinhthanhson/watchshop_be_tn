@@ -1,5 +1,7 @@
 package ptithcm.tttn.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,6 +14,13 @@ import java.util.List;
 
 @Repository
 public interface ProductRepo extends JpaRepository<Product, String> {
+
+    @Query(value = "SELECT * FROM product WHERE product_id LIKE %:searchTerm%",
+            countQuery = "SELECT COUNT(*) FROM product WHERE product_id LIKE %:searchTerm%",
+            nativeQuery = true)
+    Page<Product> searchProductById(@Param("searchTerm") String searchTerm, Pageable pageable);
+
+
     @Query(value = "SELECT " +
             "p.*, " +
             "b.brand_name, " +
