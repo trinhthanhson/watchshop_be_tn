@@ -304,6 +304,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public Page<Orders> findPageAll(Pageable pageable) {
+       return ordersRepo.findAll(pageable);
+    }
+
+    @Override
     public List<ProductSaleRequest> getTotalAmountByDate(Date start, Date end) {
         List<Object[]> results = ordersRepo.getTotalAmountByDate(start, end);
         return results.stream()

@@ -28,6 +28,8 @@ public interface OrderService {
 
     List<Orders> findAll();
 
+    Page<Orders> findPageAll(Pageable pageable);
+
     List<ProductSaleRequest> getTotalAmountByDate(Date start, Date end);
 
     Orders updateStatusOrderByStaff(UpdateStatusRequest rq, Long id, String jwt) throws Exception;

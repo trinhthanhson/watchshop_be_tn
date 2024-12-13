@@ -1,6 +1,9 @@
 package ptithcm.tttn.controller.staff;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -45,8 +48,29 @@ public class StaffOrderController {
         return new ResponseEntity<>(res, res.getStatus());
     }
 
+    @GetMapping("/page")
+    public ResponseEntity<ListEntityResponse<Orders>> getAllOrderPage(@RequestHeader("Authorization") String jwt, @RequestParam("page") int page,
+                                                                      @RequestParam("limit") int limit) {
+        ListEntityResponse<Orders> res = new ListEntityResponse<>();
+        try {
+            Pageable pageable = PageRequest.of(page - 1, limit); // Spring Pageable is 0-indexed, so subtract 1 from page
+            Page<Orders> getAllOrder = orderService.findPageAll(pageable);
+            res.setData(getAllOrder.getContent());
+            res.setStatus(HttpStatus.OK);
+            res.setCode(HttpStatus.OK.value());
+            res.setMessage("success");
+        } catch (Exception e) {
+            res.setData(null);
+            res.setStatus(HttpStatus.CONFLICT);
+            res.setCode(HttpStatus.CONFLICT.value());
+            res.setMessage("error " + e.getMessage());
+        }
+        return new ResponseEntity<>(res, res.getStatus());
+    }
+
     @PutMapping("/{id}/status")
-    public ResponseEntity<EntityResponse<Orders>> cancelOrderByCustomer(@RequestHeader("Authorization") String jwt, @PathVariable Long id, @RequestBody UpdateStatusRequest od) {
+    public ResponseEntity<EntityResponse<Orders>> cancelOrderByCustomer(@RequestHeader("Authorization") String
+                                                                                jwt, @PathVariable Long id, @RequestBody UpdateStatusRequest od) {
         EntityResponse<Orders> res = new EntityResponse<>();
         try {
             Orders orders = orderService.updateStatusOrderByStaff(od, id, jwt);
@@ -86,7 +110,8 @@ public class StaffOrderController {
     }
 
     @GetMapping("/all/shipper")
-    public ResponseEntity<ListEntityResponse<Orders>> getAllOrderByStaffShipper(@RequestHeader("Authorization") String jwt) {
+    public ResponseEntity<ListEntityResponse<Orders>> getAllOrderByStaffShipper
+            (@RequestHeader("Authorization") String jwt) {
         ListEntityResponse<Orders> res = new ListEntityResponse<>();
         try {
             List<Orders> getAllOrder = orderService.allOrderReceiveByStaff(jwt);
@@ -116,8 +141,9 @@ public class StaffOrderController {
 
 
     @PutMapping("/{id}/order-shipper")
-    public ResponseEntity<ApiResponse> updateIsDeliveryShipper(@PathVariable Long id,@RequestHeader("Authorization") String jwt,@RequestBody UpdateStatusRequest od) throws Exception {
-        Orders isCreated = orderService.updateOrderShipper(id,jwt,od);
+    public ResponseEntity<ApiResponse> updateIsDeliveryShipper(@PathVariable Long
+                                                                       id, @RequestHeader("Authorization") String jwt, @RequestBody UpdateStatusRequest od) throws Exception {
+        Orders isCreated = orderService.updateOrderShipper(id, jwt, od);
         ApiResponse res = new ApiResponse();
         res.setCode(HttpStatus.OK.value());
         res.setMessage("success");
@@ -127,7 +153,8 @@ public class StaffOrderController {
 
     // <editor-fold desc="Transaction request">
     @PostMapping("/{id}/create/request")
-    public ResponseEntity<ApiResponse> createRequestExportByOder(@RequestHeader("Authorization") String jwt, @PathVariable Long id) {
+    public ResponseEntity<ApiResponse> createRequestExportByOder(@RequestHeader("Authorization") String
+                                                                         jwt, @PathVariable Long id) {
         ApiResponse res = new ApiResponse();
         try {
             Transaction_request create = requestService.createRequestExportByOrder(id, jwt);
@@ -142,5 +169,27 @@ public class StaffOrderController {
         return new ResponseEntity<>(res, res.getStatus());
     }
     // </editor-fold>
+
+    // <editor-fold desc="find order by status id">
+    @GetMapping("/find/status")
+    public ResponseEntity<ListEntityResponse<Orders>> getOrderByStatusId(@RequestHeader("Authorization") String jwt) {
+        ListEntityResponse<Orders> res = new ListEntityResponse<>();
+        try {
+            List<Orders> getAllOrder = orderService.allOrderReceiveByStaff(jwt);
+
+            res.setData(getAllOrder);
+            res.setStatus(HttpStatus.OK);
+            res.setCode(HttpStatus.OK.value());
+            res.setMessage("success");
+        } catch (Exception e) {
+            res.setData(null);
+            res.setStatus(HttpStatus.CONFLICT);
+            res.setCode(HttpStatus.CONFLICT.value());
+            res.setMessage("error " + e.getMessage());
+        }
+        return new ResponseEntity<>(res, res.getStatus());
+    }
+    // </editor-fold>
+
 }
 

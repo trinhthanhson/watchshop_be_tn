@@ -48,7 +48,7 @@ public class AppConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/inventory/request/all/**").hasAnyAuthority(RoleName.STAFF.getRoleName(), RoleName.MANAGER.getRoleName(),
                         RoleName.WAREHOUSE_STAFF.getRoleName(), RoleName.WAREHOUSE_MANAGER.getRoleName(), RoleName.WAREHOUSE_KEEPER.getRoleName(), RoleName.DIRECTOR.getRoleName(), RoleName.BUSINESS_STAFF.getRoleName(), RoleName.DIRECTOR.getRoleName(), RoleName.SALESPERSON.getRoleName())
                 .antMatchers("/api/manager/order-status/all").hasAnyAuthority(RoleName.MANAGER.getRoleName(), RoleName.STAFF.getRoleName(), RoleName.BUSINESS_STAFF.getRoleName(), RoleName.DIRECTOR.getRoleName(), RoleName.BUSINESS_STAFF.getRoleName(), RoleName.DIRECTOR.getRoleName(), RoleName.SALESPERSON.getRoleName(),RoleName.DELIVERY_STAFF.getRoleName())
-
+                .antMatchers("/api/shipper/**").hasAnyAuthority(RoleName.DELIVERY_STAFF.getRoleName())
                 .antMatchers("/api/manager/**").hasAnyAuthority(RoleName.MANAGER.getRoleName(), RoleName.STAFF.getRoleName(), RoleName.BUSINESS_STAFF.getRoleName(), RoleName.DIRECTOR.getRoleName(), RoleName.BUSINESS_STAFF.getRoleName(), RoleName.DIRECTOR.getRoleName(), RoleName.SALESPERSON.getRoleName())
                 .antMatchers("/api/inventory/**").hasAnyAuthority(RoleName.WAREHOUSE_STAFF.getRoleName(), RoleName.WAREHOUSE_MANAGER.getRoleName(),
                         RoleName.WAREHOUSE_KEEPER.getRoleName(), RoleName.DIRECTOR.getRoleName())
