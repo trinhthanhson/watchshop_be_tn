@@ -4,12 +4,15 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ptithcm.tttn.entity.Orders;
 import ptithcm.tttn.entity.Product;
 import ptithcm.tttn.entity.Transaction_request;
+import ptithcm.tttn.function.MessageError;
+import ptithcm.tttn.function.MessageSuccess;
 import ptithcm.tttn.request.UpdateStatusRequest;
 import ptithcm.tttn.response.ApiResponse;
 import ptithcm.tttn.response.EntityResponse;
@@ -18,6 +21,7 @@ import ptithcm.tttn.response.ValueResponse;
 import ptithcm.tttn.service.OrderService;
 import ptithcm.tttn.service.TransactionRequestService;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -54,11 +58,15 @@ public class StaffOrderController {
         ListEntityResponse<Orders> res = new ListEntityResponse<>();
         try {
             Pageable pageable = PageRequest.of(page - 1, limit); // Spring Pageable is 0-indexed, so subtract 1 from page
-            Page<Orders> getAllOrder = orderService.findPageAll(pageable);
-            res.setData(getAllOrder.getContent());
+            Page<Orders> etts = orderService.findPageAll(pageable);
+            res.setData(etts.getContent());
             res.setStatus(HttpStatus.OK);
             res.setCode(HttpStatus.OK.value());
             res.setMessage("success");
+
+            // Thêm thông tin phân trang vào response
+            res.setTotalPages(etts.getTotalPages()); // Tổng số trang
+            res.setTotalElements(etts.getTotalElements()); // Tổng số mục
         } catch (Exception e) {
             res.setData(null);
             res.setStatus(HttpStatus.CONFLICT);
@@ -190,6 +198,56 @@ public class StaffOrderController {
         return new ResponseEntity<>(res, res.getStatus());
     }
     // </editor-fold>
+
+    @GetMapping("/search/status")
+    public ResponseEntity<ListEntityResponse<Orders>> searchProductById(@RequestParam("status_id") Long status_id, @RequestParam("page") int page, @RequestParam("limit") int limit) {
+        ListEntityResponse<Orders> res = new ListEntityResponse<>();
+        Pageable pageable = PageRequest.of(page - 1, limit);
+
+        try {
+            Page<Orders> etts = orderService.findOrdersByStatus(status_id, pageable);
+            res.setMessage(MessageSuccess.E01.getMessage());
+            res.setData(etts.getContent()); // Lấy danh sách từ Page
+            res.setCode(HttpStatus.OK.value());
+            res.setStatus(HttpStatus.OK);
+
+            // Thêm thông tin phân trang vào response
+            res.setTotalPages(etts.getTotalPages()); // Tổng số trang
+            res.setTotalElements(etts.getTotalElements()); // Tổng số mục
+        } catch (Exception e) {
+            res.setMessage(MessageError.E01.getMessage() + e.getMessage());
+            res.setData(null);
+            res.setCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            res.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(res, res.getStatus());
+    }
+
+    @GetMapping("/filter/date")
+    public ResponseEntity<ListEntityResponse<Orders>> getOrdersByDateRange(@RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                                                                           @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate, @RequestParam("page") int page, @RequestParam("limit") int limit) {
+        ListEntityResponse<Orders> res = new ListEntityResponse<>();
+        Pageable pageable = PageRequest.of(page - 1, limit);
+
+        try {
+            Page<Orders> etts = orderService.getOrdersByDateRange(startDate, endDate,pageable);
+            res.setMessage(MessageSuccess.E01.getMessage());
+            res.setData(etts.getContent()); // Lấy danh sách từ Page
+            res.setCode(HttpStatus.OK.value());
+            res.setStatus(HttpStatus.OK);
+
+            // Thêm thông tin phân trang vào response
+            res.setTotalPages(etts.getTotalPages()); // Tổng số trang
+            res.setTotalElements(etts.getTotalElements()); // Tổng số mục
+        } catch (Exception e) {
+            res.setMessage(MessageError.E01.getMessage() + e.getMessage());
+            res.setData(null);
+            res.setCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            res.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(res, res.getStatus());
+    }
+
 
 }
 

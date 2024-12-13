@@ -114,7 +114,7 @@ public class ProductController {
         return new ResponseEntity<>(res, res.getStatus());
     }
 
-    @GetMapping("/find")
+      @GetMapping("/find")
     public ResponseEntity<ListEntityResponse<GetAllProductCouponRsp>> getAllProductByDetail(@RequestParam String keyword) {
         ListEntityResponse<GetAllProductCouponRsp> res = new ListEntityResponse<>();
         try {

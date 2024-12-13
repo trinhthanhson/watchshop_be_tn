@@ -20,7 +20,6 @@ public interface ProductRepo extends JpaRepository<Product, String> {
             nativeQuery = true)
     Page<Product> searchProductById(@Param("searchTerm") String searchTerm, Pageable pageable);
 
-
     @Query(value = "SELECT " +
             "p.*, " +
             "b.brand_name, " +

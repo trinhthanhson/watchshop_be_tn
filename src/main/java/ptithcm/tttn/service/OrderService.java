@@ -3,11 +3,13 @@ package ptithcm.tttn.service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import ptithcm.tttn.entity.Orders;
+import ptithcm.tttn.entity.Product;
 import ptithcm.tttn.request.OrderRequest;
 import ptithcm.tttn.request.ProductSaleRequest;
 import ptithcm.tttn.request.StatisticRequest;
 import ptithcm.tttn.request.UpdateStatusRequest;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -19,10 +21,10 @@ public interface OrderService {
     Orders findById(Long id) throws Exception;
 
     Orders updateStatus(UpdateStatusRequest rq, Long id) throws Exception;
-    
+
     Orders updateStatusPayment(String status, Long id) throws Exception;
 
-    Orders orderBuyCart(OrderRequest rq,String jwt) throws Exception;
+    Orders orderBuyCart(OrderRequest rq, String jwt) throws Exception;
 
     List<StatisticRequest> getTotalAmountByMonth(int year);
 
@@ -40,7 +42,7 @@ public interface OrderService {
 
     List<Orders> allOrderReceiveByStaff(String jwt) throws Exception;
 
-    List<StatisticRequest>  getTotalPriceByStatus();
+    List<StatisticRequest> getTotalPriceByStatus();
 
     String isTransactionCreated(Long orderId);
 
@@ -48,6 +50,10 @@ public interface OrderService {
 
     Page<Orders> getAllOrderDelivery(Pageable pageable);
 
-    Orders updateOrderShipper(Long id, String jwt,UpdateStatusRequest od) throws Exception;
+    Orders updateOrderShipper(Long id, String jwt, UpdateStatusRequest od) throws Exception;
+
+    Page<Orders> findOrdersByStatus(Long status_id, Pageable pageable);
+
+    Page<Orders> getOrdersByDateRange(LocalDate startDate, LocalDate endDate, Pageable pageable);
 
 }

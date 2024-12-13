@@ -7,8 +7,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ptithcm.tttn.entity.Orders;
+import ptithcm.tttn.entity.Product;
 import ptithcm.tttn.entity.Transaction_request;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -16,6 +18,18 @@ import java.util.List;
 public interface OrderRepo extends JpaRepository<Orders, Long> {
     @Query(value = "SELECT * FROM orders WHERE customer_id = ?1  ", nativeQuery = true)
     List<Orders> findByCustomerId(Long customer_id);
+
+    @Query(value = "SELECT * FROM orders o WHERE DATE(o.created_at) >= DATE(:startDate) AND DATE(o.created_at) <= DATE(:endDate)",
+            countQuery = "SELECT COUNT(*) FROM orders o WHERE DATE(o.created_at) >= DATE(:startDate) AND DATE(o.created_at) <= DATE(:endDate)",
+            nativeQuery = true)
+    Page<Orders> findOrdersByDateRange(@Param("startDate") LocalDate startDate,
+                                       @Param("endDate") LocalDate endDate,
+                                       Pageable pageable);
+
+    @Query(value = "SELECT * FROM orders WHERE status_id = :status_id ",
+            countQuery = "SELECT COUNT(*) FROM orders WHERE status_id = :status_id",
+            nativeQuery = true)
+    Page<Orders> searchOrderByStatusId(@Param("status_id") Long status_id, Pageable pageable);
 
     @Query("SELECT MONTH(t.created_at) AS month, SUM(t.total_price) AS totalAmount " +
             "FROM Transaction t " +

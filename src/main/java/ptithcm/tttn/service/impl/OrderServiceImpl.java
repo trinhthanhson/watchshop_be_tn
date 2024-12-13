@@ -18,6 +18,7 @@ import ptithcm.tttn.service.*;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -510,6 +511,16 @@ public class OrderServiceImpl implements OrderService {
         orders.setIs_delivery(od.getIs_delivery());
         orders.setUpdated_by(staff.getStaff_id());
         return ordersRepo.save(orders);
+    }
+
+    @Override
+    public Page<Orders> findOrdersByStatus(Long status_id, Pageable pageable) {
+        return  ordersRepo.searchOrderByStatusId(status_id,pageable);
+    }
+
+    @Override
+    public Page<Orders> getOrdersByDateRange(LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        return ordersRepo.findOrdersByDateRange(startDate,endDate,pageable);
     }
 
     private ProductSaleRequest mapToProductSaleRequest(Object[] result) {
