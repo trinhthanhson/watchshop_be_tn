@@ -523,6 +523,16 @@ public class OrderServiceImpl implements OrderService {
         return ordersRepo.findOrdersByDateRange(startDate,endDate,pageable);
     }
 
+    @Override
+    public Page<Orders> getOrderByDateAndStatus(LocalDate startDate, LocalDate endDate, Long status_id, Pageable pageable) {
+        return ordersRepo.findOrdersByDateAndStatus(startDate,endDate,status_id,pageable);
+    }
+
+    @Override
+    public Page<Orders> getOrderByInfoCustomer(LocalDate startDate, LocalDate endDate, Long status_id, String receipt_name, String receipt_phone, Pageable pageable) {
+        return  ordersRepo.searchOrdersCustomer(startDate,endDate,status_id,receipt_name,receipt_phone,pageable);
+    }
+
     private ProductSaleRequest mapToProductSaleRequest(Object[] result) {
         // Safely check if result is null
         if (result == null || result.length < 5) {

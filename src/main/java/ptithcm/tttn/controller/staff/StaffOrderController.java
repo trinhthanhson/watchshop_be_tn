@@ -249,5 +249,57 @@ public class StaffOrderController {
     }
 
 
+    @GetMapping("/filter/status/date")
+    public ResponseEntity<ListEntityResponse<Orders>> getOrderByDateAndStatus(@RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                                                                           @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,@RequestParam("status_id") Long status_id, @RequestParam("page") int page, @RequestParam("limit") int limit) {
+        ListEntityResponse<Orders> res = new ListEntityResponse<>();
+        Pageable pageable = PageRequest.of(page - 1, limit);
+
+        try {
+            Page<Orders> etts = orderService.getOrderByDateAndStatus(startDate, endDate,status_id,pageable);
+            res.setMessage(MessageSuccess.E01.getMessage());
+            res.setData(etts.getContent()); // Lấy danh sách từ Page
+            res.setCode(HttpStatus.OK.value());
+            res.setStatus(HttpStatus.OK);
+
+            // Thêm thông tin phân trang vào response
+            res.setTotalPages(etts.getTotalPages()); // Tổng số trang
+            res.setTotalElements(etts.getTotalElements()); // Tổng số mục
+        } catch (Exception e) {
+            res.setMessage(MessageError.E01.getMessage() + e.getMessage());
+            res.setData(null);
+            res.setCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            res.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(res, res.getStatus());
+    }
+
+    @GetMapping("/filter/info")
+    public ResponseEntity<ListEntityResponse<Orders>> getOrderByInfoCustomer(@RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                                                                              @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+                                                                             @RequestParam("status_id") Long status_id, @RequestParam("recipient_name") String recipient_name,@RequestParam("recipient_phone") String recipient_phone,
+                                                                             @RequestParam("page") int page, @RequestParam("limit") int limit) {
+        ListEntityResponse<Orders> res = new ListEntityResponse<>();
+        Pageable pageable = PageRequest.of(page - 1, limit);
+
+        try {
+            Page<Orders> etts = orderService.getOrderByInfoCustomer(startDate, endDate,status_id,recipient_name,recipient_phone,pageable);
+            res.setMessage(MessageSuccess.E01.getMessage());
+            res.setData(etts.getContent()); // Lấy danh sách từ Page
+            res.setCode(HttpStatus.OK.value());
+            res.setStatus(HttpStatus.OK);
+
+            // Thêm thông tin phân trang vào response
+            res.setTotalPages(etts.getTotalPages()); // Tổng số trang
+            res.setTotalElements(etts.getTotalElements()); // Tổng số mục
+        } catch (Exception e) {
+            res.setMessage(MessageError.E01.getMessage() + e.getMessage());
+            res.setData(null);
+            res.setCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            res.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(res, res.getStatus());
+    }
+
 }
 

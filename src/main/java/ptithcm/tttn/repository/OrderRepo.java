@@ -26,10 +26,32 @@ public interface OrderRepo extends JpaRepository<Orders, Long> {
                                        @Param("endDate") LocalDate endDate,
                                        Pageable pageable);
 
+    @Query(value = "SELECT * FROM orders o WHERE DATE(o.created_at) >= DATE(:startDate) AND DATE(o.created_at) <= DATE(:endDate)  AND o.status_id = :status_id ",
+            countQuery = "SELECT COUNT(*) FROM orders o WHERE DATE(o.created_at) >= DATE(:startDate) AND DATE(o.created_at) <= DATE(:endDate) AND o.status_id = :status_id",
+            nativeQuery = true)
+    Page<Orders> findOrdersByDateAndStatus(@Param("startDate") LocalDate startDate,
+                                       @Param("endDate") LocalDate endDate, @Param("status_id") Long status_id,
+                                       Pageable pageable);
+
     @Query(value = "SELECT * FROM orders WHERE status_id = :status_id ",
             countQuery = "SELECT COUNT(*) FROM orders WHERE status_id = :status_id",
             nativeQuery = true)
     Page<Orders> searchOrderByStatusId(@Param("status_id") Long status_id, Pageable pageable);
+
+    @Query(value = "SELECT * FROM orders o WHERE " +
+            "(:startDate IS NULL OR o.created_at >= :startDate) AND " +
+            "(:endDate IS NULL OR o.created_at <= :endDate) AND " +
+            "(:statusId IS NULL OR o.status_id = :statusId) AND " +
+            "(:recipientName IS NULL OR o.recipient_name LIKE CONCAT('%', :recipientName, '%')) AND " +
+            "(:recipientPhone IS NULL OR o.recipient_phone LIKE CONCAT('%', :recipientPhone, '%'))",nativeQuery = true)
+    Page<Orders> searchOrdersCustomer(
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("statusId") Long statusId,
+            @Param("recipientName") String recipientName,
+            @Param("recipientPhone") String recipientPhone,
+            Pageable pageable
+    );
 
     @Query("SELECT MONTH(t.created_at) AS month, SUM(t.total_price) AS totalAmount " +
             "FROM Transaction t " +

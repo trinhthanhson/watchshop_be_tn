@@ -56,4 +56,8 @@ public interface OrderService {
 
     Page<Orders> getOrdersByDateRange(LocalDate startDate, LocalDate endDate, Pageable pageable);
 
+    Page<Orders> getOrderByDateAndStatus(LocalDate startDate, LocalDate endDate, Long status_id, Pageable pageable);
+
+    Page<Orders> getOrderByInfoCustomer(LocalDate startDate, LocalDate endDate, Long status_id,String receipt_name, String receipt_phone, Pageable pageable);
+
 }
