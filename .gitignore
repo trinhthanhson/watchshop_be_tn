@@ -36,3 +36,10 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### file ###
+.coupon
+.dataAi
+.MAU
+.PM_134_TRINHTHANHSON
+.report
