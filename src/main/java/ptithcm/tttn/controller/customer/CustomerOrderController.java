@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ptithcm.tttn.entity.OrderStatus;
 import ptithcm.tttn.entity.Orders;
 import ptithcm.tttn.function.OrderStatusDF;
 import ptithcm.tttn.request.OrderRequest;
@@ -12,6 +13,7 @@ import ptithcm.tttn.response.ApiResponse;
 import ptithcm.tttn.response.EntityResponse;
 import ptithcm.tttn.response.ListEntityResponse;
 import ptithcm.tttn.service.OrderService;
+import ptithcm.tttn.service.OrderStatusService;
 
 import java.util.List;
 
@@ -20,6 +22,7 @@ import java.util.List;
 @AllArgsConstructor
 public class CustomerOrderController {
     private final OrderService ordersService;
+    private final OrderStatusService orderStatusService;
 
 
     @PostMapping("/buy-cart")
@@ -95,6 +98,23 @@ public class CustomerOrderController {
             res.setStatus(HttpStatus.CONFLICT);
             res.setMessage("Error: " + e.getMessage());
             res.setCode(HttpStatus.CONFLICT.value());
+        }
+        return new ResponseEntity<>(res,res.getStatus());
+    }
+
+    @GetMapping("/status/all")
+    public ResponseEntity<ListEntityResponse<OrderStatus>> findAllOrderStatus(@RequestHeader("Authorization") String jwt){
+        ListEntityResponse<OrderStatus> res = new ListEntityResponse<>();
+        try {
+            List<OrderStatus> orders = orderStatusService.findAll();
+            res.setData(orders);
+            res.setStatus(HttpStatus.OK);
+            res.setCode(HttpStatus.OK.value());
+            res.setMessage("success");
+        }catch (Exception e){
+            res.setStatus(HttpStatus.CONFLICT);
+            res.setCode(HttpStatus.CONFLICT.value());
+            res.setMessage("error " + e.getMessage());
         }
         return new ResponseEntity<>(res,res.getStatus());
     }

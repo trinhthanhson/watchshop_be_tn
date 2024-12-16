@@ -20,13 +20,14 @@ public interface ProductRepo extends JpaRepository<Product, String> {
             nativeQuery = true)
     Page<Product> searchProductById(@Param("searchTerm") String searchTerm, Pageable pageable);
 
+
     @Query(value = "SELECT " +
             "p.*, " +
             "b.brand_name, " +
             "c.category_name, " +
             "CONCAT(s1.first_name, ' ', s1.last_name) AS created_by_name, " +
             "CONCAT(s2.first_name, ' ', s2.last_name) AS updated_by_name, " +
-            "COALESCE(up.price_new, up.price_new) AS current_price, " +
+            "COALESCE(CAST(up.price_new AS DOUBLE), CAST(up.price_new AS DOUBLE)) AS current_price, " +
             "COALESCE( " +
             "    ROUND( " +
             "        GREATEST( " +
@@ -34,7 +35,7 @@ public interface ProductRepo extends JpaRepository<Product, String> {
             "            0 " +
             "        ), 2 " +
             "    ), " +
-            "    up.price_new " +
+            "    CAST(up.price_new AS DOUBLE) " +
             ") AS discounted_price " +
             "FROM " +
             "product p " +
@@ -90,9 +91,9 @@ public interface ProductRepo extends JpaRepository<Product, String> {
             "s1.first_name, " +
             "s1.last_name, " +
             "s2.first_name, " +
-            "s2.last_name;",nativeQuery = true
-    )
+            "s2.last_name;", nativeQuery = true)
     List<Object[]> searchProducts(@Param("searchTerm") String searchTerm);
+
 
     // <editor-fold desc="Top 5 product sale report">
     @Query(value = "SELECT p.product_id, p.product_name, SUM(td.quantity * td.price) as total_sold, SUM(td.quantity) AS total_quantity " +
