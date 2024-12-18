@@ -5,11 +5,20 @@
 
 # [**Introduction**](#introduction)
 
-Người hướng dẫn : THS. NGUYỄN NGỌC DUY.
-Sinh viên thực hiện : TRỊNH THANH SƠN.
-Mã số sinh viên : N20DCCN134.
-Lớp : D20CQCNPM02-N.
-Hệ : ĐẠI HỌC CHÍNH QUY.
+**Người hướng dẫn:**  
+THS. NGUYỄN NGỌC DUY
+
+**Sinh viên thực hiện:**  
+TRỊNH THANH SƠN
+
+**Mã số sinh viên:**  
+N20DCCN134
+
+**Lớp:**  
+D20CQCNPM02-N
+
+**Hệ:**  
+ĐẠI HỌC CHÍNH QUY  
 Đồ án tốt nghiệp này có tất cả là 3 thành phần bao gồm:
 
 - [**API**](#) (Hiện tại)
