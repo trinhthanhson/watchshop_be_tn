@@ -146,40 +146,48 @@ public interface TransactionRepo extends JpaRepository<Transaction, Long> {
     List<Object[]> getRevenueReport(@Param("startDate") Date startDate, @Param("endDate") Date endDate);
 
     @Query(value =
-            "SELECT " +
-            "    td.product_id AS productId," +
-            "    WEEK(t.created_at, 1) AS week, " +
-            "    DATE(t.created_at), " +
-            "    SUM(CASE WHEN t.type_id = (SELECT type_id FROM type WHERE type_name = 'IMPORT') " +
-            "             THEN td.price ELSE 0 END) AS import_price," +
-            "    MIN(td.start_quantity) AS begin_inventory," +
-            "    SUM(CASE WHEN t.type_id = (SELECT type_id FROM type WHERE type_name = 'IMPORT') " +
-            "             THEN td.quantity ELSE 0 END) AS import_quantity," +
-            "    SUM(CASE WHEN t.type_id = (SELECT type_id FROM type WHERE type_name = 'EXPORT') " +
-            "             THEN td.quantity ELSE 0 END) AS export_quantity, " +
+            "SELECT  td.product_id AS productId, " +
+                    "    WEEK(t.created_at, 1) AS week,  " +
+                    "    MIN(DATE(t.created_at)) AS start_date,  " +
+                    "    MAX(DATE(t.created_at)) AS end_date,  " +
+                    "    COALESCE(SUM(CASE WHEN t.type_id = (SELECT type_id FROM type WHERE type_name = 'IMPORT')  " +
+                    "             THEN td.price ELSE 0 END), 0) AS import_price,  " +
+                    "    COALESCE(SUM(CASE WHEN t.type_id = (SELECT type_id FROM type WHERE type_name = 'IMPORT')  " +
+                    "             THEN td.quantity ELSE 0 END), 0) AS import_quantity,  " +
+                    "    COALESCE(SUM(CASE WHEN t.type_id = (SELECT type_id FROM type WHERE type_name = 'EXPORT')  " +
+                    "             THEN td.quantity ELSE 0 END), 0) AS export_quantity,  " +
+                    "    COALESCE(AVG(CASE WHEN t.type_id = (SELECT type_id FROM type WHERE type_name = 'EXPORT')  " +
+                    "             THEN td.price ELSE NULL END), 0) AS price_export,  " +
+                    "    COALESCE(ROUND(  " +
+                    "        (AVG(CASE WHEN t.type_id = (SELECT type_id FROM type WHERE type_name = 'EXPORT') THEN td.price ELSE NULL END) -  " +
+                    "         AVG(CASE WHEN t.type_id = (SELECT type_id FROM type WHERE type_name = 'IMPORT') THEN td.price ELSE NULL END)) /  " +
+                    "         NULLIF(AVG(CASE WHEN t.type_id = (SELECT type_id FROM type WHERE type_name = 'IMPORT') THEN td.price ELSE NULL END), 0), 2 " +
+                    "    ), 0) AS price_volatility,  " +
+                    "    COALESCE(SUM(CASE WHEN WEEK(t.created_at, 1) = WEEK(CURDATE(), 1)  " +
+                    "                      AND t.type_id = (SELECT type_id FROM type WHERE type_name = 'IMPORT')  " +
+                    "                      THEN td.quantity ELSE 0 END), 0) -  " +
+                    "    COALESCE(SUM(CASE WHEN WEEK(t.created_at, 1) = WEEK(CURDATE(), 1) - 1  " +
+                    "                      AND t.type_id = (SELECT type_id FROM type WHERE type_name = 'IMPORT')  " +
+                    "                      THEN td.quantity ELSE 0 END), 0) AS quantity_difference,  " +
+                    "    COALESCE(MIN(td.start_quantity), 0) +  " +
+                    "    COALESCE(SUM(CASE WHEN t.type_id = (SELECT type_id FROM type WHERE type_name = 'IMPORT')  " +
+                    "             THEN td.quantity ELSE 0 END), 0) -  " +
+                    "    COALESCE(SUM(CASE WHEN t.type_id = (SELECT type_id FROM type WHERE type_name = 'EXPORT')  " +
+                    "             THEN td.quantity ELSE 0 END), 0) AS end_quantity  " +
+                    "FROM  " +
+                    "    transaction_detail td " +
+                    "JOIN  " +
+                    "    transaction t ON td.transaction_id = t.transaction_id " +
+                    "JOIN  " +
+                    "    type ty ON t.type_id = ty.type_id " +
+                    "JOIN  " +
+                    "    product p ON td.product_id = p.product_id " +
+                    "WHERE  " +
+                    "    p.quantity <= :quantity " +
+                    "GROUP BY  " +
+                    "    td.product_id, WEEK(t.created_at, 1) " +
+                    "ORDER BY  " +
+                    "    WEEK(t.created_at, 1) DESC ", nativeQuery = true)
+    List<Object[]> getDataAiTransaction(@Param("quantity") int quantity);
 
-            "    MIN(td.start_quantity) " +
-            "    + SUM(CASE WHEN t.type_id = (SELECT type_id FROM type WHERE type_name = 'IMPORT') " +
-            "               THEN td.quantity ELSE 0 END) " +
-            "    - SUM(CASE WHEN t.type_id = (SELECT type_id FROM type WHERE type_name = 'EXPORT') " +
-            "               THEN td.quantity ELSE 0 END) AS end_quantity," +
-            "    AVG(CASE WHEN t.type_id = (SELECT type_id FROM type WHERE type_name = 'EXPORT') " +
-            "             THEN td.price ELSE NULL END) AS price_export," +
-            "    ROUND((SUM(CASE WHEN t.type_id = (SELECT type_id FROM type WHERE type_name = 'EXPORT') " +
-            "                    THEN td.price ELSE 0 END) / " +
-            "           NULLIF(SUM(CASE WHEN t.type_id = (SELECT type_id FROM type WHERE type_name = 'IMPORT') " +
-            "                    THEN td.price ELSE 0 END), 0)), 2) AS price_ratio " +
-            "FROM " +
-            "    transaction_detail td " +
-            "JOIN " +
-            "    transaction t ON td.transaction_id = t.transaction_id " +
-            "JOIN " +
-            "    type ty ON t.type_id = ty.type_id " +
-            "JOIN " +
-            "    product p ON td.product_id = p.product_id " +
-            "WHERE " +
-            "    p.quantity <= :quantity " +
-            "GROUP BY " +
-            "    td.product_id, WEEK(t.created_at, 1),DATE(t.created_at)" , nativeQuery = true)
-        List<Object[]> getDataAiTransaction(@Param("quantity") int quantity);
 }

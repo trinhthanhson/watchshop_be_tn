@@ -15,12 +15,13 @@ import java.util.Date;
 public class GetDataAiTransaction {
     private String productId;
     private Integer week;
-    private Date created_at;
+    private Date startDate;
+    private Date endDate;
     private BigDecimal importPrice;
-    private Integer beginInventory;
     private BigDecimal importQuantity;
     private BigDecimal exportQuantity;
-    private BigDecimal endQuantity;
     private BigDecimal exportPrice;
-    private BigDecimal priceRatio;
+    private BigDecimal priceVolatility;
+    private BigDecimal quantityDifference;
+    private BigDecimal endQuantity;
 }

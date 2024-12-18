@@ -337,14 +337,16 @@ public class TransactionServiceImpl implements TransactionService {
     private GetDataAiTransaction mapToDataAiTransaction(Object[] result) {
         String productId = (String) result[0];
         Integer week = (Integer) result[1];
-        Date created_at = (Date) result[2];
-        BigDecimal importPrice = (BigDecimal) result[3];
-        Integer beginInventory = (Integer) result[4];
+        Date startDate = (Date) result[2];
+        Date endDate = (Date) result[3];
+
+        BigDecimal importPrice = (BigDecimal) result[4];
         BigDecimal importQuantity = (BigDecimal) result[5];
         BigDecimal exportQuantity = (BigDecimal) result[6];
-        BigDecimal endQuantity = (BigDecimal) result[7];
-        BigDecimal exportPrice = (BigDecimal) result[8];
-        BigDecimal priceRatio = (BigDecimal) result[9];
-        return new GetDataAiTransaction(productId,week,created_at,importPrice,beginInventory,importQuantity,exportQuantity,endQuantity,exportPrice,priceRatio);
+        BigDecimal exportPrice = (BigDecimal) result[7];
+        BigDecimal priceVolatility = (BigDecimal) result[8];
+        BigDecimal quantityDifference = (BigDecimal) result[9];
+        BigDecimal endQuantity = (BigDecimal) result[10];
+        return new GetDataAiTransaction(productId,week,startDate,endDate,importPrice,importQuantity,exportQuantity,exportPrice,priceVolatility,quantityDifference,endQuantity);
     }
 }
