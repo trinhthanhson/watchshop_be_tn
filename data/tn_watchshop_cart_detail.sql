@@ -32,7 +32,7 @@ CREATE TABLE `cart_detail` (
   KEY `FK3vnmqaycaim2s2n9dgawjtmbl` (`customer_id`),
   CONSTRAINT `FK37hai783jhfcqo6h0pkiqmc9s` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`),
   CONSTRAINT `FK3vnmqaycaim2s2n9dgawjtmbl` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`customer_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=87 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -53,4 +53,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-12-09 20:24:05
+-- Dump completed on 2024-12-19  0:31:59
