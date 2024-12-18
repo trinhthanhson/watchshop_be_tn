@@ -9,10 +9,7 @@ import ptithcm.tttn.function.TypeTrans;
 import ptithcm.tttn.repository.*;
 import ptithcm.tttn.request.ProductTransRequest;
 import ptithcm.tttn.request.TransactionRequest;
-import ptithcm.tttn.response.DataAIRsp;
-import ptithcm.tttn.response.RevenueReportRsp;
-import ptithcm.tttn.response.StatisticRsp;
-import ptithcm.tttn.response.TransactionStatisticRsp;
+import ptithcm.tttn.response.*;
 import ptithcm.tttn.service.ProductService;
 import ptithcm.tttn.service.StaffService;
 import ptithcm.tttn.service.TransactionService;
@@ -210,6 +207,14 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionRepo.save(save);
     }
 
+    @Override
+    public List<GetDataAiTransaction> getDataAiTransaction(int quantity) {
+        List<Object[]> results = transactionRepo.getDataAiTransaction(quantity);
+        return results.stream()
+                .map(this::mapToDataAiTransaction)
+                .collect(Collectors.toList());
+    }
+
     private String generateTransactionCode() {
         // Lấy năm hiện tại
         String currentYear = String.valueOf(java.time.Year.now().getValue()).substring(2); // Lấy 2 số cuối của năm
@@ -319,7 +324,7 @@ public class TransactionServiceImpl implements TransactionService {
         BigDecimal differenceQuantity = (BigDecimal) result[4];
         Double priceVolatility = (Double) result[5];
         Integer price = (Integer) result[6];
-        return new DataAIRsp(productId, productName, week, quantity, differenceQuantity, priceVolatility,price);
+        return new DataAIRsp(productId, productName, week, quantity, differenceQuantity, priceVolatility, price);
     }
 
     private RevenueReportRsp mapToRevenueReport(Object[] result) {
@@ -327,5 +332,19 @@ public class TransactionServiceImpl implements TransactionService {
         Long totalRevenue = (Long) result[1];
         Long totalQuantitySold = (Long) result[2];
         return new RevenueReportRsp(transactionDate, totalRevenue, totalQuantitySold);
+    }
+
+    private GetDataAiTransaction mapToDataAiTransaction(Object[] result) {
+        String productId = (String) result[0];
+        Integer week = (Integer) result[1];
+        Date created_at = (Date) result[2];
+        BigDecimal importPrice = (BigDecimal) result[3];
+        Integer beginInventory = (Integer) result[4];
+        BigDecimal importQuantity = (BigDecimal) result[5];
+        BigDecimal exportQuantity = (BigDecimal) result[6];
+        BigDecimal endQuantity = (BigDecimal) result[7];
+        BigDecimal exportPrice = (BigDecimal) result[8];
+        BigDecimal priceRatio = (BigDecimal) result[9];
+        return new GetDataAiTransaction(productId,week,created_at,importPrice,beginInventory,importQuantity,exportQuantity,endQuantity,exportPrice,priceRatio);
     }
 }

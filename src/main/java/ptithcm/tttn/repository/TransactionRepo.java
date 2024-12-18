@@ -145,4 +145,41 @@ public interface TransactionRepo extends JpaRepository<Transaction, Long> {
             "GROUP BY DATE(t.created_at)")
     List<Object[]> getRevenueReport(@Param("startDate") Date startDate, @Param("endDate") Date endDate);
 
+    @Query(value =
+            "SELECT " +
+            "    td.product_id AS productId," +
+            "    WEEK(t.created_at, 1) AS week, " +
+            "    DATE(t.created_at), " +
+            "    SUM(CASE WHEN t.type_id = (SELECT type_id FROM type WHERE type_name = 'IMPORT') " +
+            "             THEN td.price ELSE 0 END) AS import_price," +
+            "    MIN(td.start_quantity) AS begin_inventory," +
+            "    SUM(CASE WHEN t.type_id = (SELECT type_id FROM type WHERE type_name = 'IMPORT') " +
+            "             THEN td.quantity ELSE 0 END) AS import_quantity," +
+            "    SUM(CASE WHEN t.type_id = (SELECT type_id FROM type WHERE type_name = 'EXPORT') " +
+            "             THEN td.quantity ELSE 0 END) AS export_quantity, " +
+
+            "    MIN(td.start_quantity) " +
+            "    + SUM(CASE WHEN t.type_id = (SELECT type_id FROM type WHERE type_name = 'IMPORT') " +
+            "               THEN td.quantity ELSE 0 END) " +
+            "    - SUM(CASE WHEN t.type_id = (SELECT type_id FROM type WHERE type_name = 'EXPORT') " +
+            "               THEN td.quantity ELSE 0 END) AS end_quantity," +
+            "    AVG(CASE WHEN t.type_id = (SELECT type_id FROM type WHERE type_name = 'EXPORT') " +
+            "             THEN td.price ELSE NULL END) AS price_export," +
+            "    ROUND((SUM(CASE WHEN t.type_id = (SELECT type_id FROM type WHERE type_name = 'EXPORT') " +
+            "                    THEN td.price ELSE 0 END) / " +
+            "           NULLIF(SUM(CASE WHEN t.type_id = (SELECT type_id FROM type WHERE type_name = 'IMPORT') " +
+            "                    THEN td.price ELSE 0 END), 0)), 2) AS price_ratio " +
+            "FROM " +
+            "    transaction_detail td " +
+            "JOIN " +
+            "    transaction t ON td.transaction_id = t.transaction_id " +
+            "JOIN " +
+            "    type ty ON t.type_id = ty.type_id " +
+            "JOIN " +
+            "    product p ON td.product_id = p.product_id " +
+            "WHERE " +
+            "    p.quantity <= :quantity " +
+            "GROUP BY " +
+            "    td.product_id, WEEK(t.created_at, 1),DATE(t.created_at)" , nativeQuery = true)
+        List<Object[]> getDataAiTransaction(@Param("quantity") int quantity);
 }

@@ -34,4 +34,7 @@ public interface TransactionService {
     List<RevenueReportRsp> getRevenueReport(Date startDate, Date endDate);
 
     Transaction createExport(Long request_id,String jwt) throws Exception;
+
+    List<GetDataAiTransaction> getDataAiTransaction(int quantity);
+
 }
