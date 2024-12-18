@@ -17,7 +17,7 @@ Hệ              	    :	ĐẠI HỌC CHÍNH QUY
 # [**Database**](#database)
 
 <p align="center">
-    <img src="./erd_manager.png" />
+    <img src="./erd_manager.jpg" />
 </p>
 
 **_Sơ đồ cơ sở dữ liệu_**
