@@ -63,8 +63,4 @@ public class User {
     @JsonIgnore
     private Staff staff_update;
 
-
-
-
-
 }

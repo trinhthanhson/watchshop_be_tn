@@ -2,7 +2,9 @@ package ptithcm.tttn.service.impl;
 
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ptithcm.tttn.entity.*;
 import ptithcm.tttn.function.RequestStatus;
@@ -73,7 +75,9 @@ public class TransactionRequestServiceImpl implements TransactionRequestService 
     }
 
     @Override
-    public Page<Transaction_request> getAllTransactionRequestByType(String typeName, Pageable pageable) {
+    public Page<Transaction_request> getAllTransactionRequestByType(String typeName, int page, int limit, String sortField, String sortDirection) {
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortField);
+        Pageable pageable = PageRequest.of(page - 1, limit, sort);
         return requestRepo.getAllTransactionRequestByType(typeName,pageable);
     }
 

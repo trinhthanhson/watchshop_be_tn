@@ -2,6 +2,10 @@ package ptithcm.tttn.service.impl;
 
 import lombok.AllArgsConstructor;
 import org.apache.tomcat.jni.Local;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ptithcm.tttn.entity.*;
 import ptithcm.tttn.function.RequestStatus;
@@ -215,6 +219,13 @@ public class TransactionServiceImpl implements TransactionService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public Page<Transaction> getAllTransactionByType(String typeName, int page, int limit, String sortField, String sortDirection) {
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortField);
+        Pageable pageable = PageRequest.of(page - 1, limit, sort);
+        return transactionRepo.getAllTransactionByType(typeName,pageable);
+    }
+
     private String generateTransactionCode() {
         // Lấy năm hiện tại
         String currentYear = String.valueOf(java.time.Year.now().getValue()).substring(2); // Lấy 2 số cuối của năm
@@ -347,6 +358,6 @@ public class TransactionServiceImpl implements TransactionService {
         BigDecimal priceVolatility = (BigDecimal) result[8];
         BigDecimal quantityDifference = (BigDecimal) result[9];
         BigDecimal endQuantity = (BigDecimal) result[10];
-        return new GetDataAiTransaction(productId,week,startDate,endDate,importPrice,importQuantity,exportQuantity,exportPrice,priceVolatility,quantityDifference,endQuantity);
+        return new GetDataAiTransaction(productId, week, startDate, endDate, importPrice, importQuantity, exportQuantity, exportPrice, priceVolatility, quantityDifference, endQuantity);
     }
 }

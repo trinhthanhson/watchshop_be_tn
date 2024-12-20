@@ -16,7 +16,7 @@ public interface TransactionRequestService {
 
     List<Transaction_request> findAll();
 
-    Page<Transaction_request> getAllTransactionRequestByType(String typeName, Pageable pageable);
+    Page<Transaction_request> getAllTransactionRequestByType(String typeName, int page, int limit, String sortField, String sortDirection);
 
     Transaction_request findById(Long id) throws Exception;
 

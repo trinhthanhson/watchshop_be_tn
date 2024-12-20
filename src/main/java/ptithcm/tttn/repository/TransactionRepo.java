@@ -1,5 +1,7 @@
 package ptithcm.tttn.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -26,6 +28,16 @@ public interface TransactionRepo extends JpaRepository<Transaction, Long> {
             ")", nativeQuery = true)
     BigInteger existsByRequestId(@Param("requestId") Long requestId);
 
+    @Query(value = "SELECT tr.* " +
+            "FROM transaction tr " +
+            "JOIN type t ON tr.type_id = t.type_id " +
+            "WHERE t.type_name = :typeName ",
+            countQuery = "SELECT COUNT(tr.request_id) " +
+                    "FROM transaction_request tr " +
+                    "JOIN type t ON tr.type_id = t.type_id " +
+                    "WHERE t.type_name = :typeName",
+            nativeQuery = true)
+    Page<Transaction> getAllTransactionByType(@Param("typeName") String typeName, Pageable pageable);
 
     @Query(value = "SELECT " +
             "DATE(t.created_at) AS createDate, " +

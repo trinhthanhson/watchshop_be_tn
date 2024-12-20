@@ -33,23 +33,23 @@ public class StaffRequestController {
     @GetMapping("/all/import")
     public ResponseEntity<ListEntityResponse<Transaction_request>> getAllTransactionRequestImportHandle(
             @RequestHeader("Authorization") String jwt,
-            @RequestParam("page") int page, // Accept page number as a query parameter
-            @RequestParam("limit") int limit) { // Accept limit (page size) as a query parameter
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit,
+            @RequestParam(value = "sortField", defaultValue = "created_at") String sortField, // Trường mặc định
+            @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection) { // Hướng mặc định
 
         ListEntityResponse<Transaction_request> res = new ListEntityResponse<>();
         try {
-            // Create Pageable object using the page and limit parameters
-            Pageable pageable = PageRequest.of(page - 1, limit); // Spring Pageable is 0-indexed, so subtract 1 from page
+            Page<Transaction_request> etts = requestService.getAllTransactionRequestByType(
+                    TypeTrans.IMPORT.getTypeName(), page, limit, sortField, sortDirection);
 
-            Page<Transaction_request> etts = requestService.getAllTransactionRequestByType(TypeTrans.IMPORT.getTypeName(), pageable);
             res.setMessage(MessageSuccess.E01.getMessage());
-            res.setData(etts.getContent()); // Lấy danh sách từ Page
+            res.setData(etts.getContent());
             res.setCode(HttpStatus.OK.value());
             res.setStatus(HttpStatus.OK);
 
-            // Thêm thông tin phân trang vào response
-            res.setTotalPages(etts.getTotalPages()); // Tổng số trang
-            res.setTotalElements(etts.getTotalElements()); // Tổng số mục
+            res.setTotalPages(etts.getTotalPages());
+            res.setTotalElements(etts.getTotalElements());
 
         } catch (Exception e) {
             res.setMessage(MessageError.E01.getMessage());
@@ -61,26 +61,31 @@ public class StaffRequestController {
     }
 
     @GetMapping("/all/export")
-    public ResponseEntity<ListEntityResponse<Transaction_request>> getAllTransactionRequestExportHandle(@RequestHeader("Authorization") String jwt) {
-        ListEntityResponse<Transaction_request> res = new ListEntityResponse<>();
-        List<Transaction_request> all = new ArrayList<>();
+    public ResponseEntity<ListEntityResponse<Transaction_request>> getAllTransactionRequestExportHandle(
+            @RequestHeader("Authorization") String jwt,
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit,
+            @RequestParam(value = "sortField", defaultValue = "created_at") String sortField, // Trường mặc định
+            @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection) { // Hướng mặc định
 
+        ListEntityResponse<Transaction_request> res = new ListEntityResponse<>();
         try {
-            List<Transaction_request> etts = requestService.findAll();
-            for (Transaction_request item : etts) {
-                if (item.getType_request().getType_name().equals("EXPORT")) {
-                    all.add(item);
-                }
-            }
+            Page<Transaction_request> etts = requestService.getAllTransactionRequestByType(
+                    TypeTrans.EXPORT.getTypeName(), page, limit, sortField, sortDirection);
+
             res.setMessage(MessageSuccess.E01.getMessage());
-            res.setData(all);
+            res.setData(etts.getContent());
             res.setCode(HttpStatus.OK.value());
             res.setStatus(HttpStatus.OK);
+
+            res.setTotalPages(etts.getTotalPages());
+            res.setTotalElements(etts.getTotalElements());
+
         } catch (Exception e) {
             res.setMessage(MessageError.E01.getMessage());
             res.setData(null);
-            res.setCode(HttpStatus.OK.value());
-            res.setStatus(HttpStatus.OK);
+            res.setCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            res.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(res, res.getStatus());
     }

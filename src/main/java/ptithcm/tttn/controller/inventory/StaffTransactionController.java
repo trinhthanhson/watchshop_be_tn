@@ -1,6 +1,7 @@
 package ptithcm.tttn.controller.inventory;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -8,6 +9,7 @@ import ptithcm.tttn.entity.Transaction;
 import ptithcm.tttn.entity.Transaction_request;
 import ptithcm.tttn.function.MessageError;
 import ptithcm.tttn.function.MessageSuccess;
+import ptithcm.tttn.function.TypeTrans;
 import ptithcm.tttn.request.TransactionRequest;
 import ptithcm.tttn.response.ApiResponse;
 import ptithcm.tttn.response.EntityResponse;
@@ -75,60 +77,65 @@ public class StaffTransactionController {
     }
 
     @GetMapping("/all/import")
-    public ResponseEntity<ListEntityResponse<Transaction>> findAllTransactionImportHandle(@RequestHeader("Authorization") String jwt){
+    public ResponseEntity<ListEntityResponse<Transaction>> getAllTransactionImportHandle(
+            @RequestHeader("Authorization") String jwt,
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit,
+            @RequestParam(value = "sortField", defaultValue = "created_at") String sortField, // Trường mặc định
+            @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection) { // Hướng mặc định
+
         ListEntityResponse<Transaction> res = new ListEntityResponse<>();
-        List<Transaction> allImport = new ArrayList<>();
+        try {
+            Page<Transaction> etts = transactionService.getAllTransactionByType(
+                    TypeTrans.IMPORT.getTypeName(), page, limit, sortField, sortDirection);
 
-        try{
-            List<Transaction> etts = transactionService.findAll();
-
-            for(Transaction item :etts){
-                if(item.getType_transaction().getType_name().equals("IMPORT")){
-                    allImport.add(item);
-                }
-            }
-            res.setData(allImport);
-            res.setStatus(HttpStatus.OK);
-            res.setCode(HttpStatus.OK.value());
             res.setMessage(MessageSuccess.E01.getMessage());
-        }
-        catch (Exception e)
-        {
-            res.setStatus(HttpStatus.CONFLICT);
-            res.setCode(HttpStatus.CONFLICT.value());
-            res.setMessage(MessageError.E01.getMessage() + e.getMessage());
-        }
+            res.setData(etts.getContent());
+            res.setCode(HttpStatus.OK.value());
+            res.setStatus(HttpStatus.OK);
 
-        return new ResponseEntity<>(res,res.getStatus());
+            res.setTotalPages(etts.getTotalPages());
+            res.setTotalElements(etts.getTotalElements());
+
+        } catch (Exception e) {
+            res.setMessage(MessageError.E01.getMessage());
+            res.setData(null);
+            res.setCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            res.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(res, res.getStatus());
     }
 
     @GetMapping("/all/export")
-    public ResponseEntity<ListEntityResponse<Transaction>> findAllTransactionExportHandle(@RequestHeader("Authorization") String jwt){
+    public ResponseEntity<ListEntityResponse<Transaction>> getAllTransactionExportHandle(
+            @RequestHeader("Authorization") String jwt,
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit,
+            @RequestParam(value = "sortField", defaultValue = "created_at") String sortField, // Trường mặc định
+            @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection) { // Hướng mặc định
+
         ListEntityResponse<Transaction> res = new ListEntityResponse<>();
-        List<Transaction> allExport = new ArrayList<>();
+        try {
+            Page<Transaction> etts = transactionService.getAllTransactionByType(
+                    TypeTrans.EXPORT.getTypeName(), page, limit, sortField, sortDirection);
 
-        try{
-            List<Transaction> etts = transactionService.findAll();
-
-            for(Transaction item :etts){
-                if(item.getType_transaction().getType_name().equals("EXPORT")){
-                    allExport.add(item);
-                }
-            }
-            res.setData(allExport);
-            res.setStatus(HttpStatus.OK);
-            res.setCode(HttpStatus.OK.value());
             res.setMessage(MessageSuccess.E01.getMessage());
-        }
-        catch (Exception e)
-        {
-            res.setStatus(HttpStatus.CONFLICT);
-            res.setCode(HttpStatus.CONFLICT.value());
-            res.setMessage(MessageError.E01.getMessage() + e.getMessage());
-        }
+            res.setData(etts.getContent());
+            res.setCode(HttpStatus.OK.value());
+            res.setStatus(HttpStatus.OK);
 
-        return new ResponseEntity<>(res,res.getStatus());
+            res.setTotalPages(etts.getTotalPages());
+            res.setTotalElements(etts.getTotalElements());
+
+        } catch (Exception e) {
+            res.setMessage(MessageError.E01.getMessage());
+            res.setData(null);
+            res.setCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            res.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(res, res.getStatus());
     }
+
 
     @GetMapping("{id}/get")
     public ResponseEntity<EntityResponse<Transaction>> findOrderById(@PathVariable Long id){

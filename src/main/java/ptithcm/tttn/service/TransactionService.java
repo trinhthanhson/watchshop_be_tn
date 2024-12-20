@@ -1,7 +1,10 @@
 package ptithcm.tttn.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.Param;
 import ptithcm.tttn.entity.Transaction;
+import ptithcm.tttn.entity.Transaction_request;
 import ptithcm.tttn.entity.Type;
 import ptithcm.tttn.request.TransactionRequest;
 import ptithcm.tttn.response.*;
@@ -36,5 +39,8 @@ public interface TransactionService {
     Transaction createExport(Long request_id,String jwt) throws Exception;
 
     List<GetDataAiTransaction> getDataAiTransaction(int quantity);
+
+     Page<Transaction> getAllTransactionByType(String typeName, int page, int limit, String sortField, String sortDirection);
+
 
 }
