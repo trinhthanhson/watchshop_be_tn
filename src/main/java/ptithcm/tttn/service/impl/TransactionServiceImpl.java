@@ -192,7 +192,7 @@ public class TransactionServiceImpl implements TransactionService {
             Optional<Product> product = productRepo.findById(item.getProduct_id());
             Product get = product.get();
             Transaction_detail detail = new Transaction_detail();
-            total_price += item.getPrice();
+            total_price += (item.getPrice()*item.getQuantity());
             total_quantity += item.getQuantity();
             detail.setNote(item.getNote());
             detail.setQuantity(item.getQuantity());
