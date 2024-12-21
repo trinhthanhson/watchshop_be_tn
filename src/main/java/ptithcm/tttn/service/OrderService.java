@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import ptithcm.tttn.entity.Orders;
 import ptithcm.tttn.entity.Product;
+import ptithcm.tttn.entity.Transaction_request;
 import ptithcm.tttn.request.OrderRequest;
 import ptithcm.tttn.request.ProductSaleRequest;
 import ptithcm.tttn.request.StatisticRequest;
@@ -58,6 +59,11 @@ public interface OrderService {
 
     Page<Orders> getOrderByDateAndStatus(LocalDate startDate, LocalDate endDate, Long status_id, Pageable pageable);
 
-    Page<Orders> getOrderByInfoCustomer(LocalDate startDate, LocalDate endDate, Long status_id,String receipt_name, String receipt_phone, Pageable pageable);
+    Page<Orders> getOrderByInfoCustomer(LocalDate startDate, LocalDate endDate, Long status_id, String receipt_name, String receipt_phone, Pageable pageable);
+
+    Page<Orders> findByCustomerIdPage(String jwt, int page, int limit, String sortField, String sortDirection) throws Exception;
+
+    Page<Orders> findOrderByCustomerAndStatus(String jwt, Long status_id, int page, int limit, String sortField, String sortDirection) throws Exception;
+
 
 }

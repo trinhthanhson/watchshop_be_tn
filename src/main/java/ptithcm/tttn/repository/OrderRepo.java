@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ptithcm.tttn.entity.Orders;
 import ptithcm.tttn.entity.Product;
+import ptithcm.tttn.entity.Transaction;
 import ptithcm.tttn.entity.Transaction_request;
 
 import java.time.LocalDate;
@@ -16,8 +17,14 @@ import java.util.List;
 
 @Repository
 public interface OrderRepo extends JpaRepository<Orders, Long> {
-    @Query(value = "SELECT * FROM orders WHERE customer_id = ?1  ", nativeQuery = true)
+    @Query(value = "SELECT * FROM orders WHERE customer_id = ?1  ",nativeQuery = true)
     List<Orders> findByCustomerId(Long customer_id);
+
+    @Query(value = "SELECT * FROM orders WHERE customer_id = ?1  ",
+            countQuery = "SELECT * FROM orders WHERE customer_id = ?1",nativeQuery = true)
+    Page<Orders> findByCustomerIdPage(Long customer_id, Pageable pageable);
+    @Query(value = "SELECT * FROM orders WHERE customer_id = ?1 and status_id = ?2 ",nativeQuery = true)
+    Page<Orders> findOrderByCustomerAndStatus(Long customer_id, Long status_id, Pageable pageable);
 
     @Query(value = "SELECT * FROM orders o WHERE DATE(o.created_at) >= DATE(:startDate) AND DATE(o.created_at) <= DATE(:endDate)",
             countQuery = "SELECT COUNT(*) FROM orders o WHERE DATE(o.created_at) >= DATE(:startDate) AND DATE(o.created_at) <= DATE(:endDate)",

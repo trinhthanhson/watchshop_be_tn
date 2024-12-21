@@ -3,7 +3,9 @@ package ptithcm.tttn.service.impl;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ptithcm.tttn.entity.*;
 import ptithcm.tttn.function.OrderStatusDF;
@@ -532,6 +534,23 @@ public class OrderServiceImpl implements OrderService {
     public Page<Orders> getOrderByInfoCustomer(LocalDate startDate, LocalDate endDate, Long status_id, String receipt_name, String receipt_phone, Pageable pageable) {
         return  ordersRepo.searchOrdersCustomer(startDate,endDate,status_id,receipt_name,receipt_phone,pageable);
     }
+
+    @Override
+    public Page<Orders> findByCustomerIdPage(String jwt, int page, int limit, String sortField, String sortDirection) throws Exception {
+        User user = userService.findUserByJwt(jwt);
+        Customer customer = customerService.findByUserId(user.getUser_id());
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortField);
+        Pageable pageable = PageRequest.of(page - 1, limit, sort);
+        return ordersRepo.findByCustomerIdPage(customer.getCustomer_id(),pageable);
+    }
+
+    @Override
+    public Page<Orders> findOrderByCustomerAndStatus(String jwt, Long status_id, int page, int limit, String sortField, String sortDirection) throws Exception {
+        User user = userService.findUserByJwt(jwt);
+        Customer customer = customerService.findByUserId(user.getUser_id());
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortField);
+        Pageable pageable = PageRequest.of(page - 1, limit, sort);
+        return ordersRepo.findOrderByCustomerAndStatus(customer.getCustomer_id(),status_id,pageable);    }
 
     private ProductSaleRequest mapToProductSaleRequest(Object[] result) {
         // Safely check if result is null
