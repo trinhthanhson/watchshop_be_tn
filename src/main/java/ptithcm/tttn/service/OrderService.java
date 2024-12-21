@@ -63,7 +63,7 @@ public interface OrderService {
 
     Page<Orders> findByCustomerIdPage(String jwt, int page, int limit, String sortField, String sortDirection) throws Exception;
 
-    Page<Orders> findOrderByCustomerAndStatus(String jwt, Long status_id, int page, int limit, String sortField, String sortDirection) throws Exception;
+    Page<Orders> findOrderByCustomerAndStatus(String jwt,Orders orders, int page, int limit, String sortField, String sortDirection) throws Exception ;
 
-
+    Page<Orders> searchOrderByDatePage(String jwt,LocalDate startDate, LocalDate endDate, int page, int limit, String sortField, String sortDirection) throws Exception ;
 }

@@ -23,9 +23,15 @@ public interface OrderRepo extends JpaRepository<Orders, Long> {
     @Query(value = "SELECT * FROM orders WHERE customer_id = ?1  ",
             countQuery = "SELECT * FROM orders WHERE customer_id = ?1",nativeQuery = true)
     Page<Orders> findByCustomerIdPage(Long customer_id, Pageable pageable);
-    @Query(value = "SELECT * FROM orders WHERE customer_id = ?1 and status_id = ?2 ",nativeQuery = true)
-    Page<Orders> findOrderByCustomerAndStatus(Long customer_id, Long status_id, Pageable pageable);
-
+    @Query(value = "SELECT * FROM orders " +
+            "WHERE customer_id = ?1 " +
+            "AND ((" +
+            "(?2 IS NOT NULL AND status_id = ?2 AND is_cancel = 'f') " + // Nếu status_id có giá trị và is_cancel = 'f'
+            ") OR (" +
+            "(?2 IS NULL AND is_cancel = ?3) " + // Nếu status_id là null, tìm theo is_cancel
+            "))",
+            nativeQuery = true)
+    Page<Orders> findOrderByCustomerAndStatusOrCancel(Long customer_id, Long status_id, String is_cancel, Pageable pageable);
     @Query(value = "SELECT * FROM orders o WHERE DATE(o.created_at) >= DATE(:startDate) AND DATE(o.created_at) <= DATE(:endDate)",
             countQuery = "SELECT COUNT(*) FROM orders o WHERE DATE(o.created_at) >= DATE(:startDate) AND DATE(o.created_at) <= DATE(:endDate)",
             nativeQuery = true)
@@ -44,6 +50,9 @@ public interface OrderRepo extends JpaRepository<Orders, Long> {
             countQuery = "SELECT COUNT(*) FROM orders WHERE status_id = :status_id",
             nativeQuery = true)
     Page<Orders> searchOrderByStatusId(@Param("status_id") Long status_id, Pageable pageable);
+
+    @Query(value =  "SELECT * FROM orders WHERE customer_id = :customerId AND (DATE(created_at) >= DATE(:startDate) AND DATE(created_at) <= DATE(:endDate))",nativeQuery = true)
+    Page<Orders> searchOrderByDatePage(@Param("customerId") Long customerId,@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate, Pageable pageable);
 
     @Query(value = "SELECT * FROM orders o WHERE " +
             "(:startDate IS NULL OR o.created_at >= :startDate) AND " +

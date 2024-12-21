@@ -2,6 +2,7 @@ package ptithcm.tttn.controller.customer;
 
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,8 @@ import ptithcm.tttn.response.ListEntityResponse;
 import ptithcm.tttn.service.OrderService;
 import ptithcm.tttn.service.OrderStatusService;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -120,18 +123,50 @@ public class CustomerOrderController {
         return new ResponseEntity<>(res, res.getStatus());
     }
 
-    @GetMapping("/status/customer")
+    @PostMapping("/status/customer")
     public ResponseEntity<ListEntityResponse<Orders>> getAllOrderStatusCustomerPageHandle(
             @RequestHeader("Authorization") String jwt,
-            @RequestParam("status_id") Long status_id,
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit,
+            @RequestParam(value = "sortField", defaultValue = "created_at") String sortField, // Trường mặc định
+            @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection, @RequestBody Orders orders) { // Hướng mặc định
+
+        ListEntityResponse<Orders> res = new ListEntityResponse<>();
+
+        try {
+            Page<Orders> etts = ordersService.findOrderByCustomerAndStatus(jwt, orders, page, limit, sortField, sortDirection);
+
+            res.setMessage(MessageSuccess.E01.getMessage());
+            res.setData(etts.getContent());
+            res.setCode(HttpStatus.OK.value());
+            res.setStatus(HttpStatus.OK);
+
+            res.setTotalPages(etts.getTotalPages());
+            res.setTotalElements(etts.getTotalElements());
+
+        } catch (Exception e) {
+            res.setMessage(MessageError.E01.getMessage());
+            res.setData(null);
+            res.setCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            res.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(res, res.getStatus());
+    }
+
+    @GetMapping("/search/date")
+    public ResponseEntity<ListEntityResponse<Orders>> searchOrderCustomerByDatePageHandle(
+            @RequestHeader("Authorization") String jwt,
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam("page") int page,
             @RequestParam("limit") int limit,
             @RequestParam(value = "sortField", defaultValue = "created_at") String sortField, // Trường mặc định
             @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection) { // Hướng mặc định
 
         ListEntityResponse<Orders> res = new ListEntityResponse<>();
+
         try {
-            Page<Orders> etts = ordersService.findOrderByCustomerAndStatus(jwt,status_id, page, limit, sortField, sortDirection);
+            Page<Orders> etts = ordersService.searchOrderByDatePage(jwt, startDate,endDate, page, limit, sortField, sortDirection);
 
             res.setMessage(MessageSuccess.E01.getMessage());
             res.setData(etts.getContent());

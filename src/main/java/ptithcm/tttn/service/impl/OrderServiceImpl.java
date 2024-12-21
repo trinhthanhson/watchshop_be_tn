@@ -545,12 +545,30 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Page<Orders> findOrderByCustomerAndStatus(String jwt, Long status_id, int page, int limit, String sortField, String sortDirection) throws Exception {
+    public Page<Orders> findOrderByCustomerAndStatus(String jwt,Orders orders, int page, int limit, String sortField, String sortDirection) throws Exception {
         User user = userService.findUserByJwt(jwt);
         Customer customer = customerService.findByUserId(user.getUser_id());
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortField);
         Pageable pageable = PageRequest.of(page - 1, limit, sort);
-        return ordersRepo.findOrderByCustomerAndStatus(customer.getCustomer_id(),status_id,pageable);    }
+        String is_cancel = orders.getIs_cancel() ? "t" : "f";
+        Long status_id ;
+        if(orders.getStatus_id() == -1){
+            status_id = null;
+        }else {
+            status_id = orders.getStatus_id();
+        }
+        System.err.println(is_cancel + "" + orders.getStatus_id() + customer.getCustomer_id());
+
+        return ordersRepo.findOrderByCustomerAndStatusOrCancel(customer.getCustomer_id(),status_id,is_cancel,pageable);    }
+
+    @Override
+    public Page<Orders> searchOrderByDatePage(String jwt, LocalDate startDate, LocalDate endDate, int page, int limit, String sortField, String sortDirection) throws Exception {
+        User user = userService.findUserByJwt(jwt);
+        Customer customer = customerService.findByUserId(user.getUser_id());
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortField);
+        Pageable pageable = PageRequest.of(page - 1, limit, sort);
+        return ordersRepo.searchOrderByDatePage(customer.getCustomer_id(),startDate,endDate,pageable);
+    }
 
     private ProductSaleRequest mapToProductSaleRequest(Object[] result) {
         // Safely check if result is null
