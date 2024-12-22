@@ -41,7 +41,7 @@ public interface ProductService {
 
     List<ProductSaleRequest> getProductSalesReport();
 
-    List<QuantityInventoryRsp> getQuantityProductReport(String filter, Date startDate, Date endDate);
+     Page<QuantityInventoryRsp> getQuantityProductReport(String filter, Date startDate, Date endDate,int page, int limit, String sortField, String sortDirection) ;
 
     List<RevenueProductReportRsp> getRevenueProductReport(String filter, Date startDate, Date endDate);
 

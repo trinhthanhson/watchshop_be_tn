@@ -126,37 +126,46 @@ public interface ProductRepo extends JpaRepository<Product, String> {
     List<Product> findByBrandId(Long brand_id);
 
     // <editor-fold desc="quantity inventory report">
-    @Query(value = "SELECT " +
-            "    p.product_id, " +
-            "    p.product_name, " +
-            "    p.image, " +
-            "    p.quantity, " +
-            "    SUM(CASE WHEN t_type.type_name = 'IMPORT' THEN td.quantity ELSE 0 END) AS total_import, " +
-            "    SUM(CASE WHEN t_type.type_name = 'EXPORT' THEN td.quantity ELSE 0 END) AS total_export, " +
-            "    (SUM(CASE WHEN t_type.type_name = 'IMPORT' THEN td.quantity ELSE 0 END) - " +
-            "     SUM(CASE WHEN t_type.type_name = 'EXPORT' THEN td.quantity ELSE 0 END)) AS current_stock, " +
-            "    DATE(t.created_at) AS period_value, " +  // Lấy theo ngày nếu không có filter
-            "    CASE " +
-            "        WHEN :filter IS NULL OR :filter = '' THEN DATE(t.created_at) " +  // Hiển thị ngày cụ thể khi không có filter
-            "        ELSE NULL " +
-            "    END AS date_range " +
-            "FROM product p " +
-            "JOIN transaction_detail td ON td.product_id = p.product_id " +
-            "JOIN transaction t ON t.transaction_id = td.transaction_id " +
-            "JOIN type t_type ON t.type_id = t_type.type_id " +
-            "WHERE " +
-            "(COALESCE(:filter, '') = '' OR :filter = 'all' OR " +
-            "(:filter = 'week' AND YEAR(t.created_at) = YEAR(CURRENT_DATE()) AND WEEK(t.created_at) = WEEK(CURRENT_DATE())) OR " +
-            "(:filter = 'month' AND YEAR(t.created_at) = YEAR(CURRENT_DATE()) AND MONTH(t.created_at) = MONTH(CURRENT_DATE())) OR " +
-            "(:filter = 'year' AND YEAR(t.created_at) = YEAR(CURRENT_DATE()))) " +
-            "AND (COALESCE(:startDate, NULL) IS NULL AND COALESCE(:endDate, NULL) IS NULL OR " +
-            "DATE(t.created_at) BETWEEN COALESCE(DATE(:startDate), DATE('1900-01-01')) AND COALESCE(DATE(:endDate), CURRENT_DATE())) " +
-            "GROUP BY p.product_id, p.product_name, p.quantity, period_value, t.created_at " +  // Thêm period_value vào GROUP BY
-            "ORDER BY period_value ASC",  // Sắp xếp theo ngày
-            nativeQuery = true)
-    List<Object[]> getQuantityInventoryByFilter(@Param("filter") String filter,
+    @Query(value =
+            "SELECT   \n" +
+                    "        p.product_id,   \n" +
+                    "        p.product_name,   \n" +
+                    "        p.image AS product_image,   \n" +
+                    "        p.quantity AS current_quantity,   \n" +
+                    "        SUM(CASE WHEN t_type.type_name = 'IMPORT' THEN td.quantity ELSE 0 END) AS total_import,   \n" +
+                    "        SUM(CASE WHEN t_type.type_name = 'EXPORT' THEN td.quantity ELSE 0 END) AS total_export,   \n" +
+                    "        (p.quantity +   \n" +
+                    "         SUM(CASE WHEN t_type.type_name = 'IMPORT' THEN td.quantity ELSE 0 END) -   \n" +
+                    "         SUM(CASE WHEN t_type.type_name = 'EXPORT' THEN td.quantity ELSE 0 END)) AS remaining_stock,   \n" +
+                    "        CASE   \n" +
+                    "            WHEN :filter = 'month' THEN CONCAT('Tháng ', MONTH(t.created_at))   \n" +
+                    "            WHEN :filter = 'year' THEN YEAR(t.created_at)   \n" +
+                    "            ELSE CONCAT('Ngày ', DATE(t.created_at)) \n" +
+                    "        END AS period_info   \n" +
+                    "    FROM   \n" +
+                    "        Product p   \n" +
+                    "    LEFT JOIN Transaction_detail td ON td.product_id = p.product_id   \n" +
+                    "    LEFT JOIN Transaction t ON t.transaction_id = td.transaction_id   \n" +
+                    "    LEFT JOIN Type t_type ON t.type_id = t_type.type_id   \n" +
+                    "    WHERE   \n" +
+                    "        (:filter IS NULL OR :filter = 'all' OR   \n" +
+                    "        (:filter = 'month' AND MONTH(t.created_at) = MONTH(CURRENT_DATE()) AND YEAR(t.created_at) = YEAR(CURRENT_DATE())) OR   \n" +
+                    "        (:filter = 'year' AND YEAR(t.created_at) = YEAR(CURRENT_DATE())))   \n" +
+                    "        AND (:startDate IS NULL OR :endDate IS NULL OR   \n" +
+                    "             DATE(t.created_at) BETWEEN COALESCE(:startDate, '1900-01-01') AND COALESCE(:endDate, CURRENT_DATE()))   \n" +
+                    "    GROUP BY   \n" +
+                    "        p.product_id, \n" +
+                    "        p.product_name, \n" +
+                    "        p.image, \n" +
+                    "        p.quantity, CASE\n" +
+                    "            WHEN :filter = 'month' THEN CONCAT('Tháng ', MONTH(t.created_at))   \n" +
+                    "            WHEN :filter = 'year' THEN YEAR(t.created_at)   \n" +
+                    "            ELSE CONCAT('Ngày ', DATE(t.created_at))\n" +
+                    "        END"
+                   )
+    Page<Object[]> getQuantityInventoryByFilter(@Param("filter") String filter,
                                                 @Param("startDate") Date startDate,
-                                                @Param("endDate") Date endDate);
+                                                @Param("endDate") Date endDate, Pageable pageable);
 
     // </editor-fold>
 

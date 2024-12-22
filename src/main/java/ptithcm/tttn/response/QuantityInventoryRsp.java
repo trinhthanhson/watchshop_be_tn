@@ -19,9 +19,8 @@ public class QuantityInventoryRsp {
     private String product_name;
     private String image;
     private Integer quantity;
-    private BigDecimal total_import;
-    private BigDecimal total_export;
-    private BigDecimal current_stock;
-    private Date period_value; // Giá trị tuần, tháng hoặc năm
-    private Date date_range;    // Chuỗi thể hiện khoảng thời gian (từ ngày đến ngày)
+    private Long total_import;
+    private Long total_export;
+    private Long current_stock;
+   private String info;
  }

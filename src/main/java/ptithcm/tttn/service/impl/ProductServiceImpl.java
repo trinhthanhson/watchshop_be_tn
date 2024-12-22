@@ -1,7 +1,9 @@
 package ptithcm.tttn.service.impl;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ptithcm.tttn.entity.*;
 import ptithcm.tttn.function.Status;
@@ -18,6 +20,7 @@ import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -249,11 +252,18 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<QuantityInventoryRsp> getQuantityProductReport(String filter, Date startDate, Date endDate) {
-        List<Object[]> results = productRepo.getQuantityInventoryByFilter(filter, startDate, endDate);
-        return results.stream()
-                .map(this::mapToQuantityInventory)
-                .collect(Collectors.toList());
+    public Page<QuantityInventoryRsp> getQuantityProductReport(
+            String filter, Date startDate, Date endDate, int page, int limit, String sortField, String sortDirection) {
+
+        // Xử lý sắp xếp theo trường và thứ tự
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortField);
+        Pageable pageable = PageRequest.of(page - 1, limit, sort);
+
+        // Lấy dữ liệu từ repository
+        Page<Object[]> results = productRepo.getQuantityInventoryByFilter(filter, startDate, endDate, pageable);
+
+        // Ánh xạ dữ liệu từ Object[] sang QuantityInventoryRsp
+        return results.map(this::mapToQuantityInventory);
     }
 
     @Override
@@ -299,12 +309,11 @@ public class ProductServiceImpl implements ProductService {
         String product_name = (String) result[1];
         String image = (String) result[2];
         Integer quantity = (Integer) result[3];
-        BigDecimal total_import = (BigDecimal) result[4];
-        BigDecimal total_export = (BigDecimal) result[5];
-        BigDecimal current_stock = (BigDecimal) result[6];
-        Date period_value = (Date) result[7];
-        Date date_range = (Date) result[8];
-        return new QuantityInventoryRsp(product_id, product_name, image, quantity, total_import, total_export, current_stock, period_value, date_range);
+        Long total_import = (Long) result[4];
+        Long total_export = (Long) result[5];
+        Long current_stock = (Long) result[6];
+        String info = (String) result[7];
+        return new QuantityInventoryRsp(product_id, product_name, image, quantity, total_import, total_export, current_stock, info);
     }
 
     private RevenueProductReportRsp mapToRevenueProduct(Object[] result) {
