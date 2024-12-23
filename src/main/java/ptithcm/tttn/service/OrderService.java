@@ -2,6 +2,7 @@ package ptithcm.tttn.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 import ptithcm.tttn.entity.Orders;
 import ptithcm.tttn.entity.Product;
 import ptithcm.tttn.entity.Transaction_request;
@@ -51,7 +52,11 @@ public interface OrderService {
 
     Page<Orders> getAllOrderDelivery(Pageable pageable);
 
+    Page<Orders> getAllOrderDeliveryByStaff(String jwt, Pageable pageable) throws Exception;
+
     Orders updateOrderShipper(Long id, String jwt, UpdateStatusRequest od) throws Exception;
+
+    Orders shipperAcceptOrder(Long id, String jwt) throws Exception;
 
     Page<Orders> findOrdersByStatus(Long status_id, Pageable pageable);
 

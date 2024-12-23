@@ -192,6 +192,7 @@ public class OrderServiceImpl implements OrderService {
         cartDetailService.deleteCart(jwt);
         return createdOrders;
     }
+
     @Override
     public Orders orderPaymentBuyCart(OrderRequest rq, String jwt) throws Exception {
         User user = userService.findUserByJwt(jwt);
@@ -308,7 +309,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Page<Orders> findPageAll(Pageable pageable) {
-       return ordersRepo.findAll(pageable);
+        return ordersRepo.findAll(pageable);
     }
 
     @Override
@@ -491,7 +492,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Orders paymentSuccess(Long id, Boolean isPayment) throws Exception {
         Orders orders = findById(id);
-        if(isPayment == null){
+        if (isPayment == null) {
             orders.setIs_payment(false);
 
         }
@@ -502,11 +503,18 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Page<Orders> getAllOrderDelivery(Pageable pageable) {
-        return  ordersRepo.getAllOrderDelivery(pageable);
+        return ordersRepo.getAllOrderDelivery(pageable);
     }
 
     @Override
-    public Orders updateOrderShipper(Long id,String jwt,UpdateStatusRequest od) throws Exception {
+    public Page<Orders> getAllOrderDeliveryByStaff(String jwt, Pageable pageable) throws Exception {
+        User user = userService.findUserByJwt(jwt);
+        Staff staff = staffService.findByUserId(user.getUser_id());
+        return ordersRepo.getAllOrderDeliveryByStaff(staff.getStaff_id(), pageable);
+    }
+
+    @Override
+    public Orders updateOrderShipper(Long id, String jwt, UpdateStatusRequest od) throws Exception {
         User user = userService.findUserByJwt(jwt);
         Staff staff = staffService.findByUserId(user.getUser_id());
         Orders orders = findById(id);
@@ -516,23 +524,32 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public Orders shipperAcceptOrder(Long id, String jwt) throws Exception {
+        Orders orders = findById(id);
+        User user = userService.findUserByJwt(jwt);
+        Staff staff = staffService.findByUserId(user.getUser_id());
+        orders.setStaff_id(staff.getStaff_id());
+        return ordersRepo.save(orders);
+    }
+
+    @Override
     public Page<Orders> findOrdersByStatus(Long status_id, Pageable pageable) {
-        return  ordersRepo.searchOrderByStatusId(status_id,pageable);
+        return ordersRepo.searchOrderByStatusId(status_id, pageable);
     }
 
     @Override
     public Page<Orders> getOrdersByDateRange(LocalDate startDate, LocalDate endDate, Pageable pageable) {
-        return ordersRepo.findOrdersByDateRange(startDate,endDate,pageable);
+        return ordersRepo.findOrdersByDateRange(startDate, endDate, pageable);
     }
 
     @Override
     public Page<Orders> getOrderByDateAndStatus(LocalDate startDate, LocalDate endDate, Long status_id, Pageable pageable) {
-        return ordersRepo.findOrdersByDateAndStatus(startDate,endDate,status_id,pageable);
+        return ordersRepo.findOrdersByDateAndStatus(startDate, endDate, status_id, pageable);
     }
 
     @Override
     public Page<Orders> getOrderByInfoCustomer(LocalDate startDate, LocalDate endDate, Long status_id, String receipt_name, String receipt_phone, Pageable pageable) {
-        return  ordersRepo.searchOrdersCustomer(startDate,endDate,status_id,receipt_name,receipt_phone,pageable);
+        return ordersRepo.searchOrdersCustomer(startDate, endDate, status_id, receipt_name, receipt_phone, pageable);
     }
 
     @Override
@@ -541,25 +558,26 @@ public class OrderServiceImpl implements OrderService {
         Customer customer = customerService.findByUserId(user.getUser_id());
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortField);
         Pageable pageable = PageRequest.of(page - 1, limit, sort);
-        return ordersRepo.findByCustomerIdPage(customer.getCustomer_id(),pageable);
+        return ordersRepo.findByCustomerIdPage(customer.getCustomer_id(), pageable);
     }
 
     @Override
-    public Page<Orders> findOrderByCustomerAndStatus(String jwt,Orders orders, int page, int limit, String sortField, String sortDirection) throws Exception {
+    public Page<Orders> findOrderByCustomerAndStatus(String jwt, Orders orders, int page, int limit, String sortField, String sortDirection) throws Exception {
         User user = userService.findUserByJwt(jwt);
         Customer customer = customerService.findByUserId(user.getUser_id());
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortField);
         Pageable pageable = PageRequest.of(page - 1, limit, sort);
         String is_cancel = orders.getIs_cancel() ? "t" : "f";
-        Long status_id ;
-        if(orders.getStatus_id() == -1){
+        Long status_id;
+        if (orders.getStatus_id() == -1) {
             status_id = null;
-        }else {
+        } else {
             status_id = orders.getStatus_id();
         }
         System.err.println(is_cancel + "" + orders.getStatus_id() + customer.getCustomer_id());
 
-        return ordersRepo.findOrderByCustomerAndStatusOrCancel(customer.getCustomer_id(),status_id,is_cancel,pageable);    }
+        return ordersRepo.findOrderByCustomerAndStatusOrCancel(customer.getCustomer_id(), status_id, is_cancel, pageable);
+    }
 
     @Override
     public Page<Orders> searchOrderByDatePage(String jwt, LocalDate startDate, LocalDate endDate, int page, int limit, String sortField, String sortDirection) throws Exception {
@@ -567,7 +585,7 @@ public class OrderServiceImpl implements OrderService {
         Customer customer = customerService.findByUserId(user.getUser_id());
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortField);
         Pageable pageable = PageRequest.of(page - 1, limit, sort);
-        return ordersRepo.searchOrderByDatePage(customer.getCustomer_id(),startDate,endDate,pageable);
+        return ordersRepo.searchOrderByDatePage(customer.getCustomer_id(), startDate, endDate, pageable);
     }
 
     private ProductSaleRequest mapToProductSaleRequest(Object[] result) {
@@ -578,8 +596,8 @@ public class OrderServiceImpl implements OrderService {
 
         String productId = (String) result[0];
         String productName = (String) result[1];
-        BigDecimal totalSoldQuantity = (BigDecimal) result[2] ;
-        BigDecimal totalQuantity = (BigDecimal) result[3] ;
+        BigDecimal totalSoldQuantity = (BigDecimal) result[2];
+        BigDecimal totalQuantity = (BigDecimal) result[3];
         Date datePay = (Date) result[4];
 
         return new ProductSaleRequest(productId, productName, totalSoldQuantity, totalQuantity, datePay);

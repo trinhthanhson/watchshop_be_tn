@@ -128,12 +128,23 @@ public interface OrderRepo extends JpaRepository<Orders, Long> {
     @Query(value = "SELECT * FROM transaction t " +
             "JOIN transaction_request tr ON t.request_id = tr.request_id " +
             "JOIN orders od ON tr.order_id = od.order_id " +
-            "WHERE od.is_delivery = 't'",
+            "WHERE od.is_delivery = 't' and od.staff_id is null",
             countQuery = "SELECT COUNT(*) FROM transaction t " +
                     "JOIN transaction_request tr ON t.request_id = tr.request_id " +
                     "JOIN orders od ON tr.order_id = od.order_id " +
-                    "WHERE od.is_delivery = 't'",
+                    "WHERE od.is_delivery = 't' and od.staff_id is null",
             nativeQuery = true)
     Page<Orders> getAllOrderDelivery(Pageable pageable);
+
+    @Query(value = "SELECT * FROM transaction t " +
+            "JOIN transaction_request tr ON t.request_id = tr.request_id " +
+            "JOIN orders od ON tr.order_id = od.order_id " +
+            "WHERE od.is_delivery = 't' and od.staff_id = :staff_id",
+            countQuery = "SELECT COUNT(*) FROM transaction t " +
+                    "JOIN transaction_request tr ON t.request_id = tr.request_id " +
+                    "JOIN orders od ON tr.order_id = od.order_id " +
+                    "WHERE od.is_delivery = 't' and od.staff_id = :staff_id",
+            nativeQuery = true)
+    Page<Orders> getAllOrderDeliveryByStaff(@Param("staff_id") Long staff_id,Pageable pageable);
 
 }

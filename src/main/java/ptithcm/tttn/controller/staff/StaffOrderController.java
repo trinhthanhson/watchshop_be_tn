@@ -159,6 +159,8 @@ public class StaffOrderController {
         return new ResponseEntity<>(res, res.getStatus());
     }
 
+
+
     // <editor-fold desc="Transaction request">
     @PostMapping("/{id}/create/request")
     public ResponseEntity<ApiResponse> createRequestExportByOder(@RequestHeader("Authorization") String
@@ -230,7 +232,7 @@ public class StaffOrderController {
         Pageable pageable = PageRequest.of(page - 1, limit);
 
         try {
-            Page<Orders> etts = orderService.getOrdersByDateRange(startDate, endDate,pageable);
+            Page<Orders> etts = orderService.getOrdersByDateRange(startDate, endDate, pageable);
             res.setMessage(MessageSuccess.E01.getMessage());
             res.setData(etts.getContent()); // Lấy danh sách từ Page
             res.setCode(HttpStatus.OK.value());
@@ -251,12 +253,12 @@ public class StaffOrderController {
 
     @GetMapping("/filter/status/date")
     public ResponseEntity<ListEntityResponse<Orders>> getOrderByDateAndStatus(@RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-                                                                           @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,@RequestParam("status_id") Long status_id, @RequestParam("page") int page, @RequestParam("limit") int limit) {
+                                                                              @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate, @RequestParam("status_id") Long status_id, @RequestParam("page") int page, @RequestParam("limit") int limit) {
         ListEntityResponse<Orders> res = new ListEntityResponse<>();
         Pageable pageable = PageRequest.of(page - 1, limit);
 
         try {
-            Page<Orders> etts = orderService.getOrderByDateAndStatus(startDate, endDate,status_id,pageable);
+            Page<Orders> etts = orderService.getOrderByDateAndStatus(startDate, endDate, status_id, pageable);
             res.setMessage(MessageSuccess.E01.getMessage());
             res.setData(etts.getContent()); // Lấy danh sách từ Page
             res.setCode(HttpStatus.OK.value());
@@ -276,14 +278,14 @@ public class StaffOrderController {
 
     @GetMapping("/filter/info")
     public ResponseEntity<ListEntityResponse<Orders>> getOrderByInfoCustomer(@RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-                                                                              @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-                                                                             @RequestParam("status_id") Long status_id, @RequestParam("recipient_name") String recipient_name,@RequestParam("recipient_phone") String recipient_phone,
+                                                                             @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+                                                                             @RequestParam("status_id") Long status_id, @RequestParam("recipient_name") String recipient_name, @RequestParam("recipient_phone") String recipient_phone,
                                                                              @RequestParam("page") int page, @RequestParam("limit") int limit) {
         ListEntityResponse<Orders> res = new ListEntityResponse<>();
         Pageable pageable = PageRequest.of(page - 1, limit);
 
         try {
-            Page<Orders> etts = orderService.getOrderByInfoCustomer(startDate, endDate,status_id,recipient_name,recipient_phone,pageable);
+            Page<Orders> etts = orderService.getOrderByInfoCustomer(startDate, endDate, status_id, recipient_name, recipient_phone, pageable);
             res.setMessage(MessageSuccess.E01.getMessage());
             res.setData(etts.getContent()); // Lấy danh sách từ Page
             res.setCode(HttpStatus.OK.value());

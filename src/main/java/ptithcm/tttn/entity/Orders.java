@@ -64,6 +64,7 @@ public class Orders {
     @Column
     private Long updated_by;
 
+
     @OneToOne(mappedBy = "order_bill")
     @JsonIgnore
     private Bill bill;

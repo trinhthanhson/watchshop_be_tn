@@ -13,6 +13,7 @@ import ptithcm.tttn.function.MessageError;
 import ptithcm.tttn.function.MessageSuccess;
 import ptithcm.tttn.function.TypeTrans;
 import ptithcm.tttn.request.UpdateStatusRequest;
+import ptithcm.tttn.response.ApiResponse;
 import ptithcm.tttn.response.EntityResponse;
 import ptithcm.tttn.response.ListEntityResponse;
 import ptithcm.tttn.service.OrderService;
@@ -71,5 +72,43 @@ public class ShipperOrderController {
         }
         return new ResponseEntity<>(res, res.getStatus());
     }
+    @PutMapping("/{id}/accept")
+    public ResponseEntity<ApiResponse> shipperAcceptOrder(@PathVariable Long id, @RequestHeader("Authorization") String jwt) throws Exception {
+        Orders isCreated = orderService.shipperAcceptOrder(id, jwt);
+        ApiResponse res = new ApiResponse();
+        res.setCode(HttpStatus.OK.value());
+        res.setMessage("success");
+        res.setStatus(HttpStatus.OK);
+        return new ResponseEntity<>(res, res.getStatus());
+    }
 
+    @GetMapping("/all/accept")
+    public ResponseEntity<ListEntityResponse<Orders>> getAllOrderShipperAccept(
+            @RequestHeader("Authorization") String jwt,
+            @RequestParam("page") int page, // Accept page number as a query parameter
+            @RequestParam("limit") int limit) { // Accept limit (page size) as a query parameter
+
+        ListEntityResponse<Orders> res = new ListEntityResponse<>();
+        try {
+            // Create Pageable object using the page and limit parameters
+            Pageable pageable = PageRequest.of(page - 1, limit); // Spring Pageable is 0-indexed, so subtract 1 from page
+
+            Page<Orders> etts = orderService.getAllOrderDeliveryByStaff(jwt,pageable);
+            res.setMessage(MessageSuccess.E01.getMessage());
+            res.setData(etts.getContent()); // Lấy danh sách từ Page
+            res.setCode(HttpStatus.OK.value());
+            res.setStatus(HttpStatus.OK);
+
+            // Thêm thông tin phân trang vào response
+            res.setTotalPages(etts.getTotalPages()); // Tổng số trang
+            res.setTotalElements(etts.getTotalElements()); // Tổng số mục
+
+        } catch (Exception e) {
+            res.setMessage(MessageError.E01.getMessage());
+            res.setData(null);
+            res.setCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            res.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(res, res.getStatus());
+    }
 }
