@@ -17,5 +17,4 @@ public interface OrderDetailRepo extends JpaRepository<Order_detail,Long> {
 
     @Query("SELECT o FROM Order_detail o WHERE o.order_id = ?1")
     List<Order_detail> findOrderDetailByOrderId(Long order_id);
-
 }

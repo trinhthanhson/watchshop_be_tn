@@ -32,7 +32,6 @@ public class CustomerOrderController {
     private final OrderService ordersService;
     private final OrderStatusService orderStatusService;
 
-
     @PostMapping("/buy-cart")
     public ResponseEntity<ApiResponse> buyCartByCustomer(@RequestHeader("Authorization") String jwt, @RequestBody OrderRequest rq) {
         ApiResponse res = new ApiResponse();

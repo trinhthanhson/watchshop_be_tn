@@ -40,6 +40,7 @@ public class AppConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 .and()
                 .authorizeRequests()
+                .antMatchers("/api/user/product/all/product").permitAll()
                 .antMatchers("/api/auth/**").permitAll()
                 .antMatchers("/api/user/**").permitAll()  // Require authentication
                 .antMatchers("/api/staff/**").hasAnyAuthority(RoleName.STAFF.getRoleName(), RoleName.MANAGER.getRoleName(), RoleName.SHIPPER.getRoleName(), RoleName.BUSINESS_STAFF.getRoleName(), RoleName.DIRECTOR.getRoleName(), RoleName.SALESPERSON.getRoleName())

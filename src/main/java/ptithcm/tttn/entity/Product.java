@@ -128,10 +128,6 @@ public class Product {
     @OneToMany(mappedBy = "product_transaction_detail")
     private List<Transaction_detail> transactionDetails;
 
-    @OneToMany(mappedBy = "product_review")
-    @JsonIgnore
-    private List<Review> reviews;
-
     @OneToOne(mappedBy = "product_warranty")
     @JsonIgnore
     private Warranty warranties;

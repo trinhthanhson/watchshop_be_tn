@@ -20,7 +20,6 @@ public interface ProductRepo extends JpaRepository<Product, String> {
             nativeQuery = true)
     Page<Product> searchProductById(@Param("searchTerm") String searchTerm, Pageable pageable);
 
-
     @Query(value = "SELECT " +
             "p.*, " +
             "b.brand_name, " +
@@ -51,9 +50,9 @@ public interface ProductRepo extends JpaRepository<Product, String> {
             "        update_price up1 " +
             "    WHERE " +
             "        updated_at = ( " +
-            "            SELECT MAX(updated_at) " +
+            "            SELECT MAX(up2.updated_at) " +
             "            FROM update_price up2 " +
-            "            WHERE up1.product_id = up2.product_id " +
+            "            WHERE up1.product_id = up2.product_id  AND up2.updated_at < NOW()   " +
             "        ) " +
             ") up ON p.product_id = up.product_id " +
             "LEFT JOIN coupon_detail cd ON p.product_id = cd.product_id " +
@@ -232,9 +231,10 @@ public interface ProductRepo extends JpaRepository<Product, String> {
             "        update_price up1 " +
             "    WHERE " +
             "        updated_at = ( " +
-            "            SELECT MAX(updated_at) " +
+            "            SELECT MAX(up2.updated_at) " +
             "            FROM update_price up2 " +
             "            WHERE up1.product_id = up2.product_id " +
+            " AND up2.updated_at < NOW()  "+
             "        ) " +
             ") up ON p.product_id = up.product_id " +
             "LEFT JOIN coupon_detail cd ON p.product_id = cd.product_id " +

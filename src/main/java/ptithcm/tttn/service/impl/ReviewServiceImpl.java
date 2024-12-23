@@ -35,7 +35,6 @@ public class ReviewServiceImpl implements ReviewService {
         create.setCreated_by(customer.getCustomer_id());
         create.setCreated_at(LocalDateTime.now());
         create.setContent(review.getContent());
-        create.setProduct_id(review.getProduct_id());
         create.setStar(review.getStar());
         create.setUpdated_at(LocalDateTime.now());
         create.setUpdated_by(customer.getCustomer_id());

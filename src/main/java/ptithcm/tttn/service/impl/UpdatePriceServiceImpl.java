@@ -13,6 +13,7 @@ import ptithcm.tttn.service.UserService;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -37,5 +38,15 @@ public class UpdatePriceServiceImpl implements UpdatePriceService {
         update.setPrice_new(priceUpdateDetail.getPrice_new());
 
         return updatePriceRepo.save(update);
+    }
+
+    @Override
+    public List<Update_price> getPriceProduct() {
+        return updatePriceRepo.getPriceProduct();
+    }
+
+    @Override
+    public Update_price getPriceProductById(String product_id) {
+        return updatePriceRepo.getPriceProductById(product_id);
     }
 }

@@ -9,8 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ptithcm.tttn.entity.Orders;
 import ptithcm.tttn.entity.Product;
+import ptithcm.tttn.entity.Transaction;
 import ptithcm.tttn.function.MessageError;
 import ptithcm.tttn.function.MessageSuccess;
+import ptithcm.tttn.function.TypeTrans;
 import ptithcm.tttn.response.EntityResponse;
 import ptithcm.tttn.response.GetAllProductCouponRsp;
 import ptithcm.tttn.response.ListEntityResponse;
@@ -46,8 +48,7 @@ public class ProductController {
     }
 
     @GetMapping("/page")
-    public ResponseEntity<ListEntityResponse<Product>> getAllTransactionRequestImportHandle(@RequestParam("page") int page, @RequestParam("limit") int limit)
-    {
+    public ResponseEntity<ListEntityResponse<Product>> getAllTransactionRequestImportHandle(@RequestParam("page") int page, @RequestParam("limit") int limit) {
         ListEntityResponse<Product> res = new ListEntityResponse<>();
         try {
             Pageable pageable = PageRequest.of(page - 1, limit);
@@ -72,13 +73,12 @@ public class ProductController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<ListEntityResponse<Product>> searchProductById(@RequestParam("product_id") String product_id,@RequestParam("page") int page, @RequestParam("limit") int limit)
-    {
+    public ResponseEntity<ListEntityResponse<Product>> searchProductById(@RequestParam("product_id") String product_id, @RequestParam("page") int page, @RequestParam("limit") int limit) {
         ListEntityResponse<Product> res = new ListEntityResponse<>();
         Pageable pageable = PageRequest.of(page - 1, limit);
 
         try {
-            Page<Product> etts = productService.searchProductById(product_id,pageable);
+            Page<Product> etts = productService.searchProductById(product_id, pageable);
             res.setMessage(MessageSuccess.E01.getMessage());
             res.setData(etts.getContent()); // Lấy danh sách từ Page
             res.setCode(HttpStatus.OK.value());
@@ -88,7 +88,7 @@ public class ProductController {
             res.setTotalPages(etts.getTotalPages()); // Tổng số trang
             res.setTotalElements(etts.getTotalElements()); // Tổng số mục
         } catch (Exception e) {
-            res.setMessage(MessageError.E01.getMessage()+e.getMessage());
+            res.setMessage(MessageError.E01.getMessage() + e.getMessage());
             res.setData(null);
             res.setCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
             res.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -114,7 +114,7 @@ public class ProductController {
         return new ResponseEntity<>(res, res.getStatus());
     }
 
-      @GetMapping("/find")
+    @GetMapping("/find")
     public ResponseEntity<ListEntityResponse<GetAllProductCouponRsp>> getAllProductByDetail(@RequestParam String keyword) {
         ListEntityResponse<GetAllProductCouponRsp> res = new ListEntityResponse<>();
         try {
@@ -150,4 +150,31 @@ public class ProductController {
         }
         return new ResponseEntity<>(res, res.getStatus());
     }
+
+    @GetMapping("/page/all")
+    public ResponseEntity<ListEntityResponse<Product>> getAllTransactionImportHandle(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int limit ){ // Hướng mặc định
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        ListEntityResponse<Product> res = new ListEntityResponse<>();
+        try {
+            Page<Product> etts = productService.findAllPageable(pageable);
+
+            res.setMessage(MessageSuccess.E01.getMessage());
+            res.setData(etts.getContent());
+            res.setCode(HttpStatus.OK.value());
+            res.setStatus(HttpStatus.OK);
+
+            res.setTotalPages(etts.getTotalPages());
+            res.setTotalElements(etts.getTotalElements());
+
+        } catch (Exception e) {
+            res.setMessage(MessageError.E01.getMessage() + "" + e.getMessage());
+            res.setData(null);
+            res.setCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            res.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(res, res.getStatus());
+    }
+
 }
