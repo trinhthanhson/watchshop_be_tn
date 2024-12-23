@@ -149,11 +149,9 @@ public class ProductServiceImpl implements ProductService {
                 Update_price updatePrice = new Update_price();
                 updatePrice.setCreated_at(LocalDateTime.now());
                 updatePrice.setProduct_id(save.getProduct_id());
-                updatePrice.setUpdated_at(LocalDateTime.now());
                 updatePrice.setCreated_by(staff.getStaff_id());
                 updatePrice.setUpdated_by(staff.getStaff_id());
                 updatePrice.setPrice_new(product.getPrice());
-                updatePrice.setPrice_old(product.getPrice());
                 updatePriceRepo.save(updatePrice);
             }
         } else {
@@ -200,10 +198,8 @@ public class ProductServiceImpl implements ProductService {
                 find.setImage(product.getImage());
                 Update_price updatePrice = updatePriceRepo.findByProductId(id);
                 if (product.getPrice() != updatePrice.getPrice_new()) {
-                    updatePrice.setPrice_old(updatePrice.getPrice_new());
                     updatePrice.setPrice_new(product.getPrice());
                     updatePrice.setUpdated_by(staff.getStaff_id());
-                    updatePrice.setUpdated_at(LocalDateTime.now());
                     updatePriceRepo.save(updatePrice);
                 }
             } else {

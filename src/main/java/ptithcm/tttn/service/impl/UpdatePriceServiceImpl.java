@@ -1,5 +1,6 @@
 package ptithcm.tttn.service.impl;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ptithcm.tttn.entity.Staff;
 import ptithcm.tttn.entity.Update_price;
@@ -14,33 +15,27 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 
 @Service
+@RequiredArgsConstructor
 public class UpdatePriceServiceImpl implements UpdatePriceService {
 
     private final UpdatePriceRepo updatePriceRepo;
     private final UserService userService;
     private final StaffService staffService;
 
-
-    public UpdatePriceServiceImpl( UpdatePriceRepo updatePriceRepo, UserService userService, StaffService staffService) {
-        this.updatePriceRepo = updatePriceRepo;
-        this.userService = userService;
-        this.staffService = staffService;
-    }
-
     @Override
     @Transactional
-    public Update_price updatePriceProduct(String id, Update_price priceUpdateDetail, String jwt) throws Exception {
-        Update_price update = updatePriceRepo.findByProductId(id);
+    public Update_price updatePriceProduct(Update_price priceUpdateDetail, String jwt) throws Exception {
+        Update_price update = new Update_price();
         User user = userService.findUserByJwt(jwt);
         Staff staff = staffService.findByUserId(user.getUser_id());
-        if(priceUpdateDetail.getPrice_new() == update.getPrice_new()){
-            return update;
-        }else {
-            update.setUpdated_by(staff.getStaff_id());
-            update.setUpdated_at(LocalDateTime.now());
-            update.setPrice_old(update.getPrice_new());
-            update.setPrice_new(priceUpdateDetail.getPrice_new());
-        }
+
+        update.setProduct_id(priceUpdateDetail.getProduct_id());
+        update.setCreated_at(LocalDateTime.now());
+        update.setUpdated_by(staff.getStaff_id());
+        update.setUpdated_at(priceUpdateDetail.getUpdated_at());
+        update.setCreated_by(staff.getStaff_id());
+        update.setPrice_new(priceUpdateDetail.getPrice_new());
+
         return updatePriceRepo.save(update);
     }
 }

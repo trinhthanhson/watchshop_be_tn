@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 @Data
 @Entity
@@ -16,19 +17,13 @@ public class Update_price {
     private Long update_price_id;
 
     @Column
-    private int price_old;
-
-    @Column
     private int price_new;
 
     @Column
     private LocalDateTime created_at;
 
     @Column
-    private LocalDateTime updated_at;
-
-    @Column
-    private int original_price;
+    private LocalDate updated_at;
 
     @Column
     private Long created_by;

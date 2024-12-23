@@ -2,6 +2,7 @@ package ptithcm.tttn.controller.staff;
 
 
 import lombok.AllArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -75,11 +76,11 @@ public class StaffProductController {
         return new ResponseEntity<>(res, res.getStatus());
     }
 
-    @PutMapping("/{id}/update/price")
-    public ResponseEntity<EntityResponse<Update_price>> updatePriceProductByStaff(@RequestBody Update_price rq, @RequestHeader("Authorization") String jwt, @PathVariable String id) {
+    @PutMapping("/update/price")
+    public ResponseEntity<EntityResponse<Update_price>> updatePriceProductByStaff(@RequestBody @DateTimeFormat(pattern = "yyyy-MM-dd") Update_price rq, @RequestHeader("Authorization") String jwt) {
         EntityResponse<Update_price> res = new EntityResponse<>();
         try {
-            Update_price savePrice = updatePriceService.updatePriceProduct(id, rq, jwt);
+            Update_price savePrice = updatePriceService.updatePriceProduct(rq, jwt);
             res.setData(savePrice);
             res.setMessage("Success");
             res.setStatus(HttpStatus.CREATED);
